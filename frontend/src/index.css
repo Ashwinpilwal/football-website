@@ -1,0 +1,508 @@
+@import "tailwindcss";
+@import "./tw-animate.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* High-Performance Native Scrolling Core */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-size: 15px;
+  scroll-behavior: smooth;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+:root {
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  color-scheme: dark;
+}
+
+/* Native GPU-Accelerated View Transitions for 60/120fps Theme Switching */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.2s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::view-transition-old(root) {
+  animation-name: themeFadeOut;
+}
+
+::view-transition-new(root) {
+  animation-name: themeFadeIn;
+}
+
+@keyframes themeFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes themeFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Lightweight surface color transitions */
+html,
+body,
+.glass-card,
+header,
+main,
+aside,
+nav {
+  transition: background-color 0.18s ease,
+              border-color 0.18s ease,
+              color 0.18s ease;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: #070b10;
+  color: #f1f5f9;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  overflow-x: hidden;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  -webkit-overflow-scrolling: touch;
+}
+
+html.light body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* Typography Hierarchy */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-display {
+  font-family: "Outfit", "Plus Jakarta Sans", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+.font-mono {
+  font-family: "JetBrains Mono", monospace;
+  letter-spacing: -0.02em;
+}
+
+/* Category Badges & Micro-Labels */
+.label-tag {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Lightweight Native Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.7);
+}
+
+/* Zero-Blur High-Performance Stadium Cards */
+.glass-card {
+  background: #0e1520;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.35);
+  border-radius: 1.5rem;
+}
+
+.glass-card-hover {
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-hover:hover {
+  border-color: rgba(16, 185, 129, 0.45);
+  transform: translateY(-2px);
+}
+
+/* Hardware-Accelerated Radar Sweep */
+.radar-sweep {
+  animation: radarSweep 4s linear infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+@keyframes radarSweep {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Clean Football Spin Animation with Ease-in-Out */
+@keyframes footballSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-football-spin {
+  animation: footballSpin 1.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* 60/120fps Hardware-Accelerated Smooth Left Sidebar Transitions */
+.sidebar-desktop-spacer {
+  transition: width 280ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  will-change: width;
+}
+
+.sidebar-desktop-aside {
+  transition: width 280ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  will-change: width;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.sidebar-text-reveal {
+  transition: opacity 180ms ease,
+              transform 240ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  will-change: opacity, transform;
+}
+
+/* ========================================================
+   LIGHT THEME DESIGN SYSTEM & SURFACE OVERRIDES
+   ======================================================== */
+
+html.light {
+  color-scheme: light;
+}
+
+html.light body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+html.light * {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+html.light *::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+html.light *::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.9);
+}
+
+/* Stadium Glass Cards in Light Mode */
+html.light .glass-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+}
+
+html.light .glass-card-hover:hover {
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 10px 25px -4px rgba(16, 185, 129, 0.12);
+}
+
+/* High-Contrast Light Mode Surfaces */
+html.light .bg-\[\#070b10\] {
+  background-color: #f8fafc !important;
+}
+
+html.light .bg-\[\#070b10\]\/95,
+html.light .bg-\[\#070b10\]\/80,
+html.light .bg-\[\#070b10\]\/70 {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-\[\#0e1520\],
+html.light .bg-\[\#0e1520\]\/95,
+html.light .bg-\[\#0e1520\]\/90,
+html.light .bg-\[\#0e1520\]\/80 {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-\[\#080d14\],
+html.light .bg-\[\#080d14\]\/95,
+html.light .bg-\[\#080d14\]\/80 {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-\[\#0a0f16\],
+html.light .bg-\[\#0a0f16\]\/95 {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-\[\#0c121a\],
+html.light .bg-\[\#0c1219\],
+html.light .bg-\[\#0b1118\],
+html.light .bg-\[\#0b121c\],
+html.light .bg-\[\#0f1722\],
+html.light .bg-\[\#141f2d\] {
+  background-color: #ffffff !important;
+}
+
+/* Light mode cards and containers */
+html.light .bg-\[\#060a0f\],
+html.light .bg-\[\#060a0f\]\/90,
+html.light .bg-\[\#060a0f\]\/80 {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .bg-\[\#090e15\],
+html.light .bg-\[\#090e15\]\/90,
+html.light .bg-\[\#090e15\]\/95,
+html.light .bg-\[\#090e15\]\/80 {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-\[\#090f17\],
+html.light .bg-\[\#090f17\]\/90,
+html.light .bg-\[\#090f17\]\/80 {
+  background-color: #f8fafc !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+html.light .bg-\[\#0e1622\],
+html.light .hover\:bg-\[\#0e1622\]:hover {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-\[\#06090e\]\/60,
+html.light .bg-\[\#06090e\] {
+  background-color: #f8fafc !important;
+}
+
+/* Neutral fallbacks in light mode */
+html.light .bg-neutral-950,
+html.light .bg-neutral-950\/80,
+html.light .bg-neutral-900,
+html.light .bg-neutral-900\/90,
+html.light .bg-neutral-900\/60,
+html.light .bg-neutral-800,
+html.light .bg-neutral-800\/80 {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+/* Ensure Modal Dark Overlays stay deep for focus & contrast without GPU-stalling blur */
+html.light .fixed.inset-0.bg-black\/80,
+html.light .fixed.inset-0.bg-black\/90,
+html.light .fixed.inset-0.bg-black\/85,
+html.light .fixed.inset-0.bg-black\/75 {
+  background-color: rgba(15, 23, 42, 0.75) !important;
+}
+
+/* Inner comment cards, input bars & pills in light mode */
+html.light .bg-black\/40,
+html.light .bg-black\/50,
+html.light .bg-black\/60,
+html.light .bg-black\/70 {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Replying banner in PostDetailModal */
+html.light .bg-emerald-950\/70 {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+}
+
+html.light .bg-emerald-950\/70 span,
+html.light .bg-emerald-950\/70 div {
+  color: #047857 !important;
+}
+
+html.light .bg-emerald-950\/70 strong {
+  color: #065f46 !important;
+}
+
+/* Light Mode Typography Adjustments */
+html.light .text-neutral-100,
+html.light .text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-neutral-200 {
+  color: #1e293b !important;
+}
+
+html.light .text-neutral-300 {
+  color: #334155 !important;
+}
+
+html.light .text-neutral-400 {
+  color: #475569 !important;
+}
+
+html.light .text-neutral-500 {
+  color: #64748b !important;
+}
+
+/* Retain crisp white text on colored buttons, destructive actions and media overlays in Light Mode */
+html.light .bg-black .text-white,
+html.light .bg-black\/80,
+html.light .bg-black\/90,
+html.light .bg-neutral-950 .text-white,
+html.light button.bg-red-500,
+html.light button.bg-rose-600,
+html.light button.bg-emerald-500,
+html.light button.bg-emerald-600,
+html.light .bg-rose-600,
+html.light .bg-red-500,
+html.light .bg-red-600 {
+  color: #ffffff !important;
+}
+
+html.light .placeholder\:text-neutral-400::placeholder,
+html.light .placeholder\:text-neutral-500::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Light Mode Borders */
+html.light .border-white\/10,
+html.light .border-white\/15,
+html.light .border-white\/20,
+html.light .border-white\/\[0\.09\],
+html.light .border-white\/\[0\.08\],
+html.light .border-white\/\[0\.06\],
+html.light .border-white\/\[0\.05\],
+html.light .border-white\/\[0\.04\] {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html.light .divide-white\/10> :not([hidden])~ :not([hidden]),
+html.light .divide-white\/\[0\.04\]> :not([hidden])~ :not([hidden]) {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Dynamic sidebar shift for modals when desktop navbar opens */
+.dynamic-sidebar-shift {
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  will-change: transform;
+}
+
+@media (min-width: 768px) {
+  html[data-sidebar-expanded="true"] .dynamic-sidebar-shift {
+    transform: translate3d(88px, 0, 0) !important;
+  }
+}
+
+/* Danger / Delete Warning boxes in Light Mode */
+html.light .bg-red-500\/10,
+html.light .bg-red-500\/\[0\.08\],
+html.light .bg-red-500\/15 {
+  background-color: #fef2f2 !important;
+  border-color: #fecaca !important;
+  color: #991b1b !important;
+}
+
+html.light .bg-red-500\/10 span,
+html.light .bg-red-500\/\[0\.08\] span,
+html.light .bg-red-500\/15 span {
+  color: #991b1b !important;
+}
+
+/* Emerald Badges & Edit Chips in Light Mode */
+html.light .bg-emerald-500\/15,
+html.light .bg-emerald-500\/20,
+html.light .bg-emerald-500\/10 {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #047857 !important;
+}
+
+/* Hover & Interactive States in Light Mode */
+html.light .hover\:bg-white\/\[0\.08\]:hover,
+html.light .hover\:bg-white\/\[0\.06\]:hover,
+html.light .hover\:bg-white\/\[0\.05\]:hover,
+html.light .hover\:bg-white\/\[0\.04\]:hover,
+html.light .hover\:bg-white\/\[0\.03\]:hover,
+html.light .hover\:bg-white\/10:hover,
+html.light .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .bg-white\/\[0\.08\],
+html.light .bg-white\/\[0\.06\],
+html.light .bg-white\/\[0\.05\],
+html.light .bg-white\/\[0\.04\],
+html.light .bg-white\/10,
+html.light .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .ring-\[\#070b10\],
+html.light .ring-\[\#080d14\],
+html.light .ring-\[\#060a0f\] {
+  --tw-ring-color: #f8fafc !important;
+}
+
+html.light .shadow-2xl,
+html.light .shadow-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Mobile & Touch Responsive Enhancements */
+@supports (padding: max(0px)) {
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  .pt-safe {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+}
+
+/* Mobile Touch Optimization */
+button, a, input, select, textarea {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Fluid responsive image container protection */
+img, video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Safe width limit preventing mobile horizontal blowouts */
+.w-screen-safe {
+  width: 100vw;
+  max-width: 100%;
+}
