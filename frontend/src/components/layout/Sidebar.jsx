@@ -186,25 +186,29 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
                   }`
                 }
               >
-                <div className="flex items-center gap-3.5">
-                  <div className="relative">
-                    <Icon className="size-4.5 text-emerald-400" />
-                    {item.path === "/messages" && hasUnreadMessages && !isActive && (
-                      <span className="absolute -top-1 -right-1 size-2 rounded-full bg-rose-500 ring-2 ring-[#0e1520] animate-pulse" />
-                    )}
-                  </div>
-                  <span>{item.name}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  {item.path === "/messages" && hasUnreadMessages && !isActive && (
-                    <span className="size-2 rounded-full bg-rose-500 animate-pulse ring-2 ring-[#0e1520]" />
-                  )}
-                  {item.badge && (
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      {item.badge}
-                    </span>
-                  )}
-                </div>
+                {({ isActive }) => (
+                  <>
+                    <div className="flex items-center gap-3.5">
+                      <div className="relative">
+                        <Icon className="size-4.5 text-emerald-400" />
+                        {item.path === "/messages" && hasUnreadMessages && !isActive && (
+                          <span className="absolute -top-1 -right-1 size-2 rounded-full bg-rose-500 ring-2 ring-[#0e1520] animate-pulse" />
+                        )}
+                      </div>
+                      <span>{item.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {item.path === "/messages" && hasUnreadMessages && !isActive && (
+                        <span className="size-2 rounded-full bg-rose-500 animate-pulse ring-2 ring-[#0e1520]" />
+                      )}
+                      {item.badge && (
+                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                  </>
+                )}
               </NavLink>
             );
           })}
