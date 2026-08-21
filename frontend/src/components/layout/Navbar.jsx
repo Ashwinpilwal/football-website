@@ -487,10 +487,14 @@ export default function Navbar({ onOpenMobile }) {
             <Menu className="size-4.5 sm:size-5" />
           </button>
           <Link to="/" className="flex items-center gap-1.5 sm:gap-2">
-            <div className="size-7 sm:size-8 rounded-lg sm:rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 text-neutral-950 flex items-center justify-center font-bold shadow-md shadow-emerald-500/25">
-              <Activity className="size-4 sm:size-4.5 stroke-[2.5]" />
+            <div className="size-7 sm:size-8 rounded-lg sm:rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 text-neutral-950 flex items-center justify-center font-bold shadow-md shadow-emerald-500/25 p-1 overflow-hidden">
+              <img
+                src="/assets/football.png"
+                alt="REMONTADA Logo"
+                className="size-full object-contain"
+              />
             </div>
-            <span className="font-display font-black text-sm sm:text-base text-neutral-900 dark:text-white tracking-tight">FootballHub</span>
+            <span className="font-display font-black text-sm sm:text-base text-neutral-900 dark:text-white tracking-tight">REMONTADA</span>
           </Link>
         </div>
 
@@ -673,15 +677,6 @@ export default function Navbar({ onOpenMobile }) {
             )}
           </div>
 
-          {/* Home Button on Phones & Small Devices (Replaces Theme Toggle) */}
-          <Link
-            to="/"
-            className="md:hidden relative size-9 sm:size-10 rounded-xl sm:rounded-2xl bg-neutral-100 dark:bg-[#080d14] border border-neutral-300 dark:border-white/10 hover:border-emerald-500/50 text-neutral-700 dark:text-neutral-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center justify-center cursor-pointer shadow-xs active:scale-95 shrink-0"
-            title="Home Feed"
-            aria-label="Home Feed"
-          >
-            <Home className="size-4 sm:size-4.5" />
-          </Link>
 
           {/* Theme Toggle Button (Visible on Desktop / Tablets) */}
           <button

@@ -158,12 +158,16 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
       <aside className="w-72 h-full bg-[#0e1520] border-r border-white/10 flex flex-col p-6 overflow-y-auto">
         {/* Brand */}
         <div className="flex items-center gap-3.5 mb-8">
-          <div className="size-11 rounded-2xl bg-emerald-500 text-neutral-950 flex items-center justify-center shadow-lg shadow-emerald-500/20 font-bold">
-            <Activity className="size-6 stroke-[2.5]" />
+          <div className="size-11 rounded-2xl bg-emerald-500 text-neutral-950 flex items-center justify-center shadow-lg shadow-emerald-500/20 font-bold overflow-hidden p-2">
+            <img
+              src="/assets/football.png"
+              alt="REMONTADA Logo"
+              className="size-full object-contain"
+            />
           </div>
           <div>
             <span className="font-display font-black text-xl tracking-tight text-white flex items-center gap-1.5">
-              FootballHub
+              REMONTADA
               <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
             </span>
             <span className="text-neutral-400 text-xs font-medium">Matchday & Turf Network</span>
@@ -260,10 +264,14 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
       <NavLink
         to="/"
         className="w-full flex items-center px-3.5 gap-3.5 group shrink-0"
-        title="FootballHub Home"
+        title="REMONTADA Home"
       >
-        <div className="size-11 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 flex items-center justify-center shadow-lg shadow-emerald-500/30 transition-transform duration-300 shrink-0 font-bold">
-          <Activity className="size-6 stroke-[2.5] group-hover:rotate-12 transition-transform duration-300" />
+        <div className="size-11 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 flex items-center justify-center shadow-lg shadow-emerald-500/30 transition-transform duration-300 shrink-0 font-bold overflow-hidden p-2 group-hover:rotate-12">
+          <img
+            src="/assets/football.png"
+            alt="REMONTADA Logo"
+            className="size-full object-contain"
+          />
         </div>
         <div
           className={`sidebar-text-reveal whitespace-nowrap overflow-hidden ${
@@ -273,7 +281,7 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
           }`}
         >
           <span className="font-display font-black text-lg tracking-tight text-white flex items-center gap-1.5">
-            FootballHub
+            REMONTADA
             <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
           </span>
           <span className="text-[11px] text-neutral-400 block font-medium">Matchday & Turf Network</span>

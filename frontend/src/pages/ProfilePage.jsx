@@ -68,6 +68,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("posts");
   const [isChangeClubOpen, setIsChangeClubOpen] = useState(false);
   const [previewPreference, setPreviewPreference] = useState(null);
+  const [fullImageViewer, setFullImageViewer] = useState(null);
 
   const [posts, setPosts] = useState([]);
   const [tweets, setTweets] = useState([]);
@@ -98,13 +99,14 @@ export default function ProfilePage() {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         setPreviewPreference(null);
+        setFullImageViewer(null);
       }
     };
-    if (previewPreference) {
+    if (previewPreference || fullImageViewer) {
       window.addEventListener("keydown", handleKeyDown);
     }
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [previewPreference]);
+  }, [previewPreference, fullImageViewer]);
 
   // Tweet Comments State
   const [openCommentsTweetId, setOpenCommentsTweetId] = useState(null);
@@ -575,13 +577,36 @@ export default function ProfilePage() {
       {/* Cover Image & Profile Header */}
       <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#0a0f16] shadow-2xl">
         {/* Cover Photo */}
-        <div className="h-40 sm:h-56 md:h-64 lg:h-76 w-full bg-neutral-950 relative overflow-hidden">
+        <div
+          onClick={() => {
+            if (profile.coverImage?.url) {
+              setFullImageViewer({
+                src: profile.coverImage.url,
+                title: profile.fullName ? `${profile.fullName}'s Cover Banner` : "Cover Banner",
+                subtitle: `@${profile.username}`,
+                isCover: true,
+              });
+            }
+          }}
+          className={`h-40 sm:h-56 md:h-64 lg:h-76 w-full bg-neutral-950 relative overflow-hidden ${
+            profile.coverImage?.url ? "cursor-pointer group/cover" : ""
+          }`}
+          title={profile.coverImage?.url ? "Click to view full cover banner" : ""}
+        >
           {profile.coverImage?.url ? (
-            <img
-              src={profile.coverImage.url}
-              alt="Cover"
-              className="w-full h-full object-cover object-center"
-            />
+            <>
+              <img
+                src={profile.coverImage.url}
+                alt="Cover"
+                className="w-full h-full object-cover object-center group-hover/cover:scale-102 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover/cover:bg-black/25 transition-colors flex items-center justify-center pointer-events-none">
+                <div className="opacity-0 group-hover/cover:opacity-100 transition-opacity bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-2xl text-xs font-bold text-white flex items-center gap-1.5 border border-white/20 shadow-xl">
+                  <Maximize2 className="size-3.5 text-emerald-400" />
+                  <span>View Full Cover</span>
+                </div>
+              </div>
+            </>
           ) : (
             <div className="w-full h-full bg-gradient-to-r from-neutral-900 via-neutral-950 to-neutral-900" />
           )}
@@ -590,11 +615,30 @@ export default function ProfilePage() {
         {/* Profile Details Bar */}
         <div className="px-4 sm:px-8 pt-0 pb-4 sm:pb-6 relative -mt-10 sm:-mt-16 flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-5">
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-3 sm:gap-5">
-            <img
-              src={getAvatarUrl(profile)}
-              alt={profile.fullName}
-              className="size-20 sm:size-28 md:size-32 rounded-2xl sm:rounded-3xl object-cover ring-4 ring-[#0a0f16] shadow-2xl bg-neutral-950"
-            />
+            <div
+              onClick={() => {
+                const avatarSrc = getAvatarUrl(profile);
+                if (avatarSrc) {
+                  setFullImageViewer({
+                    src: avatarSrc,
+                    title: profile.fullName || "Profile Photo",
+                    subtitle: `@${profile.username}`,
+                    isAvatar: true,
+                  });
+                }
+              }}
+              className="relative cursor-pointer group/avatar shrink-0 select-none"
+              title="Click to view full profile photo"
+            >
+              <img
+                src={getAvatarUrl(profile)}
+                alt={profile.fullName}
+                className="size-20 sm:size-28 md:size-32 rounded-2xl sm:rounded-3xl object-cover ring-4 ring-[#0a0f16] shadow-2xl bg-neutral-950 group-hover/avatar:ring-emerald-400 group-hover/avatar:scale-105 transition-all duration-300"
+              />
+              <div className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-black/0 group-hover/avatar:bg-black/35 transition-colors flex items-center justify-center pointer-events-none">
+                <Maximize2 className="size-5 text-white opacity-0 group-hover/avatar:opacity-100 transition-opacity drop-shadow-md" />
+              </div>
+            </div>
             <div className="text-center sm:text-left space-y-0.5 sm:space-y-1">
               <div className="flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2">
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight font-display">
@@ -1452,6 +1496,55 @@ export default function ProfilePage() {
 
             <p className="text-xs text-neutral-400 font-medium bg-black/40 px-3 py-1 rounded-full border border-white/10">
               Click anywhere to close
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen Photo Lightbox for Avatar and Cover Image */}
+      {fullImageViewer && (
+        <div
+          onClick={() => setFullImageViewer(null)}
+          className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 cursor-pointer animate-in fade-in duration-200 select-none"
+        >
+          <div
+            className={`relative flex flex-col items-center justify-center space-y-4 animate-in zoom-in-95 duration-200 text-center ${
+              fullImageViewer.isCover ? "max-w-4xl w-full" : "max-w-md w-full"
+            }`}
+          >
+            {/* Header / Caption */}
+            <div className="space-y-1">
+              <span className="text-[11px] sm:text-xs font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/15 border border-emerald-500/30 px-3.5 py-1 rounded-full inline-block">
+                {fullImageViewer.isCover ? "Cover Banner" : "Profile Picture"}
+              </span>
+              <h3 className="text-xl sm:text-2xl font-black text-white font-display tracking-tight">
+                {fullImageViewer.title}
+              </h3>
+              {fullImageViewer.subtitle && (
+                <p className="text-xs text-neutral-400 font-medium">
+                  {fullImageViewer.subtitle}
+                </p>
+              )}
+            </div>
+
+            {/* Image Preview Box */}
+            <div
+              className={`relative rounded-3xl bg-[#060a0f] border border-white/20 p-2 shadow-2xl overflow-hidden ring-2 ring-emerald-500/40 flex items-center justify-center ${
+                fullImageViewer.isCover
+                  ? "w-full aspect-[2.4/1] sm:aspect-[2.8/1] max-h-[65vh]"
+                  : "size-64 sm:size-80 md:size-96"
+              }`}
+            >
+              <div className="absolute inset-0 bg-emerald-500/10 blur-2xl pointer-events-none" />
+              <img
+                src={fullImageViewer.src}
+                alt={fullImageViewer.title}
+                className="w-full h-full object-cover rounded-2xl relative z-10 shadow-lg"
+              />
+            </div>
+
+            <p className="text-xs text-neutral-400 font-medium bg-black/60 px-4 py-1.5 rounded-full border border-white/10 shadow-md">
+              Click anywhere around to close
             </p>
           </div>
         </div>

@@ -395,12 +395,15 @@ export default function MessagesPage() {
         if (targetUserIdFromUrl) {
           handleOpenDirectChat(targetUserIdFromUrl);
         } else if (formattedChats.length > 0) {
-          // Default to first direct chat if available
-          const firstDirect = formattedChats.find((c) => !c.isGroupChat);
-          if (firstDirect) {
-            setActiveChat(firstDirect);
-          } else if (formattedChats[0]) {
-            setActiveChat(formattedChats[0]);
+          // Default to first direct chat on desktop (>= 768px) only; mobile should show the chat list first
+          const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+          if (isDesktop) {
+            const firstDirect = formattedChats.find((c) => !c.isGroupChat);
+            if (firstDirect) {
+              setActiveChat(firstDirect);
+            } else if (formattedChats[0]) {
+              setActiveChat(formattedChats[0]);
+            }
           }
         }
       } catch (err) {
@@ -2614,192 +2617,183 @@ export default function MessagesPage() {
         {activeChat ? (
           <>
             {/* Chat Top Header */}
-            <div className="p-3 sm:p-5 border-b border-white/[0.08] flex items-center justify-between gap-2.5 sm:gap-3 bg-[#070b10]/95">
-              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="px-3 py-2.5 sm:px-5 sm:py-3.5 border-b border-white/[0.08] flex items-center justify-between gap-2 bg-[#070b10]/95 shrink-0">
+              <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
                 {/* Mobile Back Button to Chat List */}
                 <button
                   type="button"
                   onClick={() => setActiveChat(null)}
-                  className="md:hidden size-9 rounded-xl bg-white/[0.08] hover:bg-white/15 text-neutral-300 hover:text-white flex items-center justify-center cursor-pointer shrink-0 active:scale-95 transition-all"
+                  className="md:hidden size-8.5 rounded-xl bg-white/[0.06] hover:bg-white/15 text-neutral-300 hover:text-white flex items-center justify-center cursor-pointer shrink-0 active:scale-95 transition-all"
                   title="Back to Chats"
                   aria-label="Back to chat list"
                 >
                   <ChevronLeft className="size-5" />
                 </button>
-                <div className="relative shrink-0 group/headericon">
-                  {activeChat.isGroupChat ? (
-                    activeChat.groupIcon ? (
-                      <img
-                        src={activeChat.groupIcon}
-                        alt={activeChat.groupName}
-                        className="size-10 sm:size-11 rounded-2xl object-cover ring-1 ring-emerald-500/30 shadow-md"
-                      />
-                    ) : (
-                      <div className="size-10 sm:size-11 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-700/30 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-md">
-                        <Users className="size-5" />
-                      </div>
-                    )
-                  ) : (
-                    <img
-                      src={
-                        activeOtherUser?.avatar?.url ||
-                        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
-                      }
-                      alt="Avatar"
-                      className="size-10 sm:size-11 rounded-2xl object-cover ring-1 ring-white/10 shadow-md"
-                    />
-                  )}
-                  {activeChat.isGroupChat && (
-                    <button
-                      type="button"
-                      onClick={() => setIsEditGroupModalOpen(true)}
-                      className="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center text-emerald-400 opacity-0 group-hover/headericon:opacity-100 transition-opacity cursor-pointer shadow-sm"
-                      title="Edit Squad Profile Pic & Name"
-                    >
-                      <Camera className="size-4" />
-                    </button>
-                  )}
-                  {(() => {
-                    if (activeChat.isGroupChat) return null;
-                    const onlineState = getUserOnlineState(activeOtherUser);
-                    if (!onlineState.isVisible) return null;
-                    return (
-                      <span
-                        className={`size-3 rounded-full ring-2 ring-[#070b10] absolute -bottom-0.5 -right-0.5 ${
-                          onlineState.isOnline
-                            ? "bg-emerald-400 animate-pulse"
-                            : "bg-neutral-600"
-                        }`}
-                        title={onlineState.statusText || (onlineState.isOnline ? "Online" : "Offline")}
-                      />
-                    );
-                  })()}
-                </div>
 
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-sm sm:text-base text-white truncate font-display">
-                      {activeChat.isGroupChat
-                        ? activeChat.groupName
-                        : activeOtherUser?.fullName || activeOtherUser?.username || "Player"}
-                    </h3>
-                    <CheckCircle2 className="size-3.5 text-emerald-400 shrink-0" />
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-neutral-400">
-                    {activeChat.isGroupChat ? (
-                      <span>{participantsList.length} squad footballers</span>
-                    ) : (
-                      <>
+                {/* User / Group Header Info (Clickable for direct user profile) */}
+                {!activeChat.isGroupChat && activeOtherUser?.username ? (
+                  <Link
+                    to={`/channel/${activeOtherUser.username}`}
+                    className="flex items-center gap-2.5 min-w-0 flex-1 group/headeruser transition-all"
+                    title={`View @${activeOtherUser.username}'s profile`}
+                  >
+                    <div className="relative shrink-0">
+                      <img
+                        src={
+                          activeOtherUser?.avatar?.url ||
+                          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
+                        }
+                        alt="Avatar"
+                        className="size-9 sm:size-10 rounded-2xl object-cover ring-1 ring-white/10 shadow-md group-hover/headeruser:ring-emerald-400/50 transition-all"
+                      />
+                      {(() => {
+                        const onlineState = getUserOnlineState(activeOtherUser);
+                        if (!onlineState.isVisible) return null;
+                        return (
+                          <span
+                            className={`size-2.5 rounded-full ring-2 ring-[#070b10] absolute -bottom-0.5 -right-0.5 ${
+                              onlineState.isOnline
+                                ? "bg-emerald-400 animate-pulse"
+                                : "bg-neutral-600"
+                            }`}
+                            title={onlineState.statusText || (onlineState.isOnline ? "Online" : "Offline")}
+                          />
+                        );
+                      })()}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <h3 className="font-bold text-sm sm:text-base text-white truncate font-display group-hover/headeruser:text-emerald-400 transition-colors">
+                          {activeOtherUser?.fullName || activeOtherUser?.username || "Player"}
+                        </h3>
+                        <CheckCircle2 className="size-3.5 text-emerald-400 shrink-0" />
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 truncate">
                         {(() => {
                           const onlineState = getUserOnlineState(activeOtherUser);
-                          if (!onlineState.isVisible) return null;
-                          return (
-                            <>
+                          if (onlineState.isVisible) {
+                            return (
                               <span
-                                className={`flex items-center gap-1.5 font-semibold ${
-                                  onlineState.isOnline
-                                    ? "text-emerald-400"
-                                    : "text-neutral-400"
+                                className={`font-semibold shrink-0 ${
+                                  onlineState.isOnline ? "text-emerald-400" : "text-neutral-400"
                                 }`}
                               >
-                                <span
-                                  className={`size-2 rounded-full ${
-                                    onlineState.isOnline
-                                      ? "bg-emerald-400 animate-pulse"
-                                      : "bg-neutral-500"
-                                  }`}
-                                />
-                                <span>{onlineState.statusText}</span>
+                                {onlineState.statusText}
                               </span>
-                              <span>•</span>
-                            </>
-                          );
+                            );
+                          }
+                          return null;
                         })()}
+                        {getUserOnlineState(activeOtherUser).isVisible && <span>•</span>}
                         {bookedTurfOwnerInfo ? (
-                          <span className="text-emerald-300 font-semibold flex items-center gap-1">
-                            <Building2 className="size-3" /> Owner of {bookedTurfOwnerInfo.turfs?.[0]?.turfName || "Booked Turf"}
+                          <span className="text-emerald-300 font-semibold truncate flex items-center gap-1">
+                            <Building2 className="size-3 shrink-0" /> {bookedTurfOwnerInfo.turfs?.[0]?.turfName || "Turf Owner"}
                           </span>
-                        ) : isOtherUserFollowed ? (
-                          <span>@{activeOtherUser?.username || "player"} (Following)</span>
                         ) : (
-                          <span className="text-amber-300">@{activeOtherUser?.username || "player"} (Not Followed)</span>
+                          <span className={`truncate ${isOtherUserFollowed ? "text-neutral-400" : "text-amber-300/90"}`}>
+                            @{activeOtherUser?.username || "player"}{!isOtherUserFollowed ? " (Request)" : ""}
+                          </span>
                         )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons in Header */}
-              <div className="flex items-center gap-2">
-                {!activeChat.isGroupChat && activeOtherUser?.username && (
-                  <Link to={`/channel/${activeOtherUser.username}`}>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="rounded-xl text-xs gap-1.5 font-semibold cursor-pointer"
-                    >
-                      <ExternalLink className="size-3.5" /> View Profile
-                    </Button>
+                      </div>
+                    </div>
                   </Link>
-                )}
+                ) : (
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="relative shrink-0 group/headericon">
+                      {activeChat.groupIcon ? (
+                        <img
+                          src={activeChat.groupIcon}
+                          alt={activeChat.groupName}
+                          className="size-9 sm:size-10 rounded-2xl object-cover ring-1 ring-emerald-500/30 shadow-md"
+                        />
+                      ) : (
+                        <div className="size-9 sm:size-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-700/30 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-md">
+                          <Users className="size-4.5" />
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setIsEditGroupModalOpen(true)}
+                        className="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center text-emerald-400 opacity-0 group-hover/headericon:opacity-100 transition-opacity cursor-pointer shadow-sm"
+                        title="Edit Squad Profile Pic & Name"
+                      >
+                        <Camera className="size-3.5" />
+                      </button>
+                    </div>
 
-                {activeChat.isGroupChat && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => setIsEditGroupModalOpen(true)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 bg-white/[0.05] hover:bg-emerald-500/20 hover:border-emerald-500/30 text-xs font-bold text-neutral-300 hover:text-emerald-300 transition-all cursor-pointer shadow-sm"
-                      title="Edit Squad Group Profile & Name"
-                    >
-                      <Edit3 className="size-3.5 text-emerald-400" />
-                      <span className="hidden sm:inline">Edit Squad</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setShowMembersPanel(!showMembersPanel)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                        showMembersPanel
-                          ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                          : "bg-white/[0.05] text-neutral-300 border-white/10 hover:text-white"
-                      }`}
-                      title="View Group Members"
-                    >
-                      <Users className="size-3.5" />
-                      <span className="hidden sm:inline">Squad Members ({participantsList.length})</span>
-                    </button>
-                  </>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <h3 className="font-bold text-sm sm:text-base text-white truncate font-display">
+                          {activeChat.groupName}
+                        </h3>
+                        <CheckCircle2 className="size-3.5 text-emerald-400 shrink-0" />
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 truncate">
+                        <span className="truncate">{participantsList.length} squad footballers</span>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
+
+              {/* Action Buttons in Header (Only for Group Chats) */}
+              {activeChat.isGroupChat && (
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditGroupModalOpen(true)}
+                    className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border border-white/10 bg-white/[0.05] hover:bg-emerald-500/20 hover:border-emerald-500/30 text-xs font-bold text-neutral-300 hover:text-emerald-300 transition-all cursor-pointer shadow-sm h-8 sm:h-9"
+                    title="Edit Squad Group Profile & Name"
+                  >
+                    <Edit3 className="size-3.5 text-emerald-400" />
+                    <span className="hidden sm:inline">Edit Squad</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowMembersPanel(!showMembersPanel)}
+                    className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer h-8 sm:h-9 ${
+                      showMembersPanel
+                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                        : "bg-white/[0.05] text-neutral-300 border-white/10 hover:text-white"
+                    }`}
+                    title="View Group Members"
+                  >
+                    <Users className="size-3.5" />
+                    <span className="hidden sm:inline">Members ({participantsList.length})</span>
+                    <span className="sm:hidden">{participantsList.length}</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Non-Followed Player Warning & Follow Back Banner */}
             {!activeChat.isGroupChat && activeOtherUser && !isOtherUserFollowed && !bookedTurfOwnerInfo && (
-              <div className="px-4 py-2.5 bg-amber-500/10 border-b border-amber-500/20 flex items-center justify-between gap-3 text-xs text-amber-200 animate-in fade-in duration-200">
+              <div className="px-3.5 py-2 bg-amber-500/10 border-b border-amber-500/20 flex items-center justify-between gap-2.5 text-xs text-amber-200 animate-in fade-in duration-200 shrink-0">
                 <div className="flex items-center gap-2 min-w-0">
-                  <UserPlus className="size-4 text-amber-400 shrink-0" />
-                  <span className="truncate">
-                    You don't follow <strong className="text-white">@{activeOtherUser.username}</strong>. This is a direct message request.
+                  <UserPlus className="size-3.5 text-amber-400 shrink-0" />
+                  <span className="truncate text-[11.5px]">
+                    Message request from <strong className="text-white">@{activeOtherUser.username}</strong>
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleToggleFollowFromChat(activeOtherUser.username)}
-                  className="px-3 py-1 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-neutral-950 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shrink-0 shadow-sm"
+                  className="px-2.5 py-1 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-neutral-950 font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shrink-0 shadow-sm"
                 >
-                  <UserPlus className="size-3.5" /> Follow Back
+                  <UserPlus className="size-3" /> Follow Back
                 </button>
               </div>
             )}
 
             {/* Booked Turf Owner Official Banner */}
             {!activeChat.isGroupChat && activeOtherUser && bookedTurfOwnerInfo && (
-              <div className="px-4 py-2.5 bg-emerald-500/10 border-b border-emerald-500/20 flex items-center justify-between gap-3 text-xs text-emerald-200 animate-in fade-in duration-200">
+              <div className="px-3.5 py-2 bg-emerald-500/10 border-b border-emerald-500/20 flex items-center justify-between gap-2.5 text-xs text-emerald-200 animate-in fade-in duration-200 shrink-0">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Building2 className="size-4 text-emerald-400 shrink-0" />
-                  <span className="truncate">
-                    Official Pitch Manager for <strong className="text-white">{bookedTurfOwnerInfo.turfs?.[0]?.turfName || "your booking"}</strong>.
+                  <Building2 className="size-3.5 text-emerald-400 shrink-0" />
+                  <span className="truncate text-[11.5px]">
+                    Pitch Manager for <strong className="text-white">{bookedTurfOwnerInfo.turfs?.[0]?.turfName || "your booking"}</strong>
                   </span>
                 </div>
                 <Link
@@ -2812,9 +2806,9 @@ export default function MessagesPage() {
                 >
                   <button
                     type="button"
-                    className="px-3 py-1 rounded-xl bg-white/[0.08] hover:bg-white/15 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shrink-0 shadow-sm border border-white/10"
+                    className="px-2.5 py-1 rounded-xl bg-white/[0.08] hover:bg-white/15 text-white font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shrink-0 shadow-sm border border-white/10"
                   >
-                    <Ticket className="size-3.5 text-emerald-400" /> View Match Pass
+                    <Ticket className="size-3 text-emerald-400" /> Match Pass
                   </button>
                 </Link>
               </div>
@@ -2823,7 +2817,7 @@ export default function MessagesPage() {
             {/* Message History Feed */}
             <div
               ref={messagesContainerRef}
-              className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 custom-scrollbar"
+              className="flex-1 p-3 sm:p-5 overflow-y-auto space-y-2.5 sm:space-y-3 custom-scrollbar"
             >
               {/* Load Older Messages Button */}
               {hasMoreMessages && (
@@ -2832,7 +2826,7 @@ export default function MessagesPage() {
                     type="button"
                     onClick={handleLoadOlderMessages}
                     disabled={loadingOlderMessages}
-                    className="px-4 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-all cursor-pointer inline-flex items-center gap-1.5 shadow-sm"
+                    className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-all cursor-pointer inline-flex items-center gap-1.5 shadow-sm"
                   >
                     {loadingOlderMessages ? (
                       <>
@@ -2850,46 +2844,45 @@ export default function MessagesPage() {
                 messages.map((msg) => {
                   const senderId = msg.sender?._id || msg.sender;
                   const isOwn = senderId?.toString() === userData?._id?.toString();
-                  const avatarUrl =
-                    msg.sender?.avatar?.url ||
-                    (isOwn ? userData?.avatar?.url : null) ||
-                    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100";
                   const senderName = msg.sender?.fullName || (isOwn ? "You" : msg.sender?.username || "Player");
                   const username = msg.sender?.username || (isOwn ? userData?.username : "player");
 
                   return (
                     <div
                       key={msg._id}
-                      className={`group flex items-end gap-2 max-w-[85%] sm:max-w-[75%] ${
+                      className={`group flex items-end gap-2 max-w-[88%] sm:max-w-[75%] ${
                         isOwn ? "ml-auto flex-row-reverse" : "mr-auto"
                       }`}
                     >
-                      {/* Sender / Own Avatar - directly attached to bubble with minimal gap */}
-                      <img
-                        src={getAvatarUrl(msg.sender || (isOwn ? userData : null), senderName)}
-                        alt={senderName}
-                        className="size-8 rounded-full aspect-square object-cover ring-1 ring-white/10 shrink-0 shadow-sm mb-0.5"
-                      />
+                      {/* Sender Avatar for incoming messages */}
+                      {!isOwn && (
+                        <img
+                          src={getAvatarUrl(msg.sender, senderName)}
+                          alt={senderName}
+                          className="size-7 sm:size-8 rounded-full aspect-square object-cover ring-1 ring-white/10 shrink-0 shadow-sm mb-0.5"
+                        />
+                      )}
 
                       {/* Chat Message Bubble */}
                       <div
-                        className={`p-3.5 sm:p-4 rounded-3xl text-sm leading-relaxed space-y-1.5 shadow-lg ${
+                        className={`px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl text-sm leading-relaxed space-y-1 shadow-md max-w-full ${
                           msg.message?.includes("MATCHDAY PASS APPROVED")
                             ? "bg-[#080f14] border border-emerald-500/40 text-white ring-1 ring-emerald-500/20 rounded-bl-none shadow-emerald-500/10"
                             : isOwn
-                            ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-neutral-950 font-medium rounded-br-none"
-                            : "bg-[#070b10] border border-white/10 text-white rounded-bl-none"
+                            ? "bg-emerald-500 text-neutral-950 font-medium rounded-br-none"
+                            : "bg-[#121a24] border border-white/[0.08] text-white rounded-bl-none"
                         }`}
                       >
-                        {!isOwn && (
-                          <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 flex-wrap pb-0.5">
+                        {/* Only show sender name on Group Chats */}
+                        {activeChat.isGroupChat && !isOwn && (
+                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-400 flex-wrap pb-0.5">
                             <span>{senderName}</span>
                             <span className="text-[10px] text-neutral-400 font-normal">@{username}</span>
                             {(msg.message?.includes("MATCHDAY PASS APPROVED") ||
                               msg.message?.includes("MATCHDAY RESERVED") ||
                               msg.sender?.role === "admin") && (
-                              <span className="text-[9.5px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold tracking-wider flex items-center gap-1">
-                                <ShieldCheck className="size-3 text-emerald-400" /> Turf Admin Official
+                              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold tracking-wider flex items-center gap-1">
+                                <ShieldCheck className="size-2.5 text-emerald-400" /> Admin
                               </span>
                             )}
                           </div>
@@ -2897,14 +2890,14 @@ export default function MessagesPage() {
 
                         {/* Quoted Replied Message Box */}
                         {msg.replyTo && (
-                          <div className="mb-2 p-2.5 rounded-2xl bg-black/40 border-l-3 border-emerald-400 text-xs space-y-0.5 shadow-inner">
-                            <div className="text-[10.5px] font-bold text-emerald-400 flex items-center gap-1">
-                              <CornerDownRight className="size-3" />
+                          <div className="mb-1.5 p-2 rounded-xl bg-black/40 border-l-2 border-emerald-400 text-xs space-y-0.5 shadow-inner">
+                            <div className="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
+                              <CornerDownRight className="size-2.5" />
                               <span>
                                 Replied to @{msg.replyTo.username || msg.replyTo.senderName || "player"}
                               </span>
                             </div>
-                            <p className="text-[11px] text-neutral-300 line-clamp-1 italic font-normal">
+                            <p className="text-[10.5px] text-neutral-300 line-clamp-1 italic font-normal">
                               "{msg.replyTo.messageText || msg.replyTo.message || "Shared message"}"
                             </p>
                           </div>
@@ -2912,7 +2905,7 @@ export default function MessagesPage() {
 
                         {/* Embedded Match Pass Action Card for Squad & Group Members */}
                         {(msg.attachment === "match_pass" || msg.message?.includes("MATCHDAY PASS APPROVED")) && (
-                          <div className="mt-1 p-4 rounded-2xl bg-black/70 border border-emerald-500/30 space-y-3 shadow-md">
+                          <div className="mt-1 p-3.5 rounded-2xl bg-black/70 border border-emerald-500/30 space-y-2.5 shadow-md">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs">
                                 <Ticket className="size-4" />
@@ -2923,17 +2916,17 @@ export default function MessagesPage() {
                               </Badge>
                             </div>
 
-                            <p className="text-xs text-neutral-300">
+                            <p className="text-[11.5px] text-neutral-300">
                               Pitch owner confirmed this reservation! All squad members can download and save their digital pass voucher.
                             </p>
 
-                            <div className="flex flex-wrap items-center gap-2 pt-1">
+                            <div className="flex flex-wrap items-center gap-2 pt-0.5">
                               <Button
                                 type="button"
                                 size="sm"
                                 variant="primary"
                                 onClick={() => handleDownloadPassFromMessage(msg)}
-                                className="text-xs font-bold rounded-xl gap-1.5 h-8.5 px-3.5 shadow-md shadow-emerald-500/20 cursor-pointer"
+                                className="text-xs font-bold rounded-xl gap-1.5 h-8 px-3 shadow-md shadow-emerald-500/20 cursor-pointer"
                               >
                                 <Download className="size-3.5" /> Download Pass (PNG)
                               </Button>
@@ -2944,7 +2937,7 @@ export default function MessagesPage() {
                                     type="button"
                                     size="sm"
                                     variant="outline"
-                                    className="text-xs font-semibold rounded-xl gap-1.5 h-8.5 px-3 hover:border-emerald-500/40 cursor-pointer"
+                                    className="text-xs font-semibold rounded-xl gap-1.5 h-8 px-2.5 hover:border-emerald-500/40 cursor-pointer"
                                   >
                                     <ExternalLink className="size-3.5" /> View Voucher
                                   </Button>
@@ -2957,7 +2950,7 @@ export default function MessagesPage() {
                                   type="button"
                                   size="sm"
                                   variant="outline"
-                                  className="text-xs font-semibold rounded-xl gap-1.5 h-8.5 px-3 bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-300 hover:text-emerald-200 cursor-pointer shadow-sm"
+                                  className="text-xs font-semibold rounded-xl gap-1.5 h-8 px-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-300 hover:text-emerald-200 cursor-pointer shadow-sm"
                                 >
                                   <Building2 className="size-3.5 text-emerald-400" /> View Turf
                                 </Button>
@@ -2973,15 +2966,15 @@ export default function MessagesPage() {
                             className="rounded-2xl overflow-hidden bg-black/70 border border-white/15 hover:border-emerald-500/50 transition-all cursor-pointer shadow-xl max-w-sm group/post"
                           >
                             {/* Post Author Header */}
-                            <div className="p-3 border-b border-white/[0.08] flex items-center justify-between bg-white/[0.02]">
-                              <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="p-2.5 border-b border-white/[0.08] flex items-center justify-between bg-white/[0.02]">
+                              <div className="flex items-center gap-2 min-w-0">
                                 <img
                                   src={
                                     msg.sharedPost?.owner?.avatar ||
                                     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
                                   }
                                   alt={msg.sharedPost?.owner?.fullName || "Author"}
-                                  className="size-7 rounded-lg object-cover ring-1 ring-white/10 shrink-0"
+                                  className="size-6 rounded-lg object-cover ring-1 ring-white/10 shrink-0"
                                 />
                                 <div className="min-w-0">
                                   <div className="flex items-center gap-1">
@@ -2990,7 +2983,7 @@ export default function MessagesPage() {
                                     </span>
                                     <CheckCircle2 className="size-3 text-emerald-400 shrink-0" />
                                   </div>
-                                  <span className="text-[10px] text-neutral-400 block font-mono">
+                                  <span className="text-[9.5px] text-neutral-400 block font-mono">
                                     @{msg.sharedPost?.owner?.username || "player"}
                                   </span>
                                 </div>
@@ -3005,7 +2998,7 @@ export default function MessagesPage() {
                             {(() => {
                               const coverUrl = getSharedPostCover(msg.sharedPost);
                               return coverUrl ? (
-                                <div className="relative aspect-video max-h-52 bg-black/80 overflow-hidden">
+                                <div className="relative aspect-video max-h-48 bg-black/80 overflow-hidden">
                                   <img
                                     src={coverUrl}
                                     alt="Shared Post"
@@ -3013,14 +3006,14 @@ export default function MessagesPage() {
                                   />
                                   {msg.sharedPost.media?.[0]?.type === "video" && (
                                     <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                      <div className="size-10 rounded-full bg-emerald-500/90 text-neutral-950 flex items-center justify-center shadow-lg">
-                                        <Play className="size-5 fill-current ml-0.5" />
+                                      <div className="size-9 rounded-full bg-emerald-500/90 text-neutral-950 flex items-center justify-center shadow-lg">
+                                        <Play className="size-4.5 fill-current ml-0.5" />
                                       </div>
                                     </div>
                                   )}
                                 </div>
                               ) : msg.sharedPost?.caption ? (
-                                <div className="p-4 bg-emerald-950/20 border-y border-white/5">
+                                <div className="p-3 bg-emerald-950/20 border-y border-white/5">
                                   <p className="text-xs text-neutral-200 italic line-clamp-3">
                                     "{msg.sharedPost.caption}"
                                   </p>
@@ -3029,7 +3022,7 @@ export default function MessagesPage() {
                             })()}
 
                             {/* Post Caption & Action Footer */}
-                            <div className="p-3 space-y-2 bg-[#080d14]">
+                            <div className="p-2.5 space-y-1.5 bg-[#080d14]">
                               {msg.sharedPost?.caption && (
                                 <p className="text-xs text-neutral-200 line-clamp-2 leading-relaxed font-normal">
                                   <span className="font-bold text-white mr-1.5">
@@ -3039,11 +3032,11 @@ export default function MessagesPage() {
                                 </p>
                               )}
 
-                              <div className="pt-1.5 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-emerald-400 font-bold">
+                              <div className="pt-1 border-t border-white/[0.06] flex items-center justify-between text-[10.5px] text-emerald-400 font-bold">
                                 <span className="flex items-center gap-1 group-hover/post:underline">
                                   View full post <ArrowRight className="size-3" />
                                 </span>
-                                <span className="text-[10px] text-neutral-500 font-normal">
+                                <span className="text-[9.5px] text-neutral-500 font-normal">
                                   FootballHub Media
                                 </span>
                               </div>
@@ -3051,24 +3044,24 @@ export default function MessagesPage() {
                           </div>
                         )}
 
-                        {/* Message Text / Custom Caption (Rendered BELOW the shared post or pass) */}
+                        {/* Message Text / Custom Caption */}
                         {msg.message && !msg.message?.includes("MATCHDAY PASS APPROVED") && (
-                          <p className={`text-[14.5px] whitespace-pre-wrap break-words ${
-                            (msg.attachment === "post" || msg.sharedPost) ? "pt-1.5 font-medium px-0.5" : ""
+                          <p className={`text-[13.5px] sm:text-[14.5px] whitespace-pre-wrap break-words leading-snug ${
+                            (msg.attachment === "post" || msg.sharedPost) ? "pt-1 font-medium" : ""
                           }`}>
                             {msg.message}
                           </p>
                         )}
 
                         <div
-                          className={`text-[10px] text-right font-mono font-medium flex items-center justify-end gap-1.5 ${
+                          className={`text-[9.5px] text-right font-mono font-medium flex items-center justify-end gap-1 -mt-0.5 ${
                             isOwn && !msg.message?.includes("MATCHDAY PASS APPROVED")
-                              ? "text-neutral-950/75"
+                              ? "text-neutral-950/70"
                               : "text-neutral-400"
                           }`}
                         >
                           {msg.isEdited && (
-                            <span className="italic text-[9.5px] opacity-80">(edited)</span>
+                            <span className="italic text-[8.5px] opacity-80">(edited)</span>
                           )}
                           <span>
                             {msg.createdAt
@@ -3084,16 +3077,16 @@ export default function MessagesPage() {
                               title={msg.isRead ? "Seen" : "Sent"}
                             >
                               {msg.isRead ? (
-                                <CheckCheck className="size-3.5 text-neutral-950 font-bold" />
+                                <CheckCheck className="size-3 text-neutral-950 font-bold" />
                               ) : (
-                                <Check className="size-3 text-neutral-950/60" />
+                                <Check className="size-2.5 text-neutral-950/60" />
                               )}
                             </span>
                           )}
                         </div>
                       </div>
 
-                      {/* Quick Action Buttons on Hover (Delete, Edit & Reply) - Placed outside the bubble */}
+                      {/* Quick Action Buttons on Hover (Delete, Edit & Reply) */}
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 self-center shrink-0">
                         {(isOwn || (activeChat.isGroupChat && activeChat.admin?.toString() === userData?._id?.toString())) && (
                           <button
@@ -3103,7 +3096,7 @@ export default function MessagesPage() {
                               setMessageToDelete(msg);
                             }}
                             className="p-1.5 rounded-xl bg-white/10 hover:bg-rose-500 hover:text-white text-neutral-400 cursor-pointer shadow-sm transition-all"
-                            title="Delete message (and all its replies)"
+                            title="Delete message"
                           >
                             <Trash2 className="size-3.5" />
                           </button>
@@ -3117,7 +3110,7 @@ export default function MessagesPage() {
                               setMessageInput(msg.message);
                             }}
                             className="p-1.5 rounded-xl bg-white/10 hover:bg-amber-500 hover:text-neutral-950 text-neutral-400 cursor-pointer shadow-sm transition-all"
-                            title="Edit this message"
+                            title="Edit message"
                           >
                             <Pencil className="size-3.5" />
                           </button>
@@ -3129,7 +3122,7 @@ export default function MessagesPage() {
                             setEditingMessage(null);
                           }}
                           className="p-1.5 rounded-xl bg-white/10 hover:bg-emerald-500 hover:text-neutral-950 text-neutral-400 cursor-pointer shadow-sm transition-all"
-                          title="Reply to this message"
+                          title="Reply to message"
                         >
                           <Reply className="size-3.5" />
                         </button>
@@ -3138,7 +3131,7 @@ export default function MessagesPage() {
                   );
                 })
               ) : (
-                <div className="p-12 text-center text-sm text-neutral-400 space-y-2">
+                <div className="p-10 text-center text-sm text-neutral-400 space-y-2">
                   <MessageCircle className="size-8 text-neutral-500 mx-auto" />
                   <p className="font-semibold text-white">
                     {activeChat.isGroupChat
@@ -3154,19 +3147,19 @@ export default function MessagesPage() {
             </div>
 
             {/* Input Bar with Emoji Support, Active Reply Banner & Active Edit Banner */}
-            <div className="relative border-t border-white/[0.08] bg-[#070b10]/95">
+            <div className="relative border-t border-white/[0.08] bg-[#070b10]/95 shrink-0">
               {/* Active Replying-to Banner */}
               {replyingToMessage && (
-                <div className="px-4 py-2.5 bg-emerald-950/40 border-b border-emerald-500/20 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-2 duration-150">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="size-7 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0 shadow-sm">
-                      <Reply className="size-3.5" />
+                <div className="px-3.5 py-2 bg-emerald-950/40 border-b border-emerald-500/20 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-2 duration-150">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="size-6 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0 shadow-sm">
+                      <Reply className="size-3" />
                     </div>
                     <div className="min-w-0 text-xs">
                       <span className="font-bold text-emerald-400 mr-1.5">
                         Replying to @{replyingToMessage.sender?.username || "player"}:
                       </span>
-                      <span className="text-neutral-300 truncate inline-block max-w-[240px] sm:max-w-md align-bottom italic font-normal">
+                      <span className="text-neutral-300 truncate inline-block max-w-[200px] sm:max-w-md align-bottom italic font-normal text-[11px]">
                         "{replyingToMessage.message || "Shared attachment"}"
                       </span>
                     </div>
@@ -3185,16 +3178,16 @@ export default function MessagesPage() {
 
               {/* Active Editing Message Banner */}
               {editingMessage && (
-                <div className="px-4 py-2.5 bg-amber-950/50 border-b border-amber-500/30 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-2 duration-150">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="size-7 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0 shadow-sm">
-                      <Pencil className="size-3.5" />
+                <div className="px-3.5 py-2 bg-amber-950/50 border-b border-amber-500/30 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-2 duration-150">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="size-6 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0 shadow-sm">
+                      <Pencil className="size-3" />
                     </div>
                     <div className="min-w-0 text-xs">
                       <span className="font-bold text-amber-400 mr-1.5">
                         Editing message:
                       </span>
-                      <span className="text-neutral-300 truncate inline-block max-w-[240px] sm:max-w-md align-bottom italic font-normal">
+                      <span className="text-neutral-300 truncate inline-block max-w-[200px] sm:max-w-md align-bottom italic font-normal text-[11px]">
                         "{editingMessage.message}"
                       </span>
                     </div>
@@ -3223,48 +3216,47 @@ export default function MessagesPage() {
                 }}
               />
 
-              {/* Quick Reaction Emoji Chips (football, laughing, crying, heart, sad) */}
-              <div className="px-4 pt-2.5 pb-1 flex items-center gap-2 overflow-x-auto custom-scrollbar">
-                <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider shrink-0 mr-0.5">
+              {/* Quick Reaction Emoji Chips */}
+              <div className="px-3 pt-2 pb-0.5 flex items-center gap-1.5 overflow-x-auto custom-scrollbar">
+                <span className="text-[9.5px] font-bold text-neutral-400 uppercase tracking-wider shrink-0 mr-0.5">
                   Quick:
                 </span>
                 {[
                   { emoji: "⚽", label: "Football" },
                   { emoji: "😂", label: "Laughing" },
-                  { emoji: "😭", label: "Crying" },
+                  { emoji: "🔥", label: "Fire" },
                   { emoji: "❤️", label: "Heart" },
-                  { emoji: "😢", label: "Sad" },
+                  { emoji: "👏", label: "Clap" },
+                  { emoji: "👍", label: "Thumbs Up" },
                 ].map(({ emoji, label }) => (
                   <button
                     key={label}
                     type="button"
                     onClick={() => setMessageInput((prev) => prev + emoji)}
-                    className="h-7 px-2.5 rounded-xl bg-white/[0.05] hover:bg-emerald-500/20 border border-white/[0.06] text-sm flex items-center gap-1.5 transition-all cursor-pointer hover:scale-105 active:scale-95 shrink-0"
+                    className="h-6.5 px-2 rounded-lg bg-white/[0.04] hover:bg-emerald-500/20 border border-white/[0.06] text-xs flex items-center gap-1 transition-all cursor-pointer active:scale-95 shrink-0"
                     title={`Add ${label} (${emoji})`}
                   >
                     <span>{emoji}</span>
-                    <span className="text-[10.5px] font-medium text-neutral-300 hidden sm:inline">{label}</span>
                   </button>
                 ))}
               </div>
 
               <form
                 onSubmit={handleSendMessage}
-                className="p-3 sm:p-4 pt-2 flex items-center gap-2"
+                className="p-2.5 sm:p-3 pt-1.5 flex items-center gap-2"
               >
-                {/* Emoji Logo Button to open full list of emojis */}
+                {/* Emoji Button */}
                 <button
                   type="button"
                   onClick={() => setIsEmojiPickerOpen(!isEmojiPickerOpen)}
-                  className={`h-11 sm:h-12 px-3 rounded-2xl border flex items-center gap-1.5 transition-all cursor-pointer shrink-0 shadow-sm ${
+                  className={`size-10 sm:size-11 rounded-2xl border flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-sm ${
                     isEmojiPickerOpen
                       ? "bg-emerald-500/25 border-emerald-500/50 text-emerald-300 ring-2 ring-emerald-500/30"
                       : "bg-black/50 border-white/15 text-neutral-300 hover:text-white hover:bg-white/10 hover:border-emerald-500/30"
                   }`}
                   title="View All Emojis"
                 >
-                  <span className="text-lg">😊</span>
-                  <span className="text-xs font-bold hidden sm:inline">Emojis</span>
+                  <span className="text-base sm:text-lg">😊</span>
                 </button>
 
                 <input
@@ -3273,12 +3265,12 @@ export default function MessagesPage() {
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder={
                     editingMessage
-                      ? "Edit your message and submit..."
+                      ? "Edit message..."
                       : activeChat.isGroupChat
-                      ? "Type message to squad..."
+                      ? "Message squad..."
                       : `Message @${activeOtherUser?.username || "player"}...`
                   }
-                  className={`flex-1 h-11 sm:h-12 px-4 rounded-2xl bg-black/60 border text-sm text-white placeholder:text-neutral-500 focus:outline-none font-medium transition-all ${
+                  className={`flex-1 h-10 sm:h-11 px-3.5 rounded-2xl bg-black/60 border text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:outline-none font-medium transition-all ${
                     editingMessage
                       ? "border-amber-500/50 focus:ring-1 focus:ring-amber-500 bg-amber-950/20"
                       : "border-white/10 focus:ring-1 focus:ring-emerald-500"
@@ -3288,7 +3280,7 @@ export default function MessagesPage() {
                   type="submit"
                   disabled={!messageInput.trim()}
                   variant="primary"
-                  className={`size-11 sm:size-12 rounded-2xl p-0 shrink-0 shadow-md cursor-pointer transition-all ${
+                  className={`size-10 sm:size-11 rounded-2xl p-0 shrink-0 shadow-md cursor-pointer transition-all ${
                     editingMessage
                       ? "bg-amber-500 hover:bg-amber-400 text-neutral-950 shadow-amber-500/20"
                       : ""
@@ -3296,9 +3288,9 @@ export default function MessagesPage() {
                   title={editingMessage ? "Save changes" : "Send message"}
                 >
                   {editingMessage ? (
-                    <Check className="size-5 font-bold" />
+                    <Check className="size-4.5 font-bold" />
                   ) : (
-                    <Send className="size-5" />
+                    <Send className="size-4.5" />
                   )}
                 </Button>
               </form>
