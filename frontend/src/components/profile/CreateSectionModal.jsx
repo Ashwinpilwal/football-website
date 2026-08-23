@@ -87,7 +87,7 @@ export default function CreateSectionModal({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-[90] flex items-center justify-center p-4 sm:p-6 bg-black/80 transition-opacity duration-150 cursor-pointer backdrop-blur-xs"
+      className="fixed inset-0 z-[90] flex items-center justify-center p-4 sm:p-6 bg-black/80 transition-opacity duration-150 cursor-pointer"
     >
       <div
         onClick={(e) => e.stopPropagation()}

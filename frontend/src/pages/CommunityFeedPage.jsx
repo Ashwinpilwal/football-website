@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
   Heart,
@@ -37,6 +37,8 @@ import { getAvatarUrl } from "@/utils/avatar.utils";
 import toast from "react-hot-toast";
 
 export default function CommunityFeedPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { userData, status } = useSelector((state) => state.auth);
 
   const [feedItems, setFeedItems] = useState([]);
@@ -82,10 +84,10 @@ export default function CommunityFeedPage() {
         isLiked:
           userData?._id && Array.isArray(p.likes)
             ? p.likes.some(
-                (l) =>
-                  (l.likedBy?._id || l.likedBy || l)?.toString() ===
-                  userData._id.toString()
-              )
+              (l) =>
+                (l.likedBy?._id || l.likedBy || l)?.toString() ===
+                userData._id.toString()
+            )
             : !!p.isLiked,
       }));
 
@@ -375,9 +377,8 @@ export default function CommunityFeedPage() {
 
       toast.success(
         deletedIds.size > 1
-          ? `Deleted comment and ${deletedIds.size - 1} ${
-              deletedIds.size === 2 ? "reply" : "replies"
-            }.`
+          ? `Deleted comment and ${deletedIds.size - 1} ${deletedIds.size === 2 ? "reply" : "replies"
+          }.`
           : "Comment deleted."
       );
       setDeleteCommentModal({ isOpen: false, targetId: null, commentId: null, loading: false });
@@ -417,6 +418,18 @@ export default function CommunityFeedPage() {
     setFeedItems((prev) => prev.filter((item) => item._id !== deletedId));
   };
 
+  const handleDeleteTweetFromFeed = async (tweetId) => {
+    if (!window.confirm("Are you sure you want to delete this tweet?")) return;
+    try {
+      await tweetService.deleteTweet(tweetId);
+      setFeedItems((prev) => prev.filter((item) => item._id !== tweetId));
+      toast.success("Tweet deleted successfully!");
+    } catch (err) {
+      console.error("Delete tweet error:", err);
+      toast.error(err?.response?.data?.message || "Failed to delete tweet");
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-300">
       {/* Expanded Post Detail Modal */}
@@ -452,7 +465,7 @@ export default function CommunityFeedPage() {
       )}
 
       {/* Center Feed Column */}
-      <div className="lg:col-span-8 space-y-6">
+      <div className="lg:col-span-8 space-y-6 max-w-2xl mx-auto w-full">
         {/* Quick Microblog / Tweet Post Form */}
         <div className="p-4 sm:p-6 rounded-3xl bg-[#0a0f16] border border-white/10 shadow-xl space-y-3 sm:space-y-4">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -493,11 +506,10 @@ export default function CommunityFeedPage() {
                 <button
                   type="button"
                   onClick={() => setIsTweetEmojiOpen(!isTweetEmojiOpen)}
-                  className={`size-10 sm:size-12 rounded-xl sm:rounded-2xl border flex items-center justify-center transition-all cursor-pointer shrink-0 ${
-                    isTweetEmojiOpen
+                  className={`size-10 sm:size-12 rounded-xl sm:rounded-2xl border flex items-center justify-center transition-all cursor-pointer shrink-0 ${isTweetEmojiOpen
                       ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 ring-1 ring-emerald-500/30"
                       : "bg-[#060a0f] border-white/10 text-neutral-400 hover:text-white hover:bg-white/5"
-                  }`}
+                    }`}
                   title="Add Emoji to Tweet"
                 >
                   <Smile className="size-4.5 sm:size-5" />
@@ -517,11 +529,10 @@ export default function CommunityFeedPage() {
               <button
                 type="button"
                 onClick={() => tweetPhotoInputRef.current?.click()}
-                className={`size-10 sm:size-12 rounded-xl sm:rounded-2xl border flex items-center justify-center transition-all cursor-pointer shrink-0 ${
-                  tweetPhoto
+                className={`size-10 sm:size-12 rounded-xl sm:rounded-2xl border flex items-center justify-center transition-all cursor-pointer shrink-0 ${tweetPhoto
                     ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 ring-1 ring-emerald-500/30"
                     : "bg-[#060a0f] border-white/10 text-neutral-400 hover:text-white hover:bg-white/5"
-                }`}
+                  }`}
                 title="Attach Photo"
               >
                 <ImageIcon className="size-4.5 sm:size-5" />
@@ -620,9 +631,26 @@ export default function CommunityFeedPage() {
                         </div>
                       </Link>
 
-                      <Badge variant="emerald" className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5">
-                        💬 Tweet
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="emerald" className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5">
+                          💬 Tweet
+                        </Badge>
+                        {/* Only tweet owner can delete */}
+                        {Boolean(
+                          userData &&
+                          ((item.owner?._id && userData?._id && item.owner._id.toString() === userData._id.toString()) ||
+                            (item.owner?.username && userData?.username && item.owner.username === userData.username))
+                        ) && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteTweetFromFeed(item._id)}
+                              className="p-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 transition-all cursor-pointer shadow-xs active:scale-95"
+                              title="Delete your tweet"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </button>
+                          )}
+                      </div>
                     </div>
 
                     {item.content && (
@@ -648,11 +676,10 @@ export default function CommunityFeedPage() {
                         <button
                           type="button"
                           onClick={(e) => handleLikeTweet(e, item._id)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${
-                            item.isLiked
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${item.isLiked
                               ? "bg-red-500/15 border-red-500/30 text-red-400 font-bold"
                               : "bg-[#060a0f] border-white/5 hover:text-white"
-                          }`}
+                            }`}
                         >
                           <Heart className={`size-4 ${item.isLiked ? "fill-red-400" : ""}`} />
                           <span>{item.likesCount || 0}</span>
@@ -661,11 +688,10 @@ export default function CommunityFeedPage() {
                         <button
                           type="button"
                           onClick={(e) => handleToggleComments(item._id, e)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${
-                            openCommentsPostId === item._id
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${openCommentsPostId === item._id
                               ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400 font-bold"
                               : "bg-[#060a0f] border-white/5 hover:text-white"
-                          }`}
+                            }`}
                         >
                           <MessageCircle className="size-4" />
                           <span>{item.commentsCount ?? item.comments?.length ?? 0}</span>
@@ -719,11 +745,10 @@ export default function CommunityFeedPage() {
                                 e.stopPropagation();
                                 setActiveReplyEmojiTweetId(activeReplyEmojiTweetId === item._id ? null : item._id);
                               }}
-                              className={`absolute right-2 size-6 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
-                                activeReplyEmojiTweetId === item._id
+                              className={`absolute right-2 size-6 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${activeReplyEmojiTweetId === item._id
                                   ? "text-emerald-400 bg-emerald-500/20"
                                   : "text-neutral-400 hover:text-white"
-                              }`}
+                                }`}
                               title="Add Emoji to Reply"
                             >
                               <Smile className="size-3.5" />
@@ -814,11 +839,10 @@ export default function CommunityFeedPage() {
                                     <button
                                       type="button"
                                       onClick={(e) => handleToggleCommentLike(e, item._id, c._id)}
-                                      className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${
-                                        isLiked
+                                      className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${isLiked
                                           ? "text-rose-400 bg-rose-500/15"
                                           : "text-neutral-400 hover:text-rose-400 hover:bg-white/5"
-                                      }`}
+                                        }`}
                                       title={isLiked ? "Unlike reply" : "Like reply"}
                                     >
                                       <Heart className={`size-3 ${isLiked ? "fill-rose-400" : ""}`} />
@@ -905,7 +929,9 @@ export default function CommunityFeedPage() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedPostModal(item);
+                          navigate(`/post/${item._id}`, {
+                            state: { from: location.pathname + location.search },
+                          });
                         }}
                         className="p-1.5 rounded-xl bg-white/[0.04] hover:bg-white/10 text-neutral-400 hover:text-white transition-all cursor-pointer"
                         title="Expand View"
@@ -915,29 +941,46 @@ export default function CommunityFeedPage() {
                     </div>
                   </div>
 
-                  {/* Caption */}
-                  {item.caption && (
-                    <p className="text-sm text-neutral-100 leading-relaxed font-normal">{item.caption}</p>
-                  )}
+                    {/* Multi-Image & Video Carousel (Clicking image opens dedicated post page) */}
+                    <div className="max-w-[560px] mx-auto w-full aspect-[3/4]">
+                      <PostMediaCarousel
+                        media={item.media}
+                        thumbnail={item.thumbnail}
+                        fitCover={false}
+                        onMediaClick={() =>
+                          navigate(`/post/${item._id}`, {
+                            state: { from: location.pathname + location.search },
+                          })
+                        }
+                      />
+                    </div>
 
-                  {/* Multi-Image & Video Carousel (Clicking image opens modal) */}
-                  <PostMediaCarousel
-                    media={item.media}
-                    thumbnail={item.thumbnail}
-                    fitCover={true}
-                    onMediaClick={() => setSelectedPostModal(item)}
-                  />
+                    {/* Caption Under the Post */}
+                    {item.caption && (
+                      <p
+                        onClick={() =>
+                          navigate(`/post/${item._id}`, {
+                            state: { from: location.pathname + location.search },
+                          })
+                        }
+                        className="text-sm text-neutral-100 leading-relaxed font-normal cursor-pointer hover:text-cyan-400 transition-colors px-1"
+                      >
+                        <span className="font-bold text-white mr-2">
+                          @{item.owner?.username || "player"}
+                        </span>
+                        {item.caption}
+                      </p>
+                    )}
 
                   {/* Actions */}
                   <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/5 text-xs text-neutral-400">
                     <div className="flex items-center gap-1.5 sm:gap-3 flex-wrap">
                       <button
                         onClick={(e) => handleLikePost(e, item._id)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${
-                          item.isLiked
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${item.isLiked
                             ? "bg-red-500/15 border-red-500/30 text-red-400 font-bold"
                             : "bg-[#060a0f] border-white/5 hover:text-white"
-                        }`}
+                          }`}
                       >
                         <Heart className={`size-4 ${item.isLiked ? "fill-red-400" : ""}`} />
                         <span>{item.likesCount || 0}</span>
@@ -971,7 +1014,11 @@ export default function CommunityFeedPage() {
                     </div>
 
                     <button
-                      onClick={() => setSelectedPostModal(item)}
+                      onClick={() =>
+                        navigate(`/post/${item._id}`, {
+                          state: { from: location.pathname + location.search },
+                        })
+                      }
                       className="text-xs text-emerald-400 hover:underline font-bold cursor-pointer whitespace-nowrap shrink-0 ml-auto"
                     >
                       <span className="hidden sm:inline">View Full Post →</span>
@@ -1048,11 +1095,10 @@ export default function CommunityFeedPage() {
                                     <button
                                       type="button"
                                       onClick={(e) => handleToggleCommentLike(e, item._id, c._id)}
-                                      className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${
-                                        isLiked
+                                      className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${isLiked
                                           ? "text-rose-400 bg-rose-500/15"
                                           : "text-neutral-400 hover:text-rose-400 hover:bg-white/5"
-                                      }`}
+                                        }`}
                                       title={isLiked ? "Unlike comment" : "Like comment"}
                                     >
                                       <Heart className={`size-3 ${isLiked ? "fill-rose-400" : ""}`} />

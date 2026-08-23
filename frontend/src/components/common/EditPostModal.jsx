@@ -133,7 +133,7 @@ export default function EditPostModal({
               <PostMediaCarousel
                 media={post.media}
                 thumbnail={post.thumbnail}
-                fitCover={true}
+                fitCover={false}
                 className="w-full h-full rounded-none border-0"
               />
             </div>

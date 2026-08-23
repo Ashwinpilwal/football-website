@@ -26,6 +26,7 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import SettingsPage from "./pages/SettingsPage.jsx";
 import LiveMatchesPage from "./pages/LiveMatchesPage.jsx";
 import FootballAIPage from "./pages/FootballAIPage.jsx";
+import PostDetailPage from "./pages/PostDetailPage.jsx";
 
 // Auth & Session Pages
 import LoginPage from "./pages/LoginPage.jsx";
@@ -52,6 +53,7 @@ const router = createBrowserRouter([
           { path: "/my-bookings", element: <MyBookingsPage /> },
           { path: "/feed", element: <CommunityFeedPage /> },
           { path: "/community", element: <CommunityFeedPage /> },
+          { path: "/post/:postId", element: <PostDetailPage /> },
           { path: "/messages", element: <MessagesPage /> },
           { path: "/create-post", element: <CreatePostPage /> },
           { path: "/channel/:username", element: <ProfilePage /> },

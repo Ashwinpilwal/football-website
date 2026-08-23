@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { sliceLogin } from "@/features/authSlice";
 import ChangeClubModal from "@/components/profile/ChangeClubModal";
@@ -57,6 +57,8 @@ import toast from "react-hot-toast";
 
 export default function ProfilePage() {
   const { username } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { userData, status } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
@@ -872,7 +874,11 @@ export default function ProfilePage() {
                 {posts.map((post) => (
                   <div
                     key={post._id}
-                    onClick={() => setSelectedPostModal(post)}
+                    onClick={() =>
+                      navigate(`/post/${post._id}`, {
+                        state: { from: location.pathname + location.search },
+                      })
+                    }
                     className="glass-card rounded-2xl sm:rounded-3xl overflow-hidden border border-white/[0.08] hover:border-emerald-500/40 transition-all cursor-pointer group shadow-lg sm:shadow-xl flex flex-col justify-between"
                   >
                     {/* Top: Edge-to-Edge Thumbnail Post Cover */}
@@ -1260,7 +1266,11 @@ export default function ProfilePage() {
                         {sectionPosts.map((post) => (
                           <div
                             key={post._id}
-                            onClick={() => setSelectedPostModal(post)}
+                            onClick={() =>
+                              navigate(`/post/${post._id}`, {
+                                state: { from: location.pathname + location.search },
+                              })
+                            }
                             className="glass-card rounded-2xl sm:rounded-3xl overflow-hidden border border-white/[0.08] hover:border-emerald-500/40 transition-all cursor-pointer group shadow-lg sm:shadow-xl flex flex-col justify-between"
                           >
                             {/* Top: Edge-to-Edge Thumbnail Post Cover */}
@@ -1466,7 +1476,7 @@ export default function ProfilePage() {
       {previewPreference && (
         <div
           onClick={() => setPreviewPreference(null)}
-          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 cursor-pointer animate-in fade-in duration-200 select-none"
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 sm:p-8 cursor-pointer animate-in fade-in duration-200 select-none"
         >
           <div
             onClick={() => setPreviewPreference(null)}
@@ -1482,7 +1492,6 @@ export default function ProfilePage() {
             </div>
 
             <div className="relative size-64 sm:size-80 md:size-96 rounded-3xl bg-[#060a0f] border border-white/20 p-4 sm:p-6 shadow-2xl flex items-center justify-center overflow-hidden ring-2 ring-emerald-500/40">
-              <div className="absolute inset-0 bg-emerald-500/15 blur-2xl pointer-events-none" />
               <img
                 src={previewPreference.image}
                 alt={previewPreference.title}
@@ -1505,7 +1514,7 @@ export default function ProfilePage() {
       {fullImageViewer && (
         <div
           onClick={() => setFullImageViewer(null)}
-          className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 cursor-pointer animate-in fade-in duration-200 select-none"
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 sm:p-6 cursor-pointer animate-in fade-in duration-200 select-none"
         >
           <div
             className={`relative flex flex-col items-center justify-center space-y-4 animate-in zoom-in-95 duration-200 text-center ${
@@ -1535,7 +1544,6 @@ export default function ProfilePage() {
                   : "size-64 sm:size-80 md:size-96"
               }`}
             >
-              <div className="absolute inset-0 bg-emerald-500/10 blur-2xl pointer-events-none" />
               <img
                 src={fullImageViewer.src}
                 alt={fullImageViewer.title}

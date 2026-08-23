@@ -193,6 +193,11 @@ export const chatService = {
     const response = await api.put(`/chats/update-group-chat/${chatId}`, payload, { headers });
     return response.data;
   },
+
+  addMembersToGroupChat: async (chatId, memberIds) => {
+    const response = await api.post(`/chats/add-members/${chatId}`, { memberIds });
+    return response.data;
+  },
 };
 
 export const videoService = {

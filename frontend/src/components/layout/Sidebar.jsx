@@ -255,9 +255,8 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
   // Instagram-Style Hover-Expanding Floating Sidebar for Desktop (Hardware Accelerated)
   return (
     <aside
-      className={`h-[calc(100vh-3rem)] fixed top-6 left-6 z-40 rounded-[32px] bg-[#0e1520] border border-white/10 shadow-2xl flex flex-col items-start py-5 justify-between select-none sidebar-desktop-aside overflow-hidden ${
-        isExpanded ? "w-64" : "w-20"
-      }`}
+      className={`h-[calc(100vh-3rem)] fixed top-6 left-6 z-40 rounded-[32px] bg-[#0e1520] border border-white/10 shadow-2xl flex flex-col items-start py-5 justify-between select-none sidebar-desktop-aside overflow-hidden ${isExpanded ? "w-64" : "w-20"
+        }`}
       style={{ isolation: "isolate" }}
     >
       {/* Brand Icon & Name */}
@@ -274,11 +273,10 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
           />
         </div>
         <div
-          className={`sidebar-text-reveal whitespace-nowrap overflow-hidden ${
-            isExpanded
+          className={`sidebar-text-reveal whitespace-nowrap overflow-hidden ${isExpanded
               ? "opacity-100 translate-x-0"
               : "opacity-0 -translate-x-2 pointer-events-none"
-          }`}
+            }`}
         >
           <span className="font-display font-black text-lg tracking-tight text-white flex items-center gap-1.5">
             REMONTADA
@@ -297,10 +295,9 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
               key={item.name}
               to={item.path}
               className={({ isActive }) =>
-                `w-full h-11 rounded-2xl flex items-center transition-colors duration-200 group cursor-pointer overflow-hidden ${
-                  isActive
-                    ? "bg-emerald-500 text-neutral-950 font-bold shadow-lg shadow-emerald-500/25"
-                    : "text-neutral-300 hover:text-white hover:bg-white/[0.08]"
+                `w-full h-11 rounded-2xl flex items-center transition-colors duration-200 group cursor-pointer overflow-hidden ${isActive
+                  ? "bg-emerald-500 text-neutral-950 font-bold shadow-lg shadow-emerald-500/25"
+                  : "text-neutral-300 hover:text-white hover:bg-white/[0.08]"
                 }`
               }
               title={item.name}
@@ -309,9 +306,8 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
                 <div className="flex items-center w-full px-3.5 gap-3.5">
                   <div className="relative shrink-0 flex items-center justify-center size-6">
                     <Icon
-                      className={`size-5 transition-transform duration-300 group-hover:scale-110 ${
-                        isActive ? "stroke-[2.5]" : ""
-                      }`}
+                      className={`size-5 transition-transform duration-300 group-hover:scale-110 ${isActive ? "stroke-[2.5]" : ""
+                        }`}
                     />
 
                     {/* Micro red dot indicator for unread messages */}
@@ -322,11 +318,10 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
 
                   {/* Text Label: revealed when expanded */}
                   <span
-                    className={`sidebar-text-reveal text-sm font-semibold whitespace-nowrap overflow-hidden flex-1 ${
-                      isExpanded
+                    className={`sidebar-text-reveal text-sm font-semibold whitespace-nowrap overflow-hidden flex-1 ${isExpanded
                         ? "opacity-100 translate-x-0"
                         : "opacity-0 -translate-x-2 pointer-events-none"
-                    }`}
+                      }`}
                   >
                     {item.name}
                   </span>
@@ -334,11 +329,10 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
                   {/* Badge when expanded */}
                   {item.badge && !isActive && (
                     <span
-                      className={`sidebar-text-reveal text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0 ${
-                        isExpanded
+                      className={`sidebar-text-reveal text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0 ${isExpanded
                           ? "opacity-100 scale-100"
                           : "opacity-0 scale-90 pointer-events-none"
-                      }`}
+                        }`}
                     >
                       {item.badge}
                     </span>
@@ -362,11 +356,10 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
               <PlusCircle className="size-5 stroke-[2.2] group-hover:scale-110 transition-transform duration-300" />
             </div>
             <span
-              className={`sidebar-text-reveal text-sm font-bold whitespace-nowrap overflow-hidden truncate ${
-                isExpanded
+              className={`sidebar-text-reveal text-sm font-bold whitespace-nowrap overflow-hidden truncate ${isExpanded
                   ? "opacity-100 translate-x-0"
                   : "opacity-0 -translate-x-2 pointer-events-none"
-              }`}
+                }`}
             >
               New Match Post
             </span>
@@ -384,11 +377,10 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
                 <LogOut className="size-4.5" />
               </div>
               <span
-                className={`sidebar-text-reveal text-sm font-semibold whitespace-nowrap overflow-hidden truncate ${
-                  isExpanded
+                className={`sidebar-text-reveal text-sm font-semibold whitespace-nowrap overflow-hidden truncate ${isExpanded
                     ? "opacity-100 translate-x-0"
                     : "opacity-0 -translate-x-2 pointer-events-none"
-                }`}
+                  }`}
               >
                 Sign Out
               </span>
@@ -405,11 +397,10 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
                 <User className="size-4.5" />
               </div>
               <span
-                className={`sidebar-text-reveal text-sm font-semibold whitespace-nowrap overflow-hidden truncate ${
-                  isExpanded
+                className={`sidebar-text-reveal text-sm font-semibold whitespace-nowrap overflow-hidden truncate ${isExpanded
                     ? "opacity-100 translate-x-0"
                     : "opacity-0 -translate-x-2 pointer-events-none"
-                }`}
+                  }`}
               >
                 Sign In
               </span>

@@ -39,13 +39,23 @@ html {
 }
 
 @keyframes themeFadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes themeFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* Lightweight surface color transitions */
@@ -57,8 +67,8 @@ main,
 aside,
 nav {
   transition: background-color 0.18s ease,
-              border-color 0.18s ease,
-              color 0.18s ease;
+    border-color 0.18s ease,
+    color 0.18s ease;
 }
 
 body {
@@ -169,6 +179,7 @@ h6,
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -188,7 +199,7 @@ h6,
 
 .sidebar-desktop-aside {
   transition: width 280ms cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1) !important;
   will-change: width;
   transform: translateZ(0);
   backface-visibility: hidden;
@@ -196,7 +207,7 @@ h6,
 
 .sidebar-text-reveal {
   transition: opacity 180ms ease,
-              transform 240ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transform 240ms cubic-bezier(0.16, 1, 0.3, 1) !important;
   will-change: opacity, transform;
 }
 
@@ -484,19 +495,25 @@ html.light .shadow-xl {
   .pb-safe {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
+
   .pt-safe {
     padding-top: max(1rem, env(safe-area-inset-top));
   }
 }
 
 /* Mobile Touch Optimization */
-button, a, input, select, textarea {
+button,
+a,
+input,
+select,
+textarea {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
 /* Fluid responsive image container protection */
-img, video {
+img,
+video {
   max-width: 100%;
   height: auto;
 }

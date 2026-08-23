@@ -601,18 +601,32 @@ export default function Navbar({ onOpenMobile }) {
           <button
             type="button"
             onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-            className={`md:hidden size-9 sm:size-10 rounded-xl sm:rounded-2xl border flex items-center justify-center transition-colors cursor-pointer shadow-xs ${
-              mobileSearchOpen
+            className={`md:hidden size-9 sm:size-10 rounded-xl sm:rounded-2xl border flex items-center justify-center transition-colors cursor-pointer shadow-xs ${mobileSearchOpen
                 ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-500"
                 : "bg-white/90 dark:bg-[#16212e] border-neutral-300 dark:border-white/20 text-neutral-700 dark:text-neutral-200"
-            }`}
+              }`}
             title="Search Players"
             aria-label="Toggle Player Search"
           >
             <Search className="size-4 sm:size-4.5" />
           </button>
 
-          {/* LIVE MATCHES Button */}
+          {/* Mobile Theme Toggle Button (Positioned between Search and Notifications) */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="md:hidden relative size-9 sm:size-10 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-[#16212e] border border-neutral-300 dark:border-white/20 hover:border-emerald-500/50 text-neutral-700 dark:text-neutral-200 transition-colors flex items-center justify-center cursor-pointer shadow-xs group/theme active:scale-95 shrink-0"
+            title={theme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
+            aria-label="Toggle Dark/Light Theme"
+          >
+            {theme === "dark" ? (
+              <Sun className="size-4 sm:size-4.5 text-amber-400 group-hover/theme:rotate-45 transition-transform duration-200" />
+            ) : (
+              <Moon className="size-4 sm:size-4.5 text-indigo-400 group-hover/theme:-rotate-12 transition-transform duration-200" />
+            )}
+          </button>
+
+          {/* LIVE MATCHES Button (Desktop) */}
           <Link
             to="/live-matches"
             className="hidden lg:flex items-center gap-2 h-10 px-3.5 rounded-2xl bg-white/90 dark:bg-[#16212e] hover:bg-neutral-100 dark:hover:bg-white/10 border border-red-500/30 hover:border-red-500/60 text-neutral-900 dark:text-white font-bold text-xs transition-all shadow-xs group active:scale-[0.98]"
@@ -623,14 +637,13 @@ export default function Navbar({ onOpenMobile }) {
             </span>
           </Link>
 
-          {/* Quick Create Post */}
+          {/* Quick Create Post (Desktop) */}
           <Link
             to="/create-post"
-            className="hidden sm:flex items-center gap-1.5 sm:gap-2 h-9 sm:h-10 px-3 sm:px-4 rounded-xl sm:rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition-all shadow-md shadow-emerald-500/20 active:scale-[0.98]"
+            className="hidden md:flex items-center gap-1.5 sm:gap-2 h-9 sm:h-10 px-3 sm:px-4 rounded-xl sm:rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition-all shadow-md shadow-emerald-500/20 active:scale-[0.98]"
           >
             <PlusCircle className="size-3.5 sm:size-4 stroke-[2.5]" />
-            <span className="hidden md:inline">Create Post</span>
-            <span className="md:hidden">Post</span>
+            <span>Create Post</span>
           </Link>
 
           {/* Notification Button & Floating Activity Tooltip Bubble */}
@@ -693,11 +706,11 @@ export default function Navbar({ onOpenMobile }) {
             )}
           </button>
 
-          {/* User Profile Avatar */}
+          {/* User Profile Avatar (Desktop/PC only) */}
           {status && userData ? (
             <Link
               to={`/channel/${userData.username}`}
-              className="flex items-center gap-2 pl-1 pr-2 sm:pr-3 py-1 rounded-xl sm:rounded-2xl bg-neutral-100 dark:bg-[#080d14] border border-neutral-300 dark:border-white/10 hover:border-emerald-500/50 transition-colors group cursor-pointer shadow-xs shrink-0"
+              className="hidden md:flex items-center gap-2 pl-1 pr-2 sm:pr-3 py-1 rounded-xl sm:rounded-2xl bg-neutral-100 dark:bg-[#080d14] border border-neutral-300 dark:border-white/10 hover:border-emerald-500/50 transition-colors group cursor-pointer shadow-xs shrink-0"
             >
               <img
                 src={getAvatarUrl(userData)}
@@ -711,7 +724,7 @@ export default function Navbar({ onOpenMobile }) {
           ) : (
             <Link
               to="/login"
-              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl bg-emerald-500 text-neutral-950 font-bold text-xs hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 shrink-0"
+              className="hidden md:flex px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl bg-emerald-500 text-neutral-950 font-bold text-xs hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 shrink-0"
             >
               Sign In
             </Link>

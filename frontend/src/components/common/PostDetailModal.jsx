@@ -18,6 +18,7 @@ import {
   Layers,
   ChevronDown,
   ChevronUp,
+  Loader2,
 } from "lucide-react";
 import PostMediaCarousel from "./PostMediaCarousel";
 import EditPostModal from "./EditPostModal";
@@ -249,6 +250,7 @@ export default function PostDetailModal({
   const [isOptionsMenuOpen, setIsOptionsMenuOpen] = useState(false);
   const [isDeletingPost, setIsDeletingPost] = useState(false);
   const [isDeletePostModalOpen, setIsDeletePostModalOpen] = useState(false);
+  const [isMobileCommentsOpen, setIsMobileCommentsOpen] = useState(false);
 
   const [loadingComments, setLoadingComments] = useState(false);
   const [commentsPage, setCommentsPage] = useState(1);
@@ -557,7 +559,7 @@ export default function PostDetailModal({
       {/* Main Glass Dialog */}
       <div
         onClick={onClose}
-        className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200 cursor-pointer"
+        className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/90 animate-in fade-in duration-200 cursor-pointer"
       >
         {/* Floating Close Button Top Right for Large Screens */}
         <button
@@ -574,13 +576,15 @@ export default function PostDetailModal({
           className="max-w-4xl lg:max-w-5xl w-full h-[90vh] sm:h-[85vh] max-h-[820px] bg-[#0e1520] text-white rounded-3xl border border-white/15 shadow-2xl flex flex-col md:flex-row overflow-hidden relative cursor-default select-text"
         >
           {/* LEFT: Media Showcase */}
-          <div className="w-full md:flex-1 bg-black flex items-center justify-center h-[260px] sm:h-[340px] md:h-full relative overflow-hidden border-b md:border-b-0 md:border-r border-white/10 shrink-0 md:shrink">
-            <PostMediaCarousel
-              media={post.media}
-              thumbnail={post.thumbnail}
-              fitCover={true}
-              className="w-full h-full rounded-none border-0 bg-black shadow-none"
-            />
+          <div className="w-full md:flex-1 bg-black flex items-center justify-center relative overflow-hidden border-b md:border-b-0 md:border-r border-white/10 shrink-0 md:shrink">
+            <div className="w-full h-full max-h-full max-w-full aspect-[3/4] flex items-center justify-center overflow-hidden">
+              <PostMediaCarousel
+                media={post.media}
+                thumbnail={post.thumbnail}
+                fitCover={false}
+                className="w-full h-full max-h-full aspect-[3/4] rounded-none border-0 bg-black shadow-none"
+              />
+            </div>
           </div>
 
           {/* RIGHT: Sidebar (Header, Comments Stream, Actions Bar, Composer) */}
@@ -638,185 +642,341 @@ export default function PostDetailModal({
               </div>
             </div>
 
-            {/* 2. Scrollable Comments Stream */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 min-h-0 bg-[#0a0f16]">
-              {/* Caption Card at Top */}
-              {post.caption && (
-                <div className="p-3.5 rounded-2xl bg-black/40 border border-white/[0.06] space-y-2">
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={getAvatarUrl(post.owner)}
-                      alt="Owner"
-                      className="size-6 rounded-lg object-cover ring-1 ring-white/10"
-                    />
-                    <span className="font-bold text-xs text-white">
-                      @{post.owner?.username || "player"}
-                    </span>
-                    <span className="text-[10px] text-neutral-500 font-mono ml-auto">
-                      {formatInstagramTime(post.createdAt) || "Recent"}
-                    </span>
-                  </div>
-                  <p className="text-xs sm:text-[13.5px] text-neutral-100 leading-relaxed font-normal">
-                    {post.caption}
-                  </p>
-                </div>
-              )}
-
-              {/* Comments List */}
-              {loadingComments ? (
-                <div className="py-12 text-center text-xs text-neutral-400 space-y-2">
-                  <div className="size-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
-                  <p>Loading comments...</p>
-                </div>
-              ) : rootComments.length > 0 ? (
-                <div className="space-y-3">
-                  {rootComments.map((c) => (
-                    <CommentThreadItem
-                      key={c._id || c.id}
-                      comment={c}
-                      repliesMap={repliesMap}
-                      expandedReplies={expandedReplies}
-                      toggleReplies={toggleReplies}
-                      startReply={startReply}
-                      handleToggleCommentLike={handleToggleCommentLike}
-                      requestDeleteComment={(commentId) =>
-                        setDeleteCommentModal({ isOpen: true, commentId, loading: false })
-                      }
-                      userData={userData}
-                      post={post}
-                      depth={0}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="py-12 text-center text-xs text-neutral-500 space-y-1">
-                  <MessageCircle className="size-8 text-neutral-600 mx-auto stroke-[1.5]" />
-                  <p className="font-semibold text-neutral-400 pt-1">No comments yet</p>
-                  <p className="text-[11px]">Be the first to share your thoughts on this match!</p>
-                </div>
-              )}
-            </div>
-
-            {/* 3. Sticky Bottom Action Bar & Input */}
-            <div className="border-t border-white/[0.08] bg-[#0e1520] shrink-0 p-3 sm:p-4 space-y-3">
-              {/* Actions Row */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {/* Heart / Like Button */}
-                  <button
-                    type="button"
-                    onClick={handleLike}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                      post.isLiked
-                        ? "bg-rose-500/15 border-rose-500/30 text-rose-400 shadow-sm shadow-rose-500/10"
-                        : "bg-white/[0.04] border-white/[0.06] text-neutral-300 hover:text-white"
-                    }`}
-                  >
-                    <Heart className={`size-4 ${post.isLiked ? "fill-rose-400" : ""}`} />
-                    <span>{(post.likesCount || 0).toLocaleString()}</span>
-                  </button>
-
-                  {/* Comment Button */}
-                  <button
-                    type="button"
-                    onClick={() => commentInputRef.current?.focus()}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/[0.06] text-neutral-300 hover:text-white text-xs font-bold transition-all cursor-pointer"
-                  >
-                    <MessageCircle className="size-4" />
-                    <span>{post.commentsCount ?? (Array.isArray(post.comments) ? post.comments.length : 0)}</span>
-                  </button>
-
-                  {/* Share Post */}
-                  <button
-                    type="button"
-                    onClick={() => setIsShareModalOpen(true)}
-                    className="p-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-neutral-300 hover:text-emerald-400 hover:border-emerald-500/30 transition-all cursor-pointer"
-                    title="Share Post"
-                  >
-                    <Share2 className="size-4" />
-                  </button>
-                </div>
-
-                <span className="text-[10.5px] font-mono text-neutral-500">
-                  {formatFullTimeAgo(post.createdAt)}
-                </span>
-              </div>
-
-              {/* Replying Banner */}
-              {replyingTo && (
-                <div className="px-3 py-1.5 rounded-xl bg-emerald-950/70 border border-emerald-500/40 flex items-center justify-between text-xs animate-in fade-in">
-                  <span className="text-emerald-300 truncate">
-                    Replying to <strong className="text-white">@{replyingTo.username}</strong>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setReplyingTo(null)}
-                    className="text-neutral-400 hover:text-white cursor-pointer"
-                  >
-                    <X className="size-3.5" />
-                  </button>
-                </div>
-              )}
-
-              {/* Comment Input Composer */}
-              <form onSubmit={handleAddComment} className="flex items-center gap-2 relative">
-                <div className="flex-1 flex items-center relative min-w-0">
-                  <input
-                    ref={commentInputRef}
-                    type="text"
-                    placeholder={
-                      replyingTo
-                        ? `Reply to @${replyingTo.username}...`
-                        : status
-                        ? "Write a comment..."
-                        : "Sign in to comment..."
-                    }
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    className="w-full h-10 pl-3.5 pr-9 rounded-xl bg-black/50 border border-white/[0.09] text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/60 font-medium"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowEmojiPicker((prev) => !prev)}
-                    className={`absolute right-2 size-6 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
-                      showEmojiPicker ? "text-emerald-400 bg-emerald-500/20" : "text-neutral-400 hover:text-white"
-                    }`}
-                    title="Insert emoji"
-                  >
-                    <Smile className="size-4" />
-                  </button>
-                </div>
-
+            {/* 2. Top Action Bar (Like, Comment Count, Share) - Always Visible */}
+            <div className="px-4 py-2.5 bg-[#0a0f16] border-b border-white/[0.06] flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2">
+                {/* Heart / Like Button */}
                 <button
-                  type="submit"
-                  disabled={submitting || !commentText.trim()}
-                  className="h-10 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs sm:text-sm transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer flex items-center gap-1.5 shadow-md shadow-emerald-500/20 shrink-0"
+                  type="button"
+                  onClick={handleLike}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                    post.isLiked
+                      ? "bg-rose-500/15 border-rose-500/30 text-rose-400 shadow-sm shadow-rose-500/10"
+                      : "bg-white/[0.04] border-white/[0.06] text-neutral-300 hover:text-white"
+                  }`}
                 >
-                  <Send className="size-3.5" />
-                  <span className="hidden sm:inline">Post</span>
+                  <Heart className={`size-4 ${post.isLiked ? "fill-rose-400" : ""}`} />
+                  <span>{(post.likesCount || 0).toLocaleString()}</span>
                 </button>
 
-                {/* Emoji Picker Popover */}
-                <EmojiPicker
-                  isOpen={showEmojiPicker}
-                  onClose={() => setShowEmojiPicker(false)}
-                  onSelectEmoji={(emoji) => {
-                    setCommentText((prev) => prev + emoji);
-                    commentInputRef.current?.focus();
+                {/* Comment Count Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileCommentsOpen(true);
+                    setTimeout(() => commentInputRef.current?.focus(), 150);
                   }}
-                  className="bottom-12 right-0"
-                />
-              </form>
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/[0.06] text-neutral-300 hover:text-white text-xs font-bold transition-all cursor-pointer"
+                >
+                  <MessageCircle className="size-4" />
+                  <span>{post.commentsCount ?? (Array.isArray(post.comments) ? post.comments.length : 0)}</span>
+                </button>
+
+                {/* Share Post Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="p-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-neutral-300 hover:text-emerald-400 hover:border-emerald-500/30 transition-all cursor-pointer"
+                  title="Share Post"
+                >
+                  <Share2 className="size-4" />
+                </button>
+              </div>
+
+              <span className="text-[10.5px] font-mono text-neutral-500">{formatFullTimeAgo(post.createdAt)}</span>
+            </div>
+
+            {/* 3. Desktop Comments Stream & Composer (Hidden on mobile) */}
+            <div className="hidden md:flex md:flex-col md:flex-1 min-h-0 overflow-hidden justify-between">
+              {/* Scrollable Comments Stream */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 min-h-0 bg-[#0a0f16]">
+                {/* Caption Card at Top */}
+                {post.caption && (
+                  <div className="p-3.5 rounded-2xl bg-black/40 border border-white/[0.06] space-y-2">
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={getAvatarUrl(post.owner)}
+                        alt="Owner"
+                        className="size-6 rounded-lg object-cover ring-1 ring-white/10"
+                      />
+                      <span className="font-bold text-xs text-white">
+                        @{post.owner?.username || "player"}
+                      </span>
+                      <span className="text-[10px] text-neutral-500 font-mono ml-auto">
+                        {formatInstagramTime(post.createdAt) || "Recent"}
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-[13.5px] text-neutral-100 leading-relaxed font-normal">
+                      {post.caption}
+                    </p>
+                  </div>
+                )}
+
+                {/* Comments List */}
+                {loadingComments ? (
+                  <div className="py-12 text-center text-xs text-neutral-400 space-y-2">
+                    <div className="size-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
+                    <p>Loading comments...</p>
+                  </div>
+                ) : rootComments.length > 0 ? (
+                  <div className="space-y-3">
+                    {rootComments.map((c) => (
+                      <CommentThreadItem
+                        key={c._id || c.id}
+                        comment={c}
+                        repliesMap={repliesMap}
+                        expandedReplies={expandedReplies}
+                        toggleReplies={toggleReplies}
+                        startReply={startReply}
+                        handleToggleCommentLike={handleToggleCommentLike}
+                        requestDeleteComment={(commentId) =>
+                          setDeleteCommentModal({ isOpen: true, commentId, loading: false })
+                        }
+                        userData={userData}
+                        post={post}
+                        depth={0}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center text-xs text-neutral-500 space-y-1">
+                    <MessageCircle className="size-8 text-neutral-600 mx-auto stroke-[1.5]" />
+                    <p className="font-semibold text-neutral-400 pt-1">No comments yet</p>
+                    <p className="text-[11px]">Be the first to share your thoughts on this match!</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Desktop Sticky Bottom Composer */}
+              <div className="border-t border-white/[0.08] bg-[#0e1520] shrink-0 p-3 sm:p-4 space-y-3">
+                {/* Replying Banner */}
+                {replyingTo && (
+                  <div className="px-3 py-1.5 rounded-xl bg-emerald-950/70 border border-emerald-500/40 flex items-center justify-between text-xs animate-in fade-in">
+                    <span className="text-emerald-300 truncate">
+                      Replying to <strong className="text-white">@{replyingTo.username}</strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setReplyingTo(null)}
+                      className="text-neutral-400 hover:text-white cursor-pointer"
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                {/* Comment Input Composer */}
+                <form onSubmit={handleAddComment} className="flex items-center gap-2 relative">
+                  <div className="flex-1 flex items-center relative min-w-0">
+                    <input
+                      ref={commentInputRef}
+                      type="text"
+                      placeholder={
+                        replyingTo
+                          ? `Reply to @${replyingTo.username}...`
+                          : "Add a comment..."
+                      }
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      className="w-full h-10 pl-3.5 pr-10 rounded-xl bg-black/60 border border-white/10 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-medium"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                      className="absolute right-2.5 size-7 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                      title="Add emoji"
+                    >
+                      <Smile className="size-4" />
+                    </button>
+                    <EmojiPicker
+                      isOpen={showEmojiPicker}
+                      onClose={() => setShowEmojiPicker(false)}
+                      onSelectEmoji={(emoji) => setCommentText((prev) => prev + emoji)}
+                      className="bottom-12 right-0"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={submitting || !commentText.trim()}
+                    className="h-10 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs sm:text-sm transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer flex items-center gap-1.5 shadow-md shadow-emerald-500/20 shrink-0"
+                  >
+                    {submitting ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : (
+                      <Send className="size-3.5" />
+                    )}
+                    <span className="hidden sm:inline">Post</span>
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* MOBILE COMMENTS BOTTOM SHEET (Slides from bottom to top on mobile only) */}
+        {isMobileCommentsOpen && (
+          <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end bg-black/75 backdrop-blur-xs animate-in fade-in duration-200">
+            {/* Backdrop click to dismiss */}
+            <div
+              className="flex-1 w-full"
+              onClick={() => setIsMobileCommentsOpen(false)}
+            />
+
+            {/* Bottom Sheet Modal Container */}
+            <div
+              className="w-full bg-[#0b1118] border-t border-white/15 rounded-t-3xl shadow-2xl flex flex-col max-h-[82vh] h-[75vh] animate-in slide-in-from-bottom duration-300 overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header with Drag Handle & Close X Button */}
+              <div className="px-4 py-3.5 border-b border-white/[0.08] bg-[#0e1520] flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-2">
+                  <MessageCircle className="size-4 text-emerald-400" />
+                  <h3 className="font-bold text-sm text-white font-display">
+                    Comments ({post.commentsCount ?? (Array.isArray(post.comments) ? post.comments.length : 0)})
+                  </h3>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsMobileCommentsOpen(false)}
+                  className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white transition-colors cursor-pointer"
+                  title="Close comments"
+                >
+                  <X className="size-5 stroke-[2.2]" />
+                </button>
+              </div>
+
+              {/* Scrollable Comments List on Mobile */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3.5 bg-[#0a0f16]">
+                {/* Post Caption Preview */}
+                {post.caption && (
+                  <div className="p-3 rounded-2xl bg-black/40 border border-white/[0.06] space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={getAvatarUrl(post.owner)}
+                        alt="Owner"
+                        className="size-6 rounded-lg object-cover ring-1 ring-white/10"
+                      />
+                      <span className="font-bold text-xs text-white">@{post.owner?.username || "player"}</span>
+                      <span className="text-[10px] text-neutral-500 font-mono ml-auto">
+                        {formatInstagramTime(post.createdAt) || "Recent"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-neutral-100 leading-relaxed font-normal">
+                      {post.caption}
+                    </p>
+                  </div>
+                )}
+
+                {/* Comments Stream */}
+                {loadingComments ? (
+                  <div className="py-12 text-center text-xs text-neutral-400 space-y-2">
+                    <div className="size-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
+                    <p>Loading comments...</p>
+                  </div>
+                ) : rootComments.length > 0 ? (
+                  <div className="space-y-3">
+                    {rootComments.map((c) => (
+                      <CommentThreadItem
+                        key={c._id || c.id}
+                        comment={c}
+                        repliesMap={repliesMap}
+                        expandedReplies={expandedReplies}
+                        toggleReplies={toggleReplies}
+                        startReply={(targetComment) => {
+                          startReply(targetComment);
+                          commentInputRef.current?.focus();
+                        }}
+                        handleToggleCommentLike={handleToggleCommentLike}
+                        requestDeleteComment={(commentId) =>
+                          setDeleteCommentModal({ isOpen: true, commentId, loading: false })
+                        }
+                        userData={userData}
+                        post={post}
+                        depth={0}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center text-xs text-neutral-500 space-y-1">
+                    <MessageCircle className="size-8 text-neutral-600 mx-auto stroke-[1.5]" />
+                    <p className="font-semibold text-neutral-400 pt-1">No comments yet</p>
+                    <p className="text-[11px]">Be the first to share your thoughts on this match!</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Bottom Input Composer */}
+              <div className="border-t border-white/[0.08] bg-[#0e1520] shrink-0 p-3 space-y-2">
+                {replyingTo && (
+                  <div className="px-3 py-1.5 rounded-xl bg-emerald-950/70 border border-emerald-500/40 flex items-center justify-between text-xs animate-in fade-in">
+                    <span className="text-emerald-300 truncate">
+                      Replying to <strong className="text-white">@{replyingTo.username}</strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setReplyingTo(null)}
+                      className="text-neutral-400 hover:text-white cursor-pointer"
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                <form onSubmit={handleAddComment} className="flex items-center gap-2 relative">
+                  <div className="flex-1 flex items-center relative min-w-0">
+                    <input
+                      ref={commentInputRef}
+                      type="text"
+                      placeholder={
+                        replyingTo
+                          ? `Reply to @${replyingTo.username}...`
+                          : "Add a comment..."
+                      }
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      className="w-full h-10 pl-3.5 pr-10 rounded-xl bg-black/60 border border-white/10 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-medium"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                      className="absolute right-2.5 size-6 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                      title="Add emoji"
+                    >
+                      <Smile className="size-4" />
+                    </button>
+                    <EmojiPicker
+                      isOpen={showEmojiPicker}
+                      onClose={() => setShowEmojiPicker(false)}
+                      onSelectEmoji={(emoji) => setCommentText((prev) => prev + emoji)}
+                      className="bottom-12 right-0"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={submitting || !commentText.trim()}
+                    className="h-10 px-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer flex items-center gap-1 shadow-md shadow-emerald-500/20 shrink-0"
+                  >
+                    {submitting ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : (
+                      <Send className="size-3.5" />
+                    )}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Options Action Sheet (•••) */}
       {isOptionsMenuOpen && (
         <div
           onClick={() => setIsOptionsMenuOpen(false)}
-          className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-150 cursor-pointer"
+          className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 animate-in fade-in duration-150 cursor-pointer"
         >
           <div
             onClick={(e) => e.stopPropagation()}

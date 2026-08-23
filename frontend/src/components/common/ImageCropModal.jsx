@@ -194,7 +194,7 @@ export default function ImageCropModal({
   if (!isOpen || !imageSrc) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 animate-in fade-in duration-200">
       <div className="max-w-lg w-full bg-[#0b1118] border border-white/15 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-5 text-white flex flex-col max-h-[92vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 pb-3 shrink-0">
@@ -286,7 +286,7 @@ export default function ImageCropModal({
           </div>
 
           {/* Hint Overlay */}
-          <div className="absolute top-2 left-2 pointer-events-none px-2 py-1 rounded-lg bg-black/60 backdrop-blur-md text-[10px] text-neutral-300 font-medium flex items-center gap-1 border border-white/10">
+          <div className="absolute top-2 left-2 pointer-events-none px-2 py-1 rounded-lg bg-black/80 text-[10px] text-neutral-300 font-medium flex items-center gap-1 border border-white/10">
             <Move className="size-3 text-emerald-400" />
             <span>Drag to position</span>
           </div>

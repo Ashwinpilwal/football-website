@@ -8,6 +8,7 @@ import {
   getGroupChatDetails,
   getAllUserChats,
   updateGroupChat,
+  addMembersToGroupChat,
 } from "../controllers/chat.controller.js";
 
 const router = Router();
@@ -19,5 +20,6 @@ router.route("/get-all-group-chats").get(verifyJWT, getAllGroupChats);
 router.route("/create-group-chat").post(verifyJWT, createGroupChat);
 router.route("/get-group-chat-details/:chatId").get(verifyJWT, getGroupChatDetails);
 router.route("/update-group-chat/:chatId").put(verifyJWT, upload.single("groupIcon"), updateGroupChat);
+router.route("/add-members/:chatId").post(verifyJWT, addMembersToGroupChat);
 
 export default router;

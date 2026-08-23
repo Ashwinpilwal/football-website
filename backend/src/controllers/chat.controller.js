@@ -238,4 +238,89 @@ const updateGroupChat = asyncHandler(async (req, res) => {
     );
 });
 
-export { getChatId, getAllGroupChats, createGroupChat, getGroupChatDetails, getAllUserChats, updateGroupChat };
+const addMembersToGroupChat = asyncHandler(async (req, res) => {
+    const { chatId } = req.params;
+    const { memberIds } = req.body;
+
+    if (!chatId || !mongoose.Types.ObjectId.isValid(chatId)) {
+        throw new ApiError(400, "Valid chatId is required!");
+    }
+
+    const chat = await Chat.findOne({
+        _id: new mongoose.Types.ObjectId(chatId),
+        isGroupChat: true,
+        participants: {
+            $in: [req.user._id]
+        }
+    });
+
+    if (!chat) {
+        throw new ApiError(404, "Squad Group Chat not found or you are not a member of this chat!");
+    }
+
+    const incomingIds = Array.isArray(memberIds) ? memberIds : [memberIds];
+    const validIds = incomingIds
+        .filter((id) => id && mongoose.Types.ObjectId.isValid(id))
+        .map((id) => new mongoose.Types.ObjectId(id));
+
+    if (validIds.length === 0) {
+        throw new ApiError(400, "Please provide at least one valid member ID to add.");
+    }
+
+    const currentMemberSet = new Set(chat.participants.map((p) => p.toString()));
+    let newMembersCount = 0;
+
+    for (const memberId of validIds) {
+        if (!currentMemberSet.has(memberId.toString())) {
+            chat.participants.push(memberId);
+            currentMemberSet.add(memberId.toString());
+            newMembersCount++;
+        }
+    }
+
+    if (newMembersCount > 0) {
+        await chat.save();
+    }
+
+    const populated = await Chat.findById(chat._id)
+        .populate("participants", "username fullName avatar showOnlineStatus privacy lastSeen")
+        .populate("admin", "username fullName avatar")
+        .populate({
+            path: "lastMessage",
+            populate: {
+                path: "sender",
+                select: "username fullName avatar"
+            }
+        });
+
+    // Real-time broadcast to all group members
+    try {
+        const io = getIO();
+        if (io) {
+            for (const participant of populated.participants) {
+                const pId = (participant._id || participant).toString();
+                io.to(pId).emit("group-updated", populated);
+            }
+        }
+    } catch (socketErr) {
+        console.log("Socket broadcast group-updated error:", socketErr);
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            populated,
+            `Successfully added ${newMembersCount} member(s) to squad!`
+        )
+    );
+});
+
+export {
+    getChatId,
+    getAllGroupChats,
+    createGroupChat,
+    getGroupChatDetails,
+    getAllUserChats,
+    updateGroupChat,
+    addMembersToGroupChat
+};

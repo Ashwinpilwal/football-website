@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import {
   MessageCircle,
   Search,
@@ -53,6 +53,7 @@ import { bookingService, turfService } from "@/services/turf.service";
 import EmojiPicker from "@/components/common/EmojiPicker";
 import PostDetailModal from "@/components/common/PostDetailModal";
 import EditGroupModal from "@/components/chat/EditGroupModal";
+import AddMemberModal from "@/components/chat/AddMemberModal";
 import DeleteMessageModal from "@/components/common/DeleteMessageModal";
 import { generateAndDownloadMatchPass } from "@/utils/passGenerator.utils";
 import { getAvatarUrl, getCoverUrl } from "@/utils/avatar.utils";
@@ -98,6 +99,8 @@ const formatRecentTime = (dateString) => {
 };
 
 export default function MessagesPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { userData, status } = useSelector((state) => state.auth);
   const locationState = useSelector((state) => state.location);
   const [searchParams] = useSearchParams();
@@ -150,6 +153,7 @@ export default function MessagesPage() {
 
   const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
   const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(false);
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
   const [showMembersPanel, setShowMembersPanel] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [selectedSharedPost, setSelectedSharedPost] = useState(null);
@@ -391,20 +395,39 @@ export default function MessagesPage() {
           })
           .catch(() => {});
 
-        // If URL requested a specific user for 1-on-1, open or create their chat
+        // Check for returned chat ID from post close (via location.state) or target user from url
+        const returnChatId = location.state?.returnChatId;
+        const returnViewMode = location.state?.returnViewMode;
+        const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+
+        // Clean up any stale sessionStorage items
+        sessionStorage.removeItem("messages_return_chat_id");
+        sessionStorage.removeItem("messages_return_view_mode");
+
+        if (returnViewMode) {
+          setViewMode(returnViewMode);
+        }
+
         if (targetUserIdFromUrl) {
           handleOpenDirectChat(targetUserIdFromUrl);
-        } else if (formattedChats.length > 0) {
-          // Default to first direct chat on desktop (>= 768px) only; mobile should show the chat list first
-          const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
-          if (isDesktop) {
-            const firstDirect = formattedChats.find((c) => !c.isGroupChat);
-            if (firstDirect) {
-              setActiveChat(firstDirect);
-            } else if (formattedChats[0]) {
-              setActiveChat(formattedChats[0]);
-            }
+        } else if (returnChatId && formattedChats.length > 0) {
+          const matchedChat = formattedChats.find(
+            (c) => c._id?.toString() === returnChatId.toString()
+          );
+          if (matchedChat) {
+            setActiveChat(matchedChat);
+          } else if (isDesktop) {
+            setActiveChat(formattedChats[0]);
+          } else {
+            setActiveChat(null);
           }
+        } else if (isDesktop && formattedChats.length > 0) {
+          // On desktop (>= 768px), default to first direct chat
+          const firstDirect = formattedChats.find((c) => !c.isGroupChat);
+          setActiveChat(firstDirect || formattedChats[0] || null);
+        } else {
+          // On mobile (< 768px), show the chat list by default
+          setActiveChat(null);
         }
       } catch (err) {
         console.log("Error loading chats or following list:", err);
@@ -600,12 +623,23 @@ export default function MessagesPage() {
         }
         chatService.markMessagesAsSeen(activeChat._id).catch(() => {});
 
-        // Smooth scroll to bottom upon initial chat switch
+        // Smooth scroll to bottom upon initial chat switch OR restore exact scroll level when returning from post
+        const savedScrollTop =
+          sessionStorage.getItem("messages_return_scroll_top") ||
+          (location.state?.returnScrollTop !== undefined && location.state?.returnScrollTop !== null
+            ? String(location.state.returnScrollTop)
+            : null);
+
         setTimeout(() => {
           if (messagesContainerRef.current) {
-            messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+            if (savedScrollTop !== null && savedScrollTop !== undefined && !isNaN(Number(savedScrollTop))) {
+              messagesContainerRef.current.scrollTop = Number(savedScrollTop);
+              sessionStorage.removeItem("messages_return_scroll_top");
+            } else {
+              messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+            }
           }
-        }, 50);
+        }, 70);
       } catch (err) {
         console.log("Messages load error:", err);
       }
@@ -2742,6 +2776,16 @@ export default function MessagesPage() {
                 <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     type="button"
+                    onClick={() => setIsAddMemberModalOpen(true)}
+                    className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-all cursor-pointer shadow-sm h-8 sm:h-9 active:scale-95"
+                    title="Add Footballers to Squad"
+                  >
+                    <UserPlus className="size-3.5" />
+                    <span className="hidden sm:inline">Add Member</span>
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={() => setIsEditGroupModalOpen(true)}
                     className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border border-white/10 bg-white/[0.05] hover:bg-emerald-500/20 hover:border-emerald-500/30 text-xs font-bold text-neutral-300 hover:text-emerald-300 transition-all cursor-pointer shadow-sm h-8 sm:h-9"
                     title="Edit Squad Group Profile & Name"
@@ -2962,7 +3006,33 @@ export default function MessagesPage() {
                         {/* Instagram-style Shared Post Card (Rendered at top of bubble) */}
                         {(msg.attachment === "post" || msg.sharedPost) && (
                           <div
-                            onClick={() => setSelectedSharedPost(msg.sharedPost)}
+                            onClick={() => {
+                              const targetPostId =
+                                msg.sharedPost?.postId || msg.sharedPost?._id || msg.sharedPost?.id;
+                              if (!targetPostId) return;
+
+                              const currentScroll = messagesContainerRef.current ? messagesContainerRef.current.scrollTop : 0;
+                              if (activeChat?._id) {
+                                sessionStorage.setItem("messages_return_chat_id", activeChat._id);
+                              }
+                              if (viewMode) {
+                                sessionStorage.setItem("messages_return_view_mode", viewMode);
+                              }
+                              sessionStorage.setItem("messages_return_scroll_top", String(currentScroll));
+
+                              navigate(`/post/${targetPostId}`, {
+                                state: {
+                                  post: {
+                                    ...msg.sharedPost,
+                                    _id: targetPostId,
+                                  },
+                                  from: location.pathname + location.search,
+                                  chatId: activeChat?._id,
+                                  viewMode: viewMode,
+                                  scrollTop: currentScroll,
+                                },
+                              });
+                            }}
                             className="rounded-2xl overflow-hidden bg-black/70 border border-white/15 hover:border-emerald-500/50 transition-all cursor-pointer shadow-xl max-w-sm group/post"
                           >
                             {/* Post Author Header */}
@@ -3330,6 +3400,17 @@ export default function MessagesPage() {
             </div>
           </div>
 
+          <div className="p-3 border-b border-white/[0.06] bg-white/[0.02]">
+            <button
+              type="button"
+              onClick={() => setIsAddMemberModalOpen(true)}
+              className="w-full py-2 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs font-bold text-emerald-300 hover:text-emerald-200 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm active:scale-98"
+            >
+              <UserPlus className="size-4 text-emerald-400" />
+              <span>Add Member to Squad</span>
+            </button>
+          </div>
+
           <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
             {participantsList.length > 0 ? (
               participantsList.map((member) => {
@@ -3437,6 +3518,18 @@ export default function MessagesPage() {
           onClose={() => setIsEditGroupModalOpen(false)}
           chat={activeChat}
           onGroupUpdated={handleGroupUpdatedSuccess}
+        />
+      )}
+
+      {/* Add Member to Squad Group Modal */}
+      {isAddMemberModalOpen && activeChat?.isGroupChat && (
+        <AddMemberModal
+          isOpen={isAddMemberModalOpen}
+          onClose={() => setIsAddMemberModalOpen(false)}
+          chat={activeChat}
+          followingUsers={followingUsers}
+          allUsers={allSystemUsers}
+          onMembersAdded={handleGroupUpdatedSuccess}
         />
       )}
 
