@@ -44,7 +44,7 @@ import ConfirmDeleteModal from "@/components/common/ConfirmDeleteModal";
 import LoginModal from "@/components/auth/LoginModal";
 import EmojiPicker from "@/components/common/EmojiPicker";
 import FootballLoader from "@/components/common/FootballLoader";
-import { getAvatarUrl, cleanAddress, optimizeCloudinaryPostImage } from "@/utils/avatar.utils";
+import { getAvatarUrl, cleanAddress, optimizeCloudinaryPostImage, optimizeTurfThumbnail } from "@/utils/avatar.utils";
 import toast from "react-hot-toast";
 
 // Recursive Inline Comment Thread Component for Home Feed
@@ -1431,7 +1431,7 @@ export default function HomePage() {
                         className="block relative w-full h-28 rounded-xl overflow-hidden bg-neutral-900/40 border border-black/5 dark:border-white/10"
                       >
                         <img
-                          src={turfImage}
+                          src={optimizeTurfThumbnail(turfImage)}
                           alt={turf.name}
                           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                           loading="lazy"

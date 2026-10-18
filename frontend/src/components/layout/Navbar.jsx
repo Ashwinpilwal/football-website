@@ -461,11 +461,11 @@ export default function Navbar({ onOpenMobile }) {
       <header className="sticky top-2 sm:top-4 z-30 mx-2 sm:mx-4 md:mx-6 my-2 sm:my-4 px-3 sm:px-5 md:px-7 py-2.5 sm:py-3 rounded-2xl sm:rounded-3xl bg-white dark:bg-[#101722] border border-neutral-300/80 dark:border-white/20 shadow-xl dark:shadow-2xl flex items-center justify-between gap-2 sm:gap-4 relative transition-colors duration-200">
         {/* Background Layer with Overflow Hidden so pattern stays inside rounded corners without clipping popups */}
         <div className="absolute inset-0 rounded-2xl sm:rounded-3xl overflow-hidden pointer-events-none">
-          {/* Football Pattern Background */}
+          {/* Football Pattern Background (Optimized WebP, 153KB vs 3.5MB original) */}
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-65 dark:opacity-50 transition-opacity duration-300"
             style={{
-              backgroundImage: "url('/assets/football-pattern.png')",
+              backgroundImage: "url('/assets/football-pattern.webp')",
             }}
           />
 

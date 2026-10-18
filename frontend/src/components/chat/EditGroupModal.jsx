@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { X, Camera, Users, Loader2, Trash2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { chatService } from "@/services/social.service";
+import { optimizeGroupIcon } from "@/utils/cloudinary.utils";
 import toast from "react-hot-toast";
 
 export default function EditGroupModal({ isOpen, onClose, chat, onGroupUpdated }) {
@@ -117,7 +118,7 @@ export default function EditGroupModal({ isOpen, onClose, chat, onGroupUpdated }
             <div className="relative group">
               <div className="size-24 rounded-3xl overflow-hidden bg-neutral-950 border-2 border-emerald-500/40 ring-4 ring-emerald-500/10 flex items-center justify-center shadow-xl">
                 {previewUrl ? (
-                  <img src={previewUrl} alt="Group Icon" className="w-full h-full object-cover" />
+                  <img src={optimizeGroupIcon(previewUrl)} alt="Group Icon" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-emerald-500/25 to-emerald-800/40 flex items-center justify-center text-emerald-400">
                     <Users className="size-10" />

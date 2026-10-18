@@ -54,6 +54,7 @@ import FootballLoader from "@/components/common/FootballLoader";
 import { getAvatarUrl } from "@/utils/avatar.utils";
 import {
   optimizeCloudinaryPostImage,
+  optimizeCloudinaryBanner,
   getCloudinaryVideoThumbnail,
   getOriginalCloudinaryUrl,
 } from "@/utils/cloudinary.utils";
@@ -765,7 +766,7 @@ export default function ProfilePage() {
           onClick={() => {
             if (profile.coverImage?.url) {
               setFullImageViewer({
-                src: profile.coverImage.url,
+                src: getOriginalCloudinaryUrl(profile.coverImage.url),
                 title: profile.fullName ? `${profile.fullName}'s Cover Banner` : "Cover Banner",
                 subtitle: `@${profile.username}`,
                 isCover: true,
@@ -780,7 +781,7 @@ export default function ProfilePage() {
           {profile.coverImage?.url ? (
             <>
               <img
-                src={profile.coverImage.url}
+                src={optimizeCloudinaryBanner(profile.coverImage.url)}
                 alt="Cover"
                 className="w-full h-full object-cover object-center group-hover/cover:scale-102 transition-transform duration-500"
               />

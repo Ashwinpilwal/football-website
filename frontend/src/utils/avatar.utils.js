@@ -85,12 +85,20 @@ export function getAvatarUrl(user, fallbackName = "Player") {
 }
 
 export function getCoverUrl(user) {
+  let raw = null;
   if (typeof user === "string" && (user.startsWith("http") || user.startsWith("/"))) {
-    return user;
+    raw = user;
+  } else if (user?.coverImage?.url && typeof user.coverImage.url === "string") {
+    raw = user.coverImage.url;
+  } else if (typeof user?.coverImage === "string" && user.coverImage.startsWith("http")) {
+    raw = user.coverImage;
+  } else if (typeof user?.cover === "string" && user.cover.startsWith("http")) {
+    raw = user.cover;
   }
-  if (user?.coverImage?.url && typeof user.coverImage.url === "string") return user.coverImage.url;
-  if (typeof user?.coverImage === "string" && user.coverImage.startsWith("http")) return user.coverImage;
-  if (typeof user?.cover === "string" && user.cover.startsWith("http")) return user.cover;
+
+  if (raw) {
+    return optimizeCloudinaryBanner(raw);
+  }
   return "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200";
 }
 
@@ -137,8 +145,18 @@ export function cleanAddress(address) {
 
 export {
   optimizeCloudinaryPostImage,
+  optimizeTurfHeroImage,
+  optimizeTurfThumbnail,
+  optimizeMiniThumbnail,
+  optimizeCloudinaryBanner,
+  optimizeGroupIcon,
   getCloudinaryVideoThumbnail,
   getOriginalCloudinaryUrl,
   CLOUDINARY_POST_TRANSFORMATION,
+  CLOUDINARY_TURF_HERO_TRANSFORMATION,
+  CLOUDINARY_TURF_THUMB_TRANSFORMATION,
+  CLOUDINARY_MINI_THUMB_TRANSFORMATION,
+  CLOUDINARY_BANNER_TRANSFORMATION,
+  CLOUDINARY_GROUP_ICON_TRANSFORMATION,
 } from "./cloudinary.utils";
 

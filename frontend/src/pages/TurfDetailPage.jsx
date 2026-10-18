@@ -28,7 +28,7 @@ import { chatService } from "@/services/social.service";
 import EditTurfModal from "@/components/turfs/EditTurfModal";
 import TurfRatingsSection from "@/components/turfs/TurfRatingsSection";
 import toast from "react-hot-toast";
-import { cleanAddress } from "@/utils/avatar.utils";
+import { cleanAddress, optimizeTurfHeroImage, optimizeMiniThumbnail } from "@/utils/avatar.utils";
 
 export default function TurfDetailPage() {
   const { turfId } = useParams();
@@ -296,7 +296,7 @@ export default function TurfDetailPage() {
         {/* Still Main Cover Image */}
         <div className="relative h-56 sm:h-80 md:h-[450px] lg:h-[520px] rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 bg-neutral-950 shadow-2xl">
           <img
-            src={images[activeImageIndex]}
+            src={optimizeTurfHeroImage(images[activeImageIndex])}
             alt={turf.name}
             className="w-full h-full object-cover transition-all duration-300"
           />
@@ -346,9 +346,10 @@ export default function TurfDetailPage() {
                     }`}
                   >
                     <img
-                      src={img}
+                      src={optimizeMiniThumbnail(img)}
                       alt={`Turf angle ${idx + 1}`}
                       className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                      loading="lazy"
                     />
                     {isActive && (
                       <div className="absolute inset-0 bg-emerald-500/10 pointer-events-none" />

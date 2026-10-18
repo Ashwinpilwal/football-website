@@ -57,6 +57,7 @@ import AddMemberModal from "@/components/chat/AddMemberModal";
 import DeleteMessageModal from "@/components/common/DeleteMessageModal";
 import { generateAndDownloadMatchPass } from "@/utils/passGenerator.utils";
 import { getAvatarUrl, getCoverUrl } from "@/utils/avatar.utils";
+import { optimizeGroupIcon, optimizeCloudinaryPostImage } from "@/utils/cloudinary.utils";
 import toast from "react-hot-toast";
 
 // Helper: Extract cover image: if thumbnail exists use it, otherwise use first image in post
@@ -1801,9 +1802,10 @@ export default function MessagesPage() {
                         <div className="relative shrink-0">
                           {chat.groupIcon ? (
                             <img
-                              src={chat.groupIcon}
+                              src={optimizeGroupIcon(chat.groupIcon)}
                               alt={chat.groupName}
                               className="size-10 rounded-2xl object-cover ring-1 ring-emerald-500/30 shadow-md"
+                              loading="lazy"
                             />
                           ) : (
                             <div className="size-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-700/30 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-md">
@@ -2401,9 +2403,10 @@ export default function MessagesPage() {
                     <div className="relative shrink-0">
                       {group.groupIcon ? (
                         <img
-                          src={group.groupIcon}
+                          src={optimizeGroupIcon(group.groupIcon)}
                           alt={group.groupName}
                           className="size-10 rounded-2xl object-cover ring-1 ring-emerald-500/30 shadow-md"
+                          loading="lazy"
                         />
                       ) : (
                         <div className="size-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-700/30 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-md">
@@ -2707,7 +2710,7 @@ export default function MessagesPage() {
                     <div className="relative shrink-0 group/headericon">
                       {activeChat.groupIcon ? (
                         <img
-                          src={activeChat.groupIcon}
+                          src={optimizeGroupIcon(activeChat.groupIcon)}
                           alt={activeChat.groupName}
                           className="size-9 sm:size-10 rounded-2xl object-cover ring-1 ring-emerald-500/30 shadow-md"
                         />
@@ -3037,9 +3040,10 @@ export default function MessagesPage() {
                               return coverUrl ? (
                                 <div className="relative aspect-video max-h-48 bg-black/80 overflow-hidden">
                                   <img
-                                    src={coverUrl}
+                                    src={optimizeCloudinaryPostImage(coverUrl)}
                                     alt="Shared Post"
                                     className="w-full h-full object-cover group-hover/post:scale-105 transition-transform duration-300"
+                                    loading="lazy"
                                   />
                                   {msg.sharedPost.media?.[0]?.type === "video" && (
                                     <div className="absolute inset-0 flex items-center justify-center bg-black/30">

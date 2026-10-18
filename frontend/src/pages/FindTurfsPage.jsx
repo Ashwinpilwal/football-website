@@ -22,7 +22,7 @@ import TurfMap from "@/components/Map/TurfMap";
 import { turfService } from "@/services/turf.service";
 import CreateTurfModal from "@/components/turfs/CreateTurfModal";
 import EditTurfModal from "@/components/turfs/EditTurfModal";
-import { cleanAddress } from "@/utils/avatar.utils";
+import { cleanAddress, optimizeTurfThumbnail } from "@/utils/avatar.utils";
 
 // Haversine distance calculator between user and pitch
 function calculateDistanceKm(lat1, lon1, lat2, lon2) {
@@ -286,11 +286,11 @@ export default function FindTurfsPage() {
                     {/* Full-width panoramic cover image covering phone and card width */}
                     <div className="w-full h-44 sm:h-48 relative overflow-hidden bg-neutral-950">
                       <img
-                        src={
+                        src={optimizeTurfThumbnail(
                           turf.thumbnail ||
                           turf.images?.[0] ||
                           "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800"
-                        }
+                        )}
                         alt={turf.name}
                         className="w-full h-full object-cover object-center group-hover:scale-105 transition-all duration-500"
                         loading="lazy"
@@ -407,11 +407,11 @@ export default function FindTurfsPage() {
               >
                 <div className="h-44 w-full relative overflow-hidden bg-neutral-950">
                   <img
-                    src={
+                    src={optimizeTurfThumbnail(
                       turf.thumbnail ||
                       turf.images?.[0] ||
                       "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500"
-                    }
+                    )}
                     alt={turf.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
                   />

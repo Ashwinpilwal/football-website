@@ -31,6 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { turfService } from "@/services/turf.service";
 import ConfirmDeleteModal from "@/components/common/ConfirmDeleteModal";
 import toast from "react-hot-toast";
+import { optimizeTurfThumbnail } from "@/utils/avatar.utils";
 
 // Leaflet Map Imports
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
@@ -755,9 +756,10 @@ export default function EditTurfModal({ turf, isOpen, onClose, onTurfUpdated, on
                         {/* Image Preview */}
                         <div className="aspect-video w-full bg-neutral-900 overflow-hidden">
                           <img
-                            src={item.url}
+                            src={item.type === "existing" ? optimizeTurfThumbnail(item.url) : item.url}
                             alt={`Pitch photo ${index + 1}`}
                             className="w-full h-full object-cover pointer-events-none group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
                           />
                         </div>
 

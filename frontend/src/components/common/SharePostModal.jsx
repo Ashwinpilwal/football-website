@@ -16,7 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { chatService } from "@/services/social.service";
 import { getMyFollowing } from "@/services/follow.service";
-import { getAvatarUrl } from "@/utils/avatar.utils";
+import { getAvatarUrl, optimizeGroupIcon } from "@/utils/avatar.utils";
 import { socket } from "@/utils/socket";
 import toast from "react-hot-toast";
 
@@ -407,7 +407,7 @@ export default function SharePostModal({ post, isOpen, onClose }) {
                         {target.isGroup ? (
                           avatarSrc ? (
                             <img
-                              src={avatarSrc}
+                              src={optimizeGroupIcon(avatarSrc)}
                               alt={target.name}
                               className="size-10 rounded-2xl object-cover ring-1 ring-emerald-500/30 shadow-sm"
                               loading="lazy"
