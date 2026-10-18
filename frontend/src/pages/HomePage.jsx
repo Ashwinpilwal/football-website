@@ -355,7 +355,13 @@ export default function HomePage() {
           params.lng = locationState.longitude;
         }
         const res = await turfService.getNearbyTurfs(params);
-        const turfsData = res?.data || [];
+        let turfsData = res?.data || [];
+        if (turfsData.length === 0 && Object.keys(params).length > 0) {
+          const fallback = await turfService.getNearbyTurfs({});
+          if (Array.isArray(fallback?.data) && fallback.data.length > 0) {
+            turfsData = fallback.data;
+          }
+        }
         setTurfs(Array.isArray(turfsData) ? turfsData : []);
       } catch (err) {
         console.log("Error fetching turfs:", err);

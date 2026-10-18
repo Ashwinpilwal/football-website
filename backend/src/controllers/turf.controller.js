@@ -104,28 +104,55 @@ const getAllTurfs = asyncHandler(async (req, res) => {
 
     let turfs;
 
-    // If coordinates are provided, use geospatial $near query
+    // If coordinates are provided, use geospatial $near query (sorted closest first)
     if (lat !== undefined && lng !== undefined) {
 
         const latitude = parseFloat(lat);
         const longitude = parseFloat(lng);
-        const maxDistance = parseFloat(maxDistanceKm) || 50; // Default 50 km
 
         if (isNaN(latitude) || isNaN(longitude)) {
             throw new ApiError(400, "lat and lng must be valid numbers!");
         }
 
-        turfs = await Turf.find({
-            location: {
-                $near: {
-                    $geometry: {
-                        type: "Point",
-                        coordinates: [longitude, latitude]
-                    },
-                    $maxDistance: maxDistance * 1000 // Convert km to metres
-                }
+        const nearGeometry = {
+            type: "Point",
+            coordinates: [longitude, latitude]
+        };
+
+        const nearQuery = {
+            $near: {
+                $geometry: nearGeometry
             }
-        }).populate("owner", "fullName username avatar email phone role");
+        };
+
+        // Only enforce strict maxDistance if client explicitly requested maxDistanceKm in query
+        if (maxDistanceKm && !isNaN(parseFloat(maxDistanceKm))) {
+            nearQuery.$near.$maxDistance = parseFloat(maxDistanceKm) * 1000;
+        }
+
+        try {
+            turfs = await Turf.find({
+                location: nearQuery
+            }).populate("owner", "fullName username avatar email phone role");
+        } catch (geoErr) {
+            console.error("Geospatial $near query error, falling back to all turfs:", geoErr);
+            turfs = await Turf.find().populate("owner", "fullName username avatar email phone role");
+        }
+
+        // If strict distance filter yielded zero turfs, fall back to nearest turfs without distance cap
+        if (!turfs || turfs.length === 0) {
+            try {
+                turfs = await Turf.find({
+                    location: {
+                        $near: {
+                            $geometry: nearGeometry
+                        }
+                    }
+                }).populate("owner", "fullName username avatar email phone role");
+            } catch (fallbackGeoErr) {
+                turfs = await Turf.find().populate("owner", "fullName username avatar email phone role");
+            }
+        }
 
     } else {
 
@@ -134,13 +161,16 @@ const getAllTurfs = asyncHandler(async (req, res) => {
 
     }
 
+    // Ultimate fallback if still empty
+    if (!turfs || turfs.length === 0) {
+        turfs = await Turf.find().populate("owner", "fullName username avatar email phone role");
+    }
+
     return res.status(200).json(
         new ApiResponse(
             200,
             turfs,
-            lat && lng
-                ? `Turfs within ${parseFloat(maxDistanceKm) || 50}km fetched successfully!`
-                : "All turfs fetched successfully!"
+            "Turfs fetched successfully!"
         )
     );
 

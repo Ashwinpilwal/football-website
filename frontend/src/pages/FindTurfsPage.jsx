@@ -75,8 +75,16 @@ export default function FindTurfsPage() {
         params.lng = userCoords[1];
       }
       const res = await turfService.getNearbyTurfs(params);
-      const data = res?.data || [];
-      const list = Array.isArray(data) ? data : [];
+      let list = Array.isArray(res?.data) ? res.data : [];
+
+      // If coordinate-filtered query returned 0, fallback to global list
+      if (list.length === 0 && Object.keys(params).length > 0) {
+        const fallbackRes = await turfService.getNearbyTurfs({});
+        if (Array.isArray(fallbackRes?.data) && fallbackRes.data.length > 0) {
+          list = fallbackRes.data;
+        }
+      }
+
       setTurfs(list);
 
       if (turfIdParam) {

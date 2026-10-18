@@ -10,7 +10,7 @@ import {
 
 } from "../controllers/turf.controller.js"
 
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { verifyJWT, verifyJWTOptional } from "../middlewares/auth.middleware.js";
 import { isAdmin } from "../middlewares/isAdmin.middleware.js";
 
 
@@ -24,7 +24,7 @@ const router = Router();
 // Get nearby turfs/playgrounds
 router.get(
     "/nearby",
-    verifyJWT,
+    verifyJWTOptional,
     getAllTurfs
 );
 
@@ -32,7 +32,7 @@ router.get(
 // Get a specific turf/ground
 router.get(
     "/:turfId",
-    verifyJWT,
+    verifyJWTOptional,
     getTurfById
 );
 
