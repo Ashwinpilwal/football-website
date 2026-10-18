@@ -1,6 +1,44 @@
 import React, { useState, memo, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import CustomVideoPlayer from "./CustomVideoPlayer";
+import {
+  optimizeCloudinaryPostImage,
+  getCloudinaryVideoThumbnail,
+} from "@/utils/cloudinary.utils";
+
+function CarouselImage({ src, alt, isFirst }) {
+  const [loaded, setLoaded] = useState(false);
+  const optimizedSrc = optimizeCloudinaryPostImage(src);
+
+  return (
+    <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+      {!loaded && (
+        <div className="absolute inset-0 bg-neutral-900 animate-pulse flex items-center justify-center">
+          <div className="size-8 border-2 border-emerald-500/20 border-t-emerald-400 rounded-full animate-spin" />
+        </div>
+      )}
+      <img
+        src={optimizedSrc}
+        alt={alt}
+        loading={isFirst ? "eager" : "lazy"}
+        decoding="async"
+        draggable={false}
+        onLoad={() => setLoaded(true)}
+        className={`w-full h-full max-w-full max-h-full object-contain select-none pointer-events-none transition-opacity duration-300 ${
+          loaded ? "opacity-100" : "opacity-0"
+        }`}
+        style={{
+          objectFit: "contain",
+          maxWidth: "100%",
+          maxHeight: "100%",
+          backfaceVisibility: "hidden",
+          WebkitBackfaceVisibility: "hidden",
+          transform: "translateZ(0)",
+        }}
+      />
+    </div>
+  );
+}
 
 function PostMediaCarouselComponent({
   media = [],
@@ -128,25 +166,23 @@ function PostMediaCarouselComponent({
               {isVideo ? (
                 <CustomVideoPlayer
                   src={mediaUrl}
+                  poster={
+                    item?.thumbnail?.url ||
+                    item?.thumbnail ||
+                    thumbnail?.url ||
+                    thumbnail ||
+                    getCloudinaryVideoThumbnail(mediaUrl)
+                  }
                   fitCover={fitCover}
+                  autoPlay={false}
+                  isActive={idx === currentIndex}
                   className="w-full h-full"
                 />
               ) : (
-                <img
+                <CarouselImage
                   src={mediaUrl}
                   alt={`Slide ${idx + 1}`}
-                  loading="eager"
-                  decoding="async"
-                  draggable={false}
-                  className="w-full h-full max-w-full max-h-full object-contain select-none pointer-events-none"
-                  style={{
-                    objectFit: "contain",
-                    maxWidth: "100%",
-                    maxHeight: "100%",
-                    backfaceVisibility: "hidden",
-                    WebkitBackfaceVisibility: "hidden",
-                    transform: "translateZ(0)",
-                  }}
+                  isFirst={idx === 0}
                 />
               )}
             </div>

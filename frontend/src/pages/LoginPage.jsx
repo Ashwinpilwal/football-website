@@ -61,7 +61,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative bg-neutral-950 text-neutral-100 flex items-center justify-center p-4 md:p-8 overflow-hidden">
+    <div className="min-h-screen relative bg-transparent text-neutral-100 flex items-center justify-center p-4 md:p-8 overflow-hidden">
       <div className="absolute top-1/4 left-1/3 size-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <Card className="max-w-md w-full backdrop-blur-xl shadow-2xl rounded-3xl bg-neutral-900/90 border border-white/15 p-6 md:p-8 space-y-6 relative z-10 animate-in fade-in zoom-in-95 duration-300">

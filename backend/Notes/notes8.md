@@ -82,4 +82,4 @@ Because cookies are a browser feature.
 
 Once a cookie is stored for: https://mywebsite.com
 
-every future request to that domain automatically includes the cookie.
+every future request to that domain automatically includes the cookie. 

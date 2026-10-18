@@ -13,8 +13,8 @@ export const postService = {
     return response.data;
   },
 
-  getUserPosts: async (userId) => {
-    const response = await api.get(`/posts/user/${userId}`);
+  getUserPosts: async (userId, params = {}) => {
+    const response = await api.get(`/posts/user/${userId}`, { params });
     return response.data;
   },
 

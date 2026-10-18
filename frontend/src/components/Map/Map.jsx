@@ -66,7 +66,7 @@ const Map = () => {
 
             <TileLayer
                 attribution='&copy; OpenStreetMap contributors &copy; CARTO'
-                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                url={`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${import.meta.env.VITE_CARTO_API_KEY || "cb1_4o4p_1_68e988dc40d91fccd5cbefb6"}`}
                 />
 
 

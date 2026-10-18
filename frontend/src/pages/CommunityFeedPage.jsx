@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
@@ -33,7 +33,7 @@ import SharePostModal from "@/components/common/SharePostModal";
 import ConfirmDeleteModal from "@/components/common/ConfirmDeleteModal";
 import EmojiPicker from "@/components/common/EmojiPicker";
 import FootballLoader from "@/components/common/FootballLoader";
-import { getAvatarUrl } from "@/utils/avatar.utils";
+import { getAvatarUrl, optimizeCloudinaryPostImage } from "@/utils/avatar.utils";
 import toast from "react-hot-toast";
 
 export default function CommunityFeedPage() {
@@ -43,11 +43,27 @@ export default function CommunityFeedPage() {
 
   const [feedItems, setFeedItems] = useState([]);
   const [loadingFeed, setLoadingFeed] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(3);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const feedObserverRef = useRef(null);
+  const hasUserScrolledRef = useRef(false);
+
   const [suggestedUsers, setSuggestedUsers] = useState([]);
   const [newTweetContent, setNewTweetContent] = useState("");
   const [tweetPhoto, setTweetPhoto] = useState(null);
   const [tweetPhotoPreview, setTweetPhotoPreview] = useState(null);
-  const tweetPhotoInputRef = React.useRef(null);
+  const tweetPhotoInputRef = useRef(null);
+
+  // Track if user has actually scrolled down to avoid auto-triggering on mount
+  useEffect(() => {
+    const handleUserScroll = () => {
+      if (window.scrollY > 20) {
+        hasUserScrolledRef.current = true;
+      }
+    };
+    window.addEventListener("scroll", handleUserScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleUserScroll);
+  }, []);
   const [isTweetEmojiOpen, setIsTweetEmojiOpen] = useState(false);
   const [activeReplyEmojiTweetId, setActiveReplyEmojiTweetId] = useState(null);
   const [commentInputs, setCommentInputs] = useState({});
@@ -99,6 +115,7 @@ export default function CommunityFeedPage() {
       // Combine both posts & tweets and shuffle
       const combined = [...formattedPosts, ...formattedTweets];
       setFeedItems(shuffleArray(combined));
+      setVisibleCount(3);
     } catch (e) {
       console.log("Feed error:", e);
       setFeedItems([]);
@@ -106,6 +123,40 @@ export default function CommunityFeedPage() {
       setLoadingFeed(false);
     }
   };
+
+  // Infinite Scroll: Reveal next 3 posts on scroll
+  const loadMoreFeed = useCallback(() => {
+    if (loadingMore || visibleCount >= feedItems.length) return;
+    setLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount((prev) => Math.min(prev + 3, feedItems.length));
+      setLoadingMore(false);
+    }, 200);
+  }, [loadingMore, visibleCount, feedItems.length]);
+
+  useEffect(() => {
+    if (visibleCount >= feedItems.length || loadingFeed) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Only trigger if intersecting AND user has actively scrolled
+        if (entries[0].isIntersecting && hasUserScrolledRef.current) {
+          loadMoreFeed();
+        }
+      },
+      { threshold: 0.1, rootMargin: "50px" }
+    );
+
+    const target = feedObserverRef.current;
+    if (target) {
+      observer.observe(target);
+    }
+
+    return () => {
+      if (target) observer.unobserve(target);
+      observer.disconnect();
+    };
+  }, [visibleCount, feedItems.length, loadingFeed, loadMoreFeed]);
 
   useEffect(() => {
     loadFeed();
@@ -599,77 +650,79 @@ export default function CommunityFeedPage() {
           {loadingFeed ? (
             <FootballLoader message="Loading community posts & tweets from pitch wall..." />
           ) : feedItems.length > 0 ? (
-            feedItems.map((item) => {
-              // 1. RENDER TWEET CARD
-              if (item.itemType === "tweet") {
-                const ownerUsername = item.owner?.username || "player";
-                const ownerName = item.owner?.fullName || item.owner?.username || "Footballer";
-                const avatarUrl = getAvatarUrl(item.owner);
+            <>
+              {feedItems.slice(0, visibleCount).map((item) => {
+                // 1. RENDER TWEET CARD
+                if (item.itemType === "tweet") {
+                  const ownerUsername = item.owner?.username || "player";
+                  const ownerName = item.owner?.fullName || item.owner?.username || "Footballer";
+                  const avatarUrl = getAvatarUrl(item.owner);
 
-                return (
-                  <Card
-                    key={`tw_${item._id}`}
-                    className="p-6 bg-[#0a0f16] border border-emerald-500/20 hover:border-emerald-500/40 transition-all rounded-3xl space-y-3.5 shadow-xl group"
-                  >
-                    <div className="flex items-center justify-between">
-                      <Link to={`/channel/${ownerUsername}`} className="flex items-center gap-3 group/author">
-                        <img
-                          src={avatarUrl}
-                          alt={ownerName}
-                          className="size-10 rounded-2xl object-cover ring-1 ring-emerald-500/30 group-hover/author:ring-emerald-400 transition-all"
-                        />
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-bold text-sm text-white group-hover/author:text-emerald-400 transition-colors">
-                              {ownerName}
+                  return (
+                    <Card
+                      key={`tw_${item._id}`}
+                      className="p-6 bg-[#0a0f16] border border-emerald-500/20 hover:border-emerald-500/40 transition-all rounded-3xl space-y-3.5 shadow-xl group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <Link to={`/channel/${ownerUsername}`} className="flex items-center gap-3 group/author">
+                          <img
+                            src={avatarUrl}
+                            alt={ownerName}
+                            className="size-10 rounded-2xl object-cover ring-1 ring-emerald-500/30 group-hover/author:ring-emerald-400 transition-all"
+                          />
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-bold text-sm text-white group-hover/author:text-emerald-400 transition-colors">
+                                {ownerName}
+                              </span>
+                              <CheckCircle2 className="size-3.5 text-emerald-400" />
+                            </div>
+                            <span className="text-xs text-neutral-400">
+                              @{ownerUsername} • {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "Recent"}
                             </span>
-                            <CheckCircle2 className="size-3.5 text-emerald-400" />
                           </div>
-                          <span className="text-xs text-neutral-400">
-                            @{ownerUsername} • {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "Recent"}
-                          </span>
+                        </Link>
+
+                        <div className="flex items-center gap-2">
+                          <Badge variant="emerald" className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5">
+                            💬 Tweet
+                          </Badge>
+                          {/* Only tweet owner can delete */}
+                          {Boolean(
+                            userData &&
+                            ((item.owner?._id && userData?._id && item.owner._id.toString() === userData._id.toString()) ||
+                              (item.owner?.username && userData?.username && item.owner.username === userData.username))
+                          ) && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteTweetFromFeed(item._id)}
+                                className="p-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 transition-all cursor-pointer shadow-xs active:scale-95"
+                                title="Delete your tweet"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            )}
                         </div>
-                      </Link>
-
-                      <div className="flex items-center gap-2">
-                        <Badge variant="emerald" className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5">
-                          💬 Tweet
-                        </Badge>
-                        {/* Only tweet owner can delete */}
-                        {Boolean(
-                          userData &&
-                          ((item.owner?._id && userData?._id && item.owner._id.toString() === userData._id.toString()) ||
-                            (item.owner?.username && userData?.username && item.owner.username === userData.username))
-                        ) && (
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteTweetFromFeed(item._id)}
-                              className="p-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 transition-all cursor-pointer shadow-xs active:scale-95"
-                              title="Delete your tweet"
-                            >
-                              <Trash2 className="size-3.5" />
-                            </button>
-                          )}
                       </div>
-                    </div>
 
-                    {item.content && (
-                      <p className="text-[14.5px] text-neutral-100 leading-relaxed font-normal pt-1">
-                        {item.content}
-                      </p>
-                    )}
+                      {item.content && (
+                        <p className="text-[14.5px] text-neutral-100 leading-relaxed font-normal pt-1">
+                          {item.content}
+                        </p>
+                      )}
 
-                    {/* Tweet Photo Attachment */}
-                    {item.photo?.url && (
-                      <div className="rounded-2xl overflow-hidden border border-white/10 max-h-96 bg-black/40">
-                        <img
-                          src={item.photo.url}
-                          alt="Tweet photo attachment"
-                          className="w-full h-auto max-h-96 object-cover hover:scale-[1.01] transition-transform cursor-pointer"
-                          onClick={() => window.open(item.photo.url, "_blank")}
-                        />
-                      </div>
-                    )}
+                      {/* Tweet Photo Attachment with Cloudinary optimization */}
+                      {item.photo?.url && (
+                        <div className="rounded-2xl overflow-hidden border border-white/10 max-h-96 bg-black/40">
+                          <img
+                            src={optimizeCloudinaryPostImage(item.photo.url)}
+                            alt="Tweet photo attachment"
+                            loading="lazy"
+                            className="w-full h-auto max-h-96 object-cover hover:scale-[1.01] transition-transform cursor-pointer"
+                            onClick={() => window.open(item.photo.url, "_blank")}
+                          />
+                        </div>
+                      )}
 
                     <div className="flex items-center justify-between pt-2 border-t border-white/5 text-xs text-neutral-400">
                       <div className="flex items-center gap-3">
@@ -890,7 +943,7 @@ export default function CommunityFeedPage() {
                       className="flex items-center gap-2.5 sm:gap-3 group/author min-w-0"
                     >
                       <img
-                        src={item.owner?.avatar?.url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"}
+                        src={getAvatarUrl(item.owner)}
                         alt={item.owner?.fullName}
                         className="size-9 sm:size-10 rounded-xl sm:rounded-2xl object-cover ring-1 ring-white/10 group-hover/author:ring-emerald-400 transition-all shrink-0"
                       />
@@ -1131,8 +1184,32 @@ export default function CommunityFeedPage() {
                   )}
                 </Card>
               );
-            })
-          ) : (
+            })}
+
+            {/* IntersectionObserver Sentinel for Infinite Scroll (loads next 3 items) */}
+            {visibleCount < feedItems.length && (
+              <div ref={feedObserverRef} className="py-6 flex flex-col items-center justify-center">
+                {loadingMore ? (
+                  <div className="flex items-center gap-2.5 text-xs font-semibold text-emerald-400">
+                    <span className="size-4 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin" />
+                    <span>Loading more posts...</span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      hasUserScrolledRef.current = true;
+                      loadMoreFeed();
+                    }}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-neutral-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all cursor-pointer"
+                  >
+                    Scroll or click to load more
+                  </button>
+                )}
+              </div>
+            )}
+          </>
+        ) : (
             <div className="p-12 rounded-3xl bg-[#0a0f16] border border-white/10 text-center space-y-3">
               <MessageSquare className="size-8 text-neutral-600 mx-auto" />
               <h3 className="text-sm font-bold text-white">No Posts or Tweets Yet</h3>
@@ -1161,7 +1238,7 @@ export default function CommunityFeedPage() {
                 <div key={user._id} className="flex items-center justify-between gap-3">
                   <Link to={`/channel/${user.username}`} className="flex items-center gap-2.5 min-w-0 group">
                     <img
-                      src={user.avatar?.url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"}
+                      src={getAvatarUrl(user, user.fullName || user.username)}
                       alt={user.fullName}
                       className="size-8 rounded-xl object-cover ring-1 ring-white/10 group-hover:ring-emerald-400 transition-all"
                     />

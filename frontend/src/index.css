@@ -282,7 +282,27 @@ html.light .bg-\[\#0c1219\],
 html.light .bg-\[\#0b1118\],
 html.light .bg-\[\#0b121c\],
 html.light .bg-\[\#0f1722\],
-html.light .bg-\[\#141f2d\] {
+html.light .bg-\[\#141f2d\],
+html.light .bg-\[\#0c131d\],
+html.light .bg-\[\#0a1018\],
+html.light .bg-\[\#0d1622\],
+html.light .bg-\[\#071318\],
+html.light .bg-\[\#091a22\],
+html.light .bg-\[\#0c141f\],
+html.light .bg-\[\#0c1420\],
+html.light .bg-\[\#0d1520\],
+html.light .bg-\[\#0f1b26\],
+html.light .bg-\[\#051a11\] {
+  background-color: #ffffff !important;
+}
+
+html.light .from-\[\#071318\],
+html.light .via-\[\#091a22\],
+html.light .to-\[\#0a1018\] {
+  --tw-gradient-from: #ffffff !important;
+  --tw-gradient-to: #ffffff !important;
+  --tw-gradient-stops: #ffffff, #ffffff !important;
+  background-image: none !important;
   background-color: #ffffff !important;
 }
 

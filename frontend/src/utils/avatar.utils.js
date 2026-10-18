@@ -1,16 +1,79 @@
+export const CLOUDINARY_AVATAR_TRANSFORMATION = "w_240,h_240,c_fill,g_face,q_auto:good,f_auto";
+
 /**
- * Returns user's uploaded avatar, or a modern football-themed initial avatar as a fallback.
+ * Optimizes Cloudinary URLs specifically for pfp (avatar) images by requesting
+ * sharp 240x240 face-centered crop with balanced auto-quality (q_auto:good) and auto-format (f_auto).
+ * Fast loading while maintaining crisp detail on standard and Retina displays.
+ * Example output:
+ * https://res.cloudinary.com/YOUR_CLOUD/image/upload/w_240,h_240,c_fill,g_face,q_auto:good,f_auto/v1234567890/players/messi.jpg
+ */
+export function optimizeCloudinaryAvatar(url, transformations = CLOUDINARY_AVATAR_TRANSFORMATION) {
+  if (!url || typeof url !== "string") return url;
+
+  const uploadMarker = "/image/upload/";
+  const uploadIndex = url.indexOf(uploadMarker);
+  if (uploadIndex === -1) {
+    return url;
+  }
+
+  // Ensure https for secure loading
+  let normalizedUrl = url;
+  if (normalizedUrl.startsWith("http://res.cloudinary.com/")) {
+    normalizedUrl = "https://" + normalizedUrl.slice("http://".length);
+  }
+
+  const markerIndex = normalizedUrl.indexOf(uploadMarker);
+  const prefix = normalizedUrl.slice(0, markerIndex + uploadMarker.length);
+  const suffix = normalizedUrl.slice(markerIndex + uploadMarker.length);
+
+  // If already contains the exact transformation, return directly
+  if (suffix.startsWith(`${transformations}/`)) {
+    return normalizedUrl;
+  }
+
+  // Strip any existing transformation segments right after /image/upload/
+  // Existing transformation segments contain parameters like w_, h_, c_, etc., and are not version tags (v123...)
+  const segments = suffix.split("/");
+  let restIndex = 0;
+  while (
+    restIndex < segments.length &&
+    !/^v\d+$/.test(segments[restIndex]) &&
+    /([a-z]{1,3}_)/.test(segments[restIndex])
+  ) {
+    restIndex++;
+  }
+
+  const cleanSuffix = segments.slice(restIndex).join("/");
+  return `${prefix}${transformations}/${cleanSuffix}`;
+}
+
+/**
+ * Returns user's uploaded avatar (optimized for pfps via Cloudinary if applicable),
+ * or a modern football-themed initial avatar as a fallback.
  */
 export function getAvatarUrl(user, fallbackName = "Player") {
+  let rawUrl = null;
+
   if (typeof user === "string" && (user.startsWith("http") || user.startsWith("/") || user.startsWith("data:") || user.startsWith("blob:"))) {
-    return user;
+    rawUrl = user;
+  } else if (user?.avatar?.url && typeof user.avatar.url === "string") {
+    rawUrl = user.avatar.url;
+  } else if (typeof user?.avatar === "string" && (user.avatar.startsWith("http") || user.avatar.startsWith("/") || user.avatar.startsWith("data:") || user.avatar.startsWith("blob:"))) {
+    rawUrl = user.avatar;
+  } else if (typeof user?.url === "string" && (user.url.startsWith("http") || user.url.startsWith("/"))) {
+    rawUrl = user.url;
+  } else if (typeof user?.profilePicture === "string" && (user.profilePicture.startsWith("http") || user.profilePicture.startsWith("/"))) {
+    rawUrl = user.profilePicture;
+  } else if (typeof user?.photo === "string" && (user.photo.startsWith("http") || user.photo.startsWith("/"))) {
+    rawUrl = user.photo;
+  } else if (user?.user) {
+    return getAvatarUrl(user.user, fallbackName);
   }
-  if (user?.avatar?.url && typeof user.avatar.url === "string") return user.avatar.url;
-  if (typeof user?.avatar === "string" && (user.avatar.startsWith("http") || user.avatar.startsWith("/") || user.avatar.startsWith("data:") || user.avatar.startsWith("blob:"))) return user.avatar;
-  if (typeof user?.url === "string" && (user.url.startsWith("http") || user.url.startsWith("/"))) return user.url;
-  if (typeof user?.profilePicture === "string" && (user.profilePicture.startsWith("http") || user.profilePicture.startsWith("/"))) return user.profilePicture;
-  if (typeof user?.photo === "string" && (user.photo.startsWith("http") || user.photo.startsWith("/"))) return user.photo;
-  
+
+  if (rawUrl) {
+    return optimizeCloudinaryAvatar(rawUrl);
+  }
+
   let name = user?.fullName || user?.username;
   if (!name && typeof user === "string" && !user.match(/^[0-9a-fA-F]{24}$/) && !user.startsWith("http")) {
     name = user;
@@ -71,4 +134,11 @@ export function cleanAddress(address) {
 
   return words.join(" ").replace(/,\s*,/g, ",").trim();
 }
+
+export {
+  optimizeCloudinaryPostImage,
+  getCloudinaryVideoThumbnail,
+  getOriginalCloudinaryUrl,
+  CLOUDINARY_POST_TRANSFORMATION,
+} from "./cloudinary.utils";
 

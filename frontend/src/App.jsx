@@ -5,6 +5,25 @@ import { Toaster } from "react-hot-toast";
 function App() {
   return (
     <>
+      {/* Global Fixed Halftone Texture Wallpaper Background - Dark Theme */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0 bg-cover bg-center bg-no-repeat dark:opacity-70 opacity-0 transition-opacity duration-300"
+        style={{
+          backgroundImage: "url('/assets/site-bg.png')",
+          filter: "brightness(0.65)",
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Global Fixed Halftone Texture Wallpaper Background - Light Theme */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0 bg-cover bg-center bg-no-repeat dark:opacity-0 opacity-20 transition-opacity duration-300"
+        style={{
+          backgroundImage: "url('/assets/site-bg-light.png')",
+        }}
+        aria-hidden="true"
+      />
+
       <Toaster
         position="top-right"
         toastOptions={{
@@ -29,7 +48,9 @@ function App() {
           },
         }}
       />
-      <Outlet />
+      <div className="relative z-10 min-h-screen">
+        <Outlet />
+      </div>
     </>
   );
 }

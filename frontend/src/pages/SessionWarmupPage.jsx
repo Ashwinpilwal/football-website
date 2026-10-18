@@ -3,7 +3,7 @@ import { Activity, Sparkles } from "lucide-react";
 
 export default function SessionWarmupPage() {
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-50 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-transparent text-neutral-50 flex flex-col items-center justify-center p-6 relative overflow-hidden">
       {/* Background stadium glows (Screen 10 reference) */}
       <div className="absolute top-1/3 size-96 bg-emerald-500/15 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-1/3 size-96 bg-teal-500/10 rounded-full blur-3xl" />

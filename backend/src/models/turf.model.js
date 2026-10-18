@@ -45,6 +45,11 @@ const turfSchema = new Schema({
         default: []
     },
 
+    thumbnail: {
+        type: String,
+        default: ""
+    },
+
     pricePerHour: {
         type: Number,
         default: null

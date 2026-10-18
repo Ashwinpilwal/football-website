@@ -287,6 +287,7 @@ export default function FindTurfsPage() {
                     <div className="w-full h-44 sm:h-48 relative overflow-hidden bg-neutral-950">
                       <img
                         src={
+                          turf.thumbnail ||
                           turf.images?.[0] ||
                           "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800"
                         }
@@ -407,6 +408,7 @@ export default function FindTurfsPage() {
                 <div className="h-44 w-full relative overflow-hidden bg-neutral-950">
                   <img
                     src={
+                      turf.thumbnail ||
                       turf.images?.[0] ||
                       "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500"
                     }

@@ -236,11 +236,11 @@ export default function EditTurfModal({ turf, isOpen, onClose, onTurfUpdated, on
   // Coordinates
   const [coords, setCoords] = useState([31.2536, 75.7032]);
 
-  // Images state
-  const [existingImages, setExistingImages] = useState([]);
-  const [newImages, setNewImages] = useState([]);
-  const [newImagePreviews, setNewImagePreviews] = useState([]);
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  // Unified Gallery Items: { id, type: 'existing' | 'new', url, file? }
+  const [galleryItems, setGalleryItems] = useState([]);
+  const [draggedItemIndex, setDraggedItemIndex] = useState(null);
+  const [dragOverItemIndex, setDragOverItemIndex] = useState(null);
+  const [isDropzoneDraggingOver, setIsDropzoneDraggingOver] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
@@ -262,9 +262,24 @@ export default function EditTurfModal({ turf, isOpen, onClose, onTurfUpdated, on
       const lng = turf.location?.coordinates?.[0] || 75.7032;
       setCoords([lat, lng]);
 
-      setExistingImages(Array.isArray(turf.images) ? turf.images : []);
-      setNewImages([]);
-      setNewImagePreviews([]);
+      const initialItems = (Array.isArray(turf.images) ? turf.images : []).map((imgUrl, idx) => ({
+        id: `exist-${idx}-${imgUrl}`,
+        type: "existing",
+        url: imgUrl,
+      }));
+
+      // If turf has a dedicated thumbnail, ensure it appears at position #1 (index 0)
+      if (turf.thumbnail && initialItems.length > 1) {
+        const thumbIdx = initialItems.findIndex((it) => it.url === turf.thumbnail);
+        if (thumbIdx > 0) {
+          const [thumbItem] = initialItems.splice(thumbIdx, 1);
+          initialItems.unshift(thumbItem);
+        }
+      }
+
+      setGalleryItems(initialItems);
+      setDraggedItemIndex(null);
+      setDragOverItemIndex(null);
     }
   }, [turf, isOpen]);
 
@@ -282,27 +297,112 @@ export default function EditTurfModal({ turf, isOpen, onClose, onTurfUpdated, on
     );
   };
 
-  const handleNewFiles = (files) => {
-    const valid = Array.from(files).filter((f) => f.type.startsWith("image/"));
+  const handleAddFiles = (fileList) => {
+    const valid = Array.from(fileList).filter((f) => f.type.startsWith("image/"));
     if (valid.length === 0) {
-      toast.error("Please select valid image files.");
+      toast.error("Please select valid image files (PNG, JPG, WEBP).");
       return;
     }
-    const newPreviews = valid.map((f) => URL.createObjectURL(f));
-    setNewImages((prev) => [...prev, ...valid]);
-    setNewImagePreviews((prev) => [...prev, ...newPreviews]);
-  };
 
-  const handleRemoveExistingImage = (imgUrl) => {
-    setExistingImages((prev) => prev.filter((url) => url !== imgUrl));
-  };
-
-  const handleRemoveNewImage = (index) => {
-    if (newImagePreviews[index]) {
-      URL.revokeObjectURL(newImagePreviews[index]);
+    if (galleryItems.length + valid.length > 15) {
+      toast.error("Maximum 15 photos allowed per arena.");
+      return;
     }
-    setNewImages((prev) => prev.filter((_, i) => i !== index));
-    setNewImagePreviews((prev) => prev.filter((_, i) => i !== index));
+
+    const newItems = valid.map((file) => ({
+      id: `new-${file.name}-${file.lastModified}-${Math.random()}`,
+      type: "new",
+      url: URL.createObjectURL(file),
+      file: file,
+    }));
+
+    setGalleryItems((prev) => [...prev, ...newItems]);
+    toast.success(`${valid.length} image${valid.length > 1 ? "s" : ""} added! Drag to reorder or set cover.`);
+  };
+
+  // Dropzone drag-and-drop handlers
+  const handleDropzoneDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDropzoneDraggingOver(true);
+  };
+
+  const handleDropzoneDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDropzoneDraggingOver(false);
+  };
+
+  const handleDropzoneDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDropzoneDraggingOver(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleAddFiles(e.dataTransfer.files);
+    }
+  };
+
+  // Card Drag-to-Reorder Handlers
+  const handleCardDragStart = (e, index) => {
+    setDraggedItemIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+  };
+
+  const handleCardDragOver = (e, index) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (draggedItemIndex !== null && draggedItemIndex !== index) {
+      setDragOverItemIndex(index);
+    }
+  };
+
+  const handleCardDrop = (e, targetIndex) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (draggedItemIndex === null || draggedItemIndex === targetIndex) {
+      setDraggedItemIndex(null);
+      setDragOverItemIndex(null);
+      return;
+    }
+
+    const updated = [...galleryItems];
+    const [moved] = updated.splice(draggedItemIndex, 1);
+    updated.splice(targetIndex, 0, moved);
+
+    setGalleryItems(updated);
+    setDraggedItemIndex(null);
+    setDragOverItemIndex(null);
+
+    if (targetIndex === 0) {
+      toast.success("⭐ Set as main pitch cover photo / thumbnail!");
+    }
+  };
+
+  const handleCardDragEnd = () => {
+    setDraggedItemIndex(null);
+    setDragOverItemIndex(null);
+  };
+
+  // Set card as main cover photo (moves to index 0)
+  const handleSetCover = (index) => {
+    if (index === 0) return;
+    const updated = [...galleryItems];
+    const [coverItem] = updated.splice(index, 1);
+    updated.unshift(coverItem);
+    setGalleryItems(updated);
+    toast.success("⭐ Set as main pitch cover photo / thumbnail!");
+  };
+
+  // Remove single image from gallery
+  const handleRemoveItem = (index) => {
+    const item = galleryItems[index];
+    if (item?.type === "new" && item.url) {
+      URL.revokeObjectURL(item.url);
+    }
+    setGalleryItems((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -323,7 +423,7 @@ export default function EditTurfModal({ turf, isOpen, onClose, onTurfUpdated, on
       return;
     }
 
-    if (existingImages.length === 0 && newImages.length === 0) {
+    if (galleryItems.length === 0) {
       toast.error("Please keep or upload at least one image of the arena.");
       return;
     }
@@ -342,16 +442,35 @@ export default function EditTurfModal({ turf, isOpen, onClose, onTurfUpdated, on
       formData.append("openingTime", openingTime);
       formData.append("closingTime", closingTime);
       formData.append("amenities", JSON.stringify(selectedAmenities));
-      formData.append("existingImages", JSON.stringify(existingImages));
 
-      newImages.forEach((file) => {
-        formData.append("images", file);
+      // Construct imageOrder tokens and existingImages array
+      const imageOrder = [];
+      const keptExistingImages = [];
+      let newFileIndex = 0;
+
+      galleryItems.forEach((item) => {
+        if (item.type === "existing") {
+          imageOrder.push(item.url);
+          keptExistingImages.push(item.url);
+        } else if (item.type === "new" && item.file) {
+          imageOrder.push(`NEW_${newFileIndex}`);
+          formData.append("images", item.file);
+          newFileIndex++;
+        }
       });
+
+      formData.append("imageOrder", JSON.stringify(imageOrder));
+      formData.append("existingImages", JSON.stringify(keptExistingImages));
+
+      // Set thumbnail explicitly as index 0 (the cover image)
+      if (imageOrder.length > 0) {
+        formData.append("thumbnail", imageOrder[0]);
+      }
 
       const res = await turfService.updateTurf(turf._id, formData);
       const updated = res?.data || { ...turf, name, type, address, pricePerHour };
 
-      toast.success("Turf details updated successfully!");
+      toast.success("Turf details & cover photo updated successfully!");
       if (onTurfUpdated) onTurfUpdated(updated);
       onClose();
     } catch (err) {
@@ -592,84 +711,138 @@ export default function EditTurfModal({ turf, isOpen, onClose, onTurfUpdated, on
                 </div>
               </div>
 
-              {/* 5. Images Manager (Existing + New Uploads) */}
+              {/* 5. Images Manager (Reorderable Pitch Photos & Cover Selection) */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <ImageIcon className="size-3.5 text-emerald-400" /> Pitch Photos & Gallery
-                  </Label>
-                  <span className="text-xs text-neutral-400 font-medium">
-                    {existingImages.length + newImages.length} images total
-                  </span>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <ImageIcon className="size-3.5 text-emerald-400" /> Pitch Photos & Gallery
+                    </Label>
+                    <span className="text-xs text-neutral-400 font-medium">
+                      {galleryItems.length} {galleryItems.length === 1 ? "image" : "images"} total
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-neutral-400 font-medium">
+                    Card #1 is your primary pitch hero cover & thumbnail. Drag cards to reorder, or click &ldquo;Make Cover&rdquo;.
+                  </p>
                 </div>
 
                 {/* Images Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {/* Existing Cloudinary Images */}
-                  {existingImages.map((url, idx) => (
-                    <div
-                      key={`exist_${idx}`}
-                      className="relative aspect-video rounded-2xl overflow-hidden border border-white/15 bg-black/60 group shadow-md"
-                    >
-                      <img src={url} alt="Turf" className="w-full h-full object-cover" />
-                      {isOwner && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveExistingImage(url)}
-                          className="absolute top-1.5 right-1.5 size-6 rounded-lg bg-black/80 text-red-400 hover:text-white hover:bg-red-600 flex items-center justify-center transition-all cursor-pointer shadow-md"
-                          title="Remove Photo"
-                        >
-                          <X className="size-3.5 stroke-[2.5]" />
-                        </button>
-                      )}
-                      <div className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/70 text-[9px] font-mono text-neutral-300">
-                        Saved
-                      </div>
-                    </div>
-                  ))}
+                  {galleryItems.map((item, index) => {
+                    const isCover = index === 0;
+                    const isDragging = draggedItemIndex === index;
+                    const isDragOver = dragOverItemIndex === index;
 
-                  {/* Newly Added Images Previews */}
-                  {newImagePreviews.map((previewUrl, idx) => (
-                    <div
-                      key={`new_${idx}`}
-                      className="relative aspect-video rounded-2xl overflow-hidden border border-emerald-500/40 bg-black/60 group shadow-md"
-                    >
-                      <img src={previewUrl} alt="New upload" className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveNewImage(idx)}
-                        className="absolute top-1.5 right-1.5 size-6 rounded-lg bg-black/80 text-red-400 hover:text-white hover:bg-red-600 flex items-center justify-center transition-all cursor-pointer shadow-md"
-                        title="Remove New Photo"
+                    return (
+                      <div
+                        key={item.id}
+                        draggable={isOwner}
+                        onDragStart={(e) => isOwner && handleCardDragStart(e, index)}
+                        onDragOver={(e) => isOwner && handleCardDragOver(e, index)}
+                        onDragEnd={handleCardDragEnd}
+                        onDrop={(e) => isOwner && handleCardDrop(e, index)}
+                        className={`group relative rounded-2xl overflow-hidden bg-[#060a0f] border transition-all select-none ${
+                          isOwner ? "cursor-grab active:cursor-grabbing" : ""
+                        } ${
+                          isCover
+                            ? "border-emerald-500 shadow-xl shadow-emerald-500/20 ring-2 ring-emerald-500/50"
+                            : "border-white/15 hover:border-white/30"
+                        } ${isDragging ? "opacity-40 scale-95" : ""} ${
+                          isDragOver ? "ring-2 ring-emerald-400 scale-105" : ""
+                        }`}
                       >
-                        <X className="size-3.5 stroke-[2.5]" />
-                      </button>
-                      <div className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-emerald-500/80 text-[9px] font-bold text-neutral-950">
-                        New
-                      </div>
-                    </div>
-                  ))}
+                        {/* Image Preview */}
+                        <div className="aspect-video w-full bg-neutral-900 overflow-hidden">
+                          <img
+                            src={item.url}
+                            alt={`Pitch photo ${index + 1}`}
+                            className="w-full h-full object-cover pointer-events-none group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
 
-                  {/* Upload Trigger Dropzone */}
-                  {isOwner && (
+                        {/* Drag Grip Handle */}
+                        {isOwner && (
+                          <div className="absolute top-1.5 left-1.5 p-1 rounded-lg bg-black/80 text-white/80 opacity-80 group-hover:opacity-100 shadow-md">
+                            <GripVertical className="size-3.5" />
+                          </div>
+                        )}
+
+                        {/* Status Badge (Saved vs New) */}
+                        <div
+                          className={`absolute top-1.5 ${
+                            isOwner ? "left-8" : "left-1.5"
+                          } px-1.5 py-0.5 rounded text-[9px] font-bold shadow-md ${
+                            item.type === "new"
+                              ? "bg-emerald-500 text-neutral-950 font-black"
+                              : "bg-black/75 text-neutral-300 border border-white/10"
+                          }`}
+                        >
+                          {item.type === "new" ? "New" : "Saved"}
+                        </div>
+
+                        {/* Top Right: Delete Button */}
+                        {isOwner && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveItem(index);
+                            }}
+                            className="absolute top-1.5 right-1.5 size-6 rounded-lg bg-black/80 hover:bg-red-500 text-neutral-300 hover:text-white flex items-center justify-center transition-all opacity-80 group-hover:opacity-100 cursor-pointer shadow-md"
+                            title="Remove photo"
+                          >
+                            <X className="size-3.5 stroke-[2.5]" />
+                          </button>
+                        )}
+
+                        {/* Bottom Overlay: Cover Badge or Make Cover Action */}
+                        {isCover ? (
+                          <div className="absolute bottom-0 inset-x-0 bg-black/90 px-2 py-1 flex items-center justify-between border-t border-emerald-500/30">
+                            <span className="text-[10px] font-black text-emerald-400 flex items-center gap-1">
+                              <Star className="size-3 fill-emerald-400" /> MAIN COVER
+                            </span>
+                            <span className="text-[10px] font-mono text-emerald-300 font-bold">
+                              #1
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="absolute bottom-0 inset-x-0 bg-black/90 px-2 py-1 flex items-center justify-between border-t border-white/10">
+                            {isOwner ? (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSetCover(index);
+                                }}
+                                className="text-[10px] font-bold text-emerald-300 hover:text-white bg-emerald-500/30 hover:bg-emerald-500/50 px-2 py-0.5 rounded-md transition-all cursor-pointer flex items-center gap-0.5"
+                              >
+                                <Star className="size-2.5" /> Make Cover
+                              </button>
+                            ) : (
+                              <div />
+                            )}
+                            <span className="text-[10px] font-mono text-neutral-400 font-bold">
+                              #{index + 1}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {/* Upload Trigger Dropzone Card */}
+                  {isOwner && galleryItems.length < 15 && (
                     <div
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        setIsDraggingOver(true);
-                      }}
-                      onDragLeave={(e) => {
-                        e.preventDefault();
-                        setIsDraggingOver(false);
-                      }}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        setIsDraggingOver(false);
-                        handleNewFiles(e.dataTransfer.files);
-                      }}
+                      onDragOver={handleDropzoneDragOver}
+                      onDragLeave={handleDropzoneDragLeave}
+                      onDrop={handleDropzoneDrop}
                       onClick={() => fileInputRef.current?.click()}
-                      className={`aspect-video rounded-2xl border-2 border-dashed flex flex-col items-center justify-center p-2 text-center transition-all cursor-pointer ${isDraggingOver
+                      className={`aspect-video rounded-2xl border-2 border-dashed flex flex-col items-center justify-center p-2 text-center transition-all cursor-pointer ${
+                        isDropzoneDraggingOver
                           ? "border-emerald-400 bg-emerald-500/20 scale-[1.02]"
                           : "border-white/20 bg-black/30 hover:border-emerald-500/60 hover:bg-black/50"
-                        }`}
+                      }`}
                     >
                       <Upload className="size-5 text-emerald-400 mb-1" />
                       <span className="text-[11px] font-bold text-white">Add Photos</span>
@@ -677,7 +850,7 @@ export default function EditTurfModal({ turf, isOpen, onClose, onTurfUpdated, on
                       <input
                         type="file"
                         ref={fileInputRef}
-                        onChange={(e) => handleNewFiles(e.target.files)}
+                        onChange={(e) => e.target.files && handleAddFiles(e.target.files)}
                         accept="image/*"
                         multiple
                         className="hidden"

@@ -19,7 +19,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen relative bg-neutral-950 text-neutral-100 flex items-center justify-center p-4 md:p-8 overflow-hidden">
+    <div className="min-h-screen relative bg-transparent text-neutral-100 flex items-center justify-center p-4 md:p-8 overflow-hidden">
       <div className="absolute top-1/3 left-1/3 size-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <Card className="max-w-md w-full backdrop-blur-xl shadow-[0_24px_80px_rgba(0,0,0,0.6)] rounded-3xl bg-neutral-900/95 border border-white/15 p-8 space-y-6 relative z-10 animate-in fade-in zoom-in-95 duration-300">

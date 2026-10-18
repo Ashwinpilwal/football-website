@@ -1,6 +1,6 @@
 # Socket Handler vs Controller
 
-Controllers
+> ## Controllers
 
 Controllers handle HTTP requests.
 

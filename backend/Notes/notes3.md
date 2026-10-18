@@ -57,9 +57,9 @@ this.message = "new message" -----> We can do this, only after super(...)
 
         Now object exists. Now you can write this.message
 
-1. this object is actually created by the parent (Error) constructor. Until super() runs, this doesn't exist yet.
+1. 'this' object is actually created by the parent (Error) constructor. Until super() runs, 'this' doesn't exist yet.
 
->  Notice: Your ApiResponse class is different
+>  Notice: ApiResponse class is different
 
     class ApiResponse {
         constructor(
@@ -98,13 +98,13 @@ That's why there is no super() at all.
         With plugin:
 
             const videos = await Video.aggregatePaginate(
-            Video.aggregate([
-                { $match: { isPublished: true } }
-            ]),
-            {
-                page: 1,
-                limit: 10
-            }
+                Video.aggregate([
+                    { $match: { isPublished: true } }
+                ]),
+                {
+                    page: 1,
+                    limit: 10
+                }
             )
 
             Now you get:
@@ -115,6 +115,9 @@ That's why there is no super() at all.
                 page: 1,
                 totalPages: 5
             }
+
+# Important Note to add:
+    Creating an aggrigate(not using await) and then using pagination, inside of it be put aggregate.
 
 
 # userSchema.pre("save", ...), userSchema.methods.isPasswordCorrect = ..., why schema, not model?
@@ -151,7 +154,7 @@ That's why there is no super() at all.
 
 
 # Note:
->   We cannot use this. in arrow functions. To use this. we must use normal function: function(){}
+>   We cannot use 'this.' in arrow functions. To use this. we must use normal function: function(){}
 
 
 # How to import Another Schema into the Schema?

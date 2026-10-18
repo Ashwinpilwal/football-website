@@ -52,7 +52,7 @@ export default function FootballAIPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-300 pb-12">
       {/* Top Banner Header */}
-      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#071318] via-[#091a22] to-[#0a1018] border border-emerald-500/20 p-6 sm:p-8 shadow-2xl">
+      <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-gradient-to-r dark:from-[#071318] dark:via-[#091a22] dark:to-[#0a1018] border border-neutral-200 dark:border-emerald-500/20 p-6 sm:p-8 shadow-2xl">
         {/* Lightweight background gradient without blur filters */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.08)_0%,transparent_70%)] pointer-events-none" />
         <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.06)_0%,transparent_70%)] pointer-events-none" />
@@ -61,41 +61,20 @@ export default function FootballAIPage() {
           <div className="space-y-2 max-w-2xl">
             <div className="flex items-center gap-2">
               <span className="size-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest font-mono">
+              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest font-mono">
                 Next-Gen Football Intelligence Engine
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-extrabold font-display text-white tracking-tight flex items-center gap-3">
-              <Sparkles className="size-8 text-emerald-400 shrink-0" />
+            <h1 className="text-2xl sm:text-4xl font-extrabold font-display text-neutral-900 dark:text-white tracking-tight">
               Football AI Analytics & Assistant
             </h1>
-          </div>
-
-          {/* Quick Metrics */}
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="p-3.5 rounded-2xl bg-black/40 border border-white/10 text-center">
-              <span className="text-lg font-black font-display text-emerald-400 block">
-                Google Gemini
-              </span>
-              <span className="text-[10px] text-neutral-400 font-mono uppercase">
-                Pro Sports Core
-              </span>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-black/40 border border-white/10 text-center">
-              <span className="text-lg font-black font-display text-white block">
-                100% Tactical
-              </span>
-              <span className="text-[10px] text-neutral-400 font-mono uppercase">
-                Playbook Engine
-              </span>
-            </div>
           </div>
         </div>
       </div>
 
       {/* Navigation Tabs Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin border-b border-white/10">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -107,7 +86,7 @@ export default function FootballAIPage() {
               className={`h-11 px-4 sm:px-5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2.5 whitespace-nowrap border shrink-0 ${
                 isActive
                   ? "bg-emerald-500 text-neutral-950 border-emerald-400 shadow-lg shadow-emerald-500/20"
-                  : "bg-[#090e15] text-neutral-300 border-white/10 hover:text-white hover:border-white/20"
+                  : "bg-white dark:bg-[#090e15] text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-white/10 hover:text-black dark:hover:text-white hover:border-neutral-300 dark:hover:border-white/20 shadow-sm"
               }`}
             >
               <Icon className="size-4 shrink-0" />

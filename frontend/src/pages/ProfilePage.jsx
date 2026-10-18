@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { sliceLogin } from "@/features/authSlice";
@@ -52,8 +52,86 @@ import CreateSectionModal from "@/components/profile/CreateSectionModal";
 import LoginModal from "@/components/auth/LoginModal";
 import FootballLoader from "@/components/common/FootballLoader";
 import { getAvatarUrl } from "@/utils/avatar.utils";
+import {
+  optimizeCloudinaryPostImage,
+  getCloudinaryVideoThumbnail,
+  getOriginalCloudinaryUrl,
+} from "@/utils/cloudinary.utils";
 import { countries, clubs, players } from "@/components/FootballPreferences/FootballPreferences";
 import toast from "react-hot-toast";
+
+function PostCardCover({ post, getPostCoverImage, isPostVideo }) {
+  const [loaded, setLoaded] = useState(false);
+  const coverUrl = getPostCoverImage(post);
+  const isVideo = isPostVideo(post);
+
+  return (
+    <div className="w-full relative bg-[#060a0f] aspect-[4/3] overflow-hidden group/cover flex items-center justify-center">
+      {/* Blurred background backdrop preserving aspect ratio without harsh empty borders */}
+      <img
+        src={coverUrl}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover blur-xl opacity-35 scale-110 pointer-events-none"
+      />
+
+      {/* Shimmering Skeleton placeholder while loading */}
+      {!loaded && (
+        <div className="absolute inset-0 bg-neutral-900/90 animate-pulse flex items-center justify-center z-10">
+          <div className="size-6 border-2 border-emerald-500/20 border-t-emerald-400 rounded-full animate-spin" />
+        </div>
+      )}
+
+      {/* Foreground image: preserves exact original aspect ratio (2:3, 1:1, 4:3, etc.) without cropping or stretching */}
+      <img
+        src={coverUrl}
+        alt={post.caption || "Post cover"}
+        className={`relative z-10 w-full h-full object-contain transition-all duration-500 group-hover:scale-105 select-none ${
+          loaded ? "opacity-100" : "opacity-0"
+        }`}
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+      />
+
+      {/* Video Clip Indicator */}
+      {isVideo && (
+        <div className="absolute top-1.5 sm:top-3 left-1.5 sm:left-3 z-20 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/85 text-emerald-400 text-[9px] sm:text-[11px] font-bold tracking-wider border border-white/15 flex items-center gap-1 shadow-lg pointer-events-none backdrop-blur-sm">
+          <Play className="size-2.5 sm:size-3 fill-emerald-400" />
+          <span>Clip</span>
+        </div>
+      )}
+
+      {/* Multi-media counter */}
+      {Array.isArray(post.media) && post.media.length > 1 && (
+        <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 z-20 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/85 text-white text-[9px] sm:text-[11px] font-bold tracking-wider border border-white/15 flex items-center gap-0.5 sm:gap-1 shadow-lg pointer-events-none backdrop-blur-sm">
+          <Layers className="size-2.5 sm:size-3 text-emerald-400" />
+          <span>{post.media.length}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PostCardSkeleton() {
+  return (
+    <div className="glass-card rounded-2xl sm:rounded-3xl overflow-hidden border border-white/[0.08] shadow-lg sm:shadow-xl flex flex-col justify-between animate-pulse">
+      <div className="w-full bg-neutral-900/80 aspect-[4/3] flex items-center justify-center">
+        <div className="size-6 border-2 border-emerald-500/20 border-t-emerald-400 rounded-full animate-spin opacity-50" />
+      </div>
+      <div className="p-2 sm:p-4 space-y-2 bg-[#0a0f16]/95 border-t border-white/[0.06]">
+        <div className="h-3 sm:h-3.5 bg-white/10 rounded-md w-3/4" />
+        <div className="flex items-center justify-between pt-2 border-t border-white/[0.05]">
+          <div className="flex items-center gap-2">
+            <div className="size-3.5 bg-white/10 rounded-full" />
+            <div className="h-2.5 bg-white/10 rounded w-8" />
+          </div>
+          <div className="h-2.5 bg-white/10 rounded w-12" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ProfilePage() {
   const { username } = useParams();
@@ -73,6 +151,23 @@ export default function ProfilePage() {
   const [fullImageViewer, setFullImageViewer] = useState(null);
 
   const [posts, setPosts] = useState([]);
+  const [postPage, setPostPage] = useState(1);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
+  const [loadingPosts, setLoadingPosts] = useState(false);
+  const [loadingMorePosts, setLoadingMorePosts] = useState(false);
+  const postsObserverRef = useRef(null);
+  const hasUserScrolledRef = useRef(false);
+
+  useEffect(() => {
+    const handleUserScroll = () => {
+      if (window.scrollY > 20) {
+        hasUserScrolledRef.current = true;
+      }
+    };
+    window.addEventListener("scroll", handleUserScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleUserScroll);
+  }, []);
+
   const [tweets, setTweets] = useState([]);
   const [sections, setSections] = useState([]);
 
@@ -199,10 +294,11 @@ export default function ProfilePage() {
       if (res?.data) {
         setProfile(res.data);
 
-        // Fetch user-specific posts
+        // Fetch user-specific posts (initial batch of 3 for fast loading)
         if (res.data._id) {
+          setLoadingPosts(true);
           try {
-            const postsRes = await postService.getUserPosts(res.data._id);
+            const postsRes = await postService.getUserPosts(res.data._id, { page: 1, limit: 3 });
             const data = postsRes?.data || [];
             const formatted = (Array.isArray(data) ? data : []).map((p) => ({
               ...p,
@@ -216,8 +312,13 @@ export default function ProfilePage() {
                   : !!p.isLiked,
             }));
             setPosts(formatted);
+            setPostPage(1);
+            setHasMorePosts(data.length === 3);
           } catch (e) {
             setPosts([]);
+            setHasMorePosts(false);
+          } finally {
+            setLoadingPosts(false);
           }
         }
 
@@ -473,7 +574,18 @@ export default function ProfilePage() {
     setSectionPosts((prev) => prev.map((p) => (p._id === updatedPost._id ? updatedPost : p)));
   };
 
-  // Resolve thumbnail as cover, prioritizing clean media image to avoid letterboxed canvas thumbnails
+  // Helper to determine if post primary media is a video
+  const isPostVideo = (post) => {
+    if (!post) return false;
+    if (Array.isArray(post.media) && post.media.length > 0) {
+      const firstItem = post.media[0];
+      const url = firstItem?.url || (typeof firstItem === "string" ? firstItem : "");
+      return firstItem?.type === "video" || (typeof url === "string" && url.match(/\.(mp4|webm|mov|ogg)$/i));
+    }
+    return false;
+  };
+
+  // Resolve thumbnail as cover, prioritizing clean media image with optimized resolution up to 1280px (f_auto,q_auto,c_limit)
   const getPostCoverImage = (post) => {
     if (!post) return "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=600";
 
@@ -486,24 +598,94 @@ export default function ProfilePage() {
       });
 
       if (firstImage) {
-        return firstImage?.url || (typeof firstImage === "string" ? firstImage : "");
+        const raw = firstImage?.url || (typeof firstImage === "string" ? firstImage : "");
+        return optimizeCloudinaryPostImage(raw);
       }
     }
 
     // 2. Check dedicated thumbnail
     const thumb = post.thumbnail?.url || (typeof post.thumbnail === "string" && post.thumbnail);
     if (thumb && typeof thumb === "string" && thumb.trim() !== "") {
-      return thumb;
+      return optimizeCloudinaryPostImage(thumb);
     }
 
-    // 3. Fallback to first item in post media
+    // 3. Fallback to first item in post media (if video, generate video thumbnail)
     if (Array.isArray(post.media) && post.media.length > 0) {
       const firstItem = post.media[0];
-      return firstItem?.url || (typeof firstItem === "string" ? firstItem : "");
+      const raw = firstItem?.url || (typeof firstItem === "string" ? firstItem : "");
+      const isVideo = firstItem?.type === "video" || (typeof raw === "string" && raw.match(/\.(mp4|webm|mov|ogg)$/i));
+      if (isVideo) {
+        return getCloudinaryVideoThumbnail(raw);
+      }
+      return optimizeCloudinaryPostImage(raw);
     }
 
     return "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=600";
   };
+
+  // Infinite Scroll: Fetch next 3 posts on demand
+  const fetchMorePosts = useCallback(async () => {
+    if (loadingMorePosts || !hasMorePosts || !profile?._id) return;
+    setLoadingMorePosts(true);
+    try {
+      const nextPage = postPage + 1;
+      const postsRes = await postService.getUserPosts(profile._id, { page: nextPage, limit: 3 });
+      const data = postsRes?.data || [];
+      if (Array.isArray(data) && data.length > 0) {
+        const formatted = data.map((p) => ({
+          ...p,
+          isLiked:
+            userData?._id && Array.isArray(p.likes)
+              ? p.likes.some(
+                (l) =>
+                  (l.likedBy?._id || l.likedBy || l)?.toString() ===
+                  userData._id.toString()
+              )
+              : !!p.isLiked,
+        }));
+        // Deduplicate to prevent duplicate posts
+        setPosts((prev) => {
+          const existingIds = new Set(prev.map((p) => p._id?.toString()));
+          const newUnique = formatted.filter((p) => !existingIds.has(p._id?.toString()));
+          return [...prev, ...newUnique];
+        });
+        setPostPage(nextPage);
+        setHasMorePosts(data.length === 3);
+      } else {
+        setHasMorePosts(false);
+      }
+    } catch (e) {
+      console.error("Error fetching more posts:", e);
+      setHasMorePosts(false);
+    } finally {
+      setLoadingMorePosts(false);
+    }
+  }, [loadingMorePosts, hasMorePosts, profile?._id, postPage, userData?._id]);
+
+  // IntersectionObserver for infinite scrolling sentinel
+  useEffect(() => {
+    if (activeTab !== "posts" || !hasMorePosts || loadingMorePosts || loadingPosts) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Only fetch next batch if the user has scrolled down and reached sentinel
+        if (entries[0].isIntersecting && hasUserScrolledRef.current) {
+          fetchMorePosts();
+        }
+      },
+      { threshold: 0.1, rootMargin: "50px" }
+    );
+
+    const target = postsObserverRef.current;
+    if (target) {
+      observer.observe(target);
+    }
+
+    return () => {
+      if (target) observer.unobserve(target);
+      observer.disconnect();
+    };
+  }, [activeTab, hasMorePosts, loadingMorePosts, loadingPosts, fetchMorePosts]);
 
   if (loading) {
     return (
@@ -619,7 +801,7 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-3 sm:gap-5">
             <div
               onClick={() => {
-                const avatarSrc = getAvatarUrl(profile);
+                const avatarSrc = profile?.avatar?.url || profile?.avatar || getAvatarUrl(profile);
                 if (avatarSrc) {
                   setFullImageViewer({
                     src: avatarSrc,
@@ -869,84 +1051,112 @@ export default function ProfilePage() {
         {/* Posts Tab: Edge-to-Edge Grid with Click to Open Expanded View */}
         {activeTab === "posts" && (
           <div>
-            {posts.length > 0 ? (
+            {loadingPosts ? (
               <div className="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-6">
-                {posts.map((post) => (
-                  <div
-                    key={post._id}
-                    onClick={() =>
-                      navigate(`/post/${post._id}`, {
-                        state: { from: location.pathname + location.search },
-                      })
-                    }
-                    className="glass-card rounded-2xl sm:rounded-3xl overflow-hidden border border-white/[0.08] hover:border-emerald-500/40 transition-all cursor-pointer group shadow-lg sm:shadow-xl flex flex-col justify-between"
-                  >
-                    {/* Top: Edge-to-Edge Thumbnail Post Cover */}
-                    <div className="w-full relative bg-neutral-900 aspect-[4/3] overflow-hidden group/cover">
-                      <img
-                        src={getPostCoverImage(post)}
-                        alt={post.caption || "Post cover"}
-                        className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105 select-none"
-                        loading="lazy"
+                {[1, 2, 3].map((i) => (
+                  <PostCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : posts.length > 0 ? (
+              <div className="space-y-6">
+                <div className="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-6">
+                  {posts.map((post) => (
+                    <div
+                      key={post._id}
+                      onClick={() =>
+                        navigate(`/post/${post._id}`, {
+                          state: { from: location.pathname + location.search },
+                        })
+                      }
+                      className="glass-card rounded-2xl sm:rounded-3xl overflow-hidden border border-white/[0.08] hover:border-emerald-500/40 transition-all cursor-pointer group shadow-lg sm:shadow-xl flex flex-col justify-between"
+                    >
+                      {/* Top: Edge-to-Edge Thumbnail Post Cover with Skeleton & Aspect Ratio Preservation */}
+                      <PostCardCover
+                        post={post}
+                        getPostCoverImage={getPostCoverImage}
+                        isPostVideo={isPostVideo}
                       />
-                      {Array.isArray(post.media) && post.media.length > 1 && (
-                        <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/85 text-white text-[9px] sm:text-[11px] font-bold tracking-wider border border-white/15 flex items-center gap-0.5 sm:gap-1 shadow-lg pointer-events-none">
-                          <Layers className="size-2.5 sm:size-3 text-emerald-400" />
-                          <span>{post.media.length}</span>
-                        </div>
-                      )}
-                    </div>
 
-                    {/* Bottom: Caption & Metadata */}
-                    <div className="p-2 sm:p-4 space-y-1.5 sm:space-y-3 bg-[#0a0f16]/95 border-t border-white/[0.06] flex-1 flex flex-col justify-between">
-                      {post.caption && (
-                        <p className="text-[11px] sm:text-xs md:text-sm text-neutral-100 line-clamp-1 sm:line-clamp-2 leading-relaxed font-normal">
-                          {post.caption}
-                        </p>
-                      )}
+                      {/* Bottom: Caption & Metadata */}
+                      <div className="p-2 sm:p-4 space-y-1.5 sm:space-y-3 bg-[#0a0f16]/95 border-t border-white/[0.06] flex-1 flex flex-col justify-between">
+                        {post.caption && (
+                          <p className="text-[11px] sm:text-xs md:text-sm text-neutral-100 line-clamp-1 sm:line-clamp-2 leading-relaxed font-normal">
+                            {post.caption}
+                          </p>
+                        )}
 
-                      <div className="flex items-center justify-between text-[10px] sm:text-xs text-neutral-400 pt-1.5 sm:pt-2 border-t border-white/[0.05]">
-                        <div className="flex items-center gap-1.5 sm:gap-3">
-                          <button
-                            type="button"
-                            onClick={(e) => handleLikePost(e, post._id)}
-                            className={`flex items-center gap-0.5 sm:gap-1 cursor-pointer text-[10px] sm:text-xs font-semibold ${
-                              post.isLiked ? "text-red-400 font-bold" : "hover:text-white text-neutral-300"
-                            }`}
-                          >
-                            <Heart className={`size-3 sm:size-3.5 ${post.isLiked ? "fill-red-400" : ""}`} />
-                            <span>{post.likesCount ?? (Array.isArray(post.likes) ? post.likes.length : 0)}</span>
-                          </button>
-
-                          <span className="flex items-center gap-0.5 sm:gap-1 text-neutral-300 text-[10px] sm:text-xs font-semibold">
-                            <MessageCircle className="size-3 sm:size-3.5" />
-                            <span>{post.commentsCount ?? (Array.isArray(post.comments) ? post.comments.length : 0)}</span>
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-1 sm:gap-2">
-                          <span className="text-[9px] sm:text-[11px] text-neutral-400 font-medium hidden md:inline">
-                            {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : "Recent"}
-                          </span>
-
-                          {isOwnProfile && (
+                        <div className="flex items-center justify-between text-[10px] sm:text-xs text-neutral-400 pt-1.5 sm:pt-2 border-t border-white/[0.05]">
+                          <div className="flex items-center gap-1.5 sm:gap-3">
                             <button
                               type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingPostModal(post);
-                              }}
-                              className="size-5 sm:size-6 rounded-lg bg-white/5 hover:bg-emerald-500/20 text-neutral-400 hover:text-emerald-300 flex items-center justify-center transition-all cursor-pointer shadow-sm"
-                              title="Edit post"
+                              onClick={(e) => handleLikePost(e, post._id)}
+                              className={`flex items-center gap-0.5 sm:gap-1 cursor-pointer text-[10px] sm:text-xs font-semibold ${
+                                post.isLiked ? "text-red-400 font-bold" : "hover:text-white text-neutral-300"
+                              }`}
                             >
-                              <Edit className="size-2.5 sm:size-3" />
+                              <Heart className={`size-3 sm:size-3.5 ${post.isLiked ? "fill-red-400" : ""}`} />
+                              <span>{post.likesCount ?? (Array.isArray(post.likes) ? post.likes.length : 0)}</span>
                             </button>
-                          )}
+
+                            <span className="flex items-center gap-0.5 sm:gap-1 text-neutral-300 text-[10px] sm:text-xs font-semibold">
+                              <MessageCircle className="size-3 sm:size-3.5" />
+                              <span>{post.commentsCount ?? (Array.isArray(post.comments) ? post.comments.length : 0)}</span>
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <span className="text-[9px] sm:text-[11px] text-neutral-400 font-medium hidden md:inline">
+                              {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : "Recent"}
+                            </span>
+
+                            {isOwnProfile && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingPostModal(post);
+                                }}
+                                className="size-5 sm:size-6 rounded-lg bg-white/5 hover:bg-emerald-500/20 text-neutral-400 hover:text-emerald-300 flex items-center justify-center transition-all cursor-pointer shadow-sm"
+                                title="Edit post"
+                              >
+                                <Edit className="size-2.5 sm:size-3" />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
+                  ))}
+
+                  {/* Skeleton cards shown when fetching next 3 posts via infinite scroll */}
+                  {loadingMorePosts &&
+                    [1, 2, 3].map((i) => (
+                      <PostCardSkeleton key={`skeleton-more-${i}`} />
+                    ))}
+                </div>
+
+                {/* IntersectionObserver Sentinel for Infinite Scroll */}
+                {hasMorePosts && (
+                  <div ref={postsObserverRef} className="py-6 flex flex-col items-center justify-center">
+                    {loadingMorePosts ? (
+                      <div className="flex items-center gap-2.5 text-xs font-semibold text-emerald-400">
+                        <span className="size-4 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin" />
+                        <span>Loading more posts...</span>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          hasUserScrolledRef.current = true;
+                          fetchMorePosts();
+                        }}
+                        className="px-4 py-2 rounded-xl text-xs font-bold text-neutral-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all cursor-pointer"
+                      >
+                        Scroll or click to load more
+                      </button>
+                    )}
                   </div>
-                ))}
+                )}
               </div>
             ) : (
               <div className="p-14 rounded-3xl bg-neutral-900/60 border border-white/10 text-center space-y-3 shadow-xl">
@@ -1273,21 +1483,12 @@ export default function ProfilePage() {
                             }
                             className="glass-card rounded-2xl sm:rounded-3xl overflow-hidden border border-white/[0.08] hover:border-emerald-500/40 transition-all cursor-pointer group shadow-lg sm:shadow-xl flex flex-col justify-between"
                           >
-                            {/* Top: Edge-to-Edge Thumbnail Post Cover */}
-                            <div className="w-full relative bg-neutral-900 aspect-[4/3] overflow-hidden group/cover">
-                              <img
-                                src={getPostCoverImage(post)}
-                                alt={post.caption || "Post cover"}
-                                className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105 select-none"
-                                loading="lazy"
-                              />
-                              {Array.isArray(post.media) && post.media.length > 1 && (
-                                <div className="absolute top-1.5 sm:top-3 right-1.5 sm:right-3 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/85 text-white text-[9px] sm:text-[11px] font-bold tracking-wider border border-white/15 flex items-center gap-0.5 sm:gap-1 shadow-lg pointer-events-none">
-                                  <Layers className="size-2.5 sm:size-3 text-emerald-400" />
-                                  <span>{post.media.length}</span>
-                                </div>
-                              )}
-                            </div>
+                            {/* Top: Edge-to-Edge Thumbnail Post Cover with Skeleton & Aspect Ratio Preservation */}
+                            <PostCardCover
+                              post={post}
+                              getPostCoverImage={getPostCoverImage}
+                              isPostVideo={isPostVideo}
+                            />
 
                             <div className="p-2 sm:p-4 space-y-1.5 sm:space-y-3 bg-[#0a0f16]/95 border-t border-white/[0.06] flex-1 flex flex-col justify-between">
                               {post.caption && (
@@ -1545,7 +1746,7 @@ export default function ProfilePage() {
               }`}
             >
               <img
-                src={fullImageViewer.src}
+                src={getOriginalCloudinaryUrl(fullImageViewer.src)}
                 alt={fullImageViewer.title}
                 className="w-full h-full object-cover rounded-2xl relative z-10 shadow-lg"
               />

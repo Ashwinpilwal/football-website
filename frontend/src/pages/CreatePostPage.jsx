@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { postService } from "@/services/social.service";
+import { getAvatarUrl } from "@/utils/avatar.utils";
 import toast from "react-hot-toast";
 
 export default function CreatePostPage() {
@@ -346,7 +347,7 @@ export default function CreatePostPage() {
           <Card className="p-6 bg-[#0b1118] border-white/10 space-y-4.5 rounded-3xl shadow-2xl sticky top-24">
             <div className="flex items-center gap-3">
               <img
-                src={userData?.avatar?.url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100"}
+                src={getAvatarUrl(userData, userData?.fullName || "Your Name")}
                 alt="user"
                 className="size-11 rounded-2xl object-cover ring-1 ring-emerald-500/40 shadow-sm"
               />

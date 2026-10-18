@@ -16,6 +16,7 @@ import {
   getMyFollowing,
   followToggle,
 } from "@/services/follow.service";
+import { getAvatarUrl } from "@/utils/avatar.utils";
 import toast from "react-hot-toast";
 
 export default function FollowersModal({
@@ -341,10 +342,7 @@ export default function FollowersModal({
                 const isSelf = userData?._id?.toString() === userId;
                 const isFollowing = myFollowingIds.has(userId);
                 const isToggling = togglingId === userId;
-                const avatarUrl =
-                  user.avatar?.url ||
-                  user.avatar ||
-                  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150";
+                const avatarUrl = getAvatarUrl(user, user.fullName || user.username);
 
                 return (
                   <div

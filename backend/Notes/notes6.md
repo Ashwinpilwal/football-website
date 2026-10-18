@@ -81,37 +81,5 @@ Backend
 This separation keeps the frontend and backend independent.
 
 
->   The difference between them...
-1.  React /register 🖥️
-
-Its job is to show a page.
-
-User clicks Register
-        │
-        ▼
-http://localhost:5173/register
-        │
-        ▼
-React Router
-        │
-        ▼
-Displays RegisterForm component
-
-2.  Node /api/v1/users/register ⚙️
-
-Its job is to process data.
-
-POST http://localhost:8000/api/v1/users/register
-        │
-        ▼
-Multer
-        │
-        ▼
-registerUser Controller
-        │
-        ▼
-MongoDB 
-
-
 # Note: Kill node everywhere:
 >   taskkill /F /IM node.exe 

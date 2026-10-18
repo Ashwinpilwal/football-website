@@ -1,5 +1,31 @@
-# Why we make a cluster and then connect it to MongoDB compass and then connect it to VsCode? 
->   We create a Cluster to store the data, connect it to Compass to view/manage data easily, and connect it to VS Code so our app can use that data.
+# Why we make a cluster and then connect it to Server? 
+>   We create a Cluster to store the data, connect Server so our app can use that data.
+
+Typical setup:
+                ┌──────────────┐
+                │   MongoDB    │
+                │    Atlas     │
+                │   Cluster    │
+                └──────┬───────┘
+                       │
+             MongoDB connection URI
+                       │
+              ┌────────▼────────┐
+              │    Backend      │
+              │ Node + Express  │
+              └────────┬────────┘
+                       │
+                  API requests
+                       │
+              ┌────────▼────────┐
+              │    Frontend     │
+              │     React       │
+              └─────────────────┘
+
+
+MongoDB Compass ───────► MongoDB Cluster
+       │
+       └── Just for viewing/querying/managing data
          
     Cluster → Actual online database
     Compass → GUI to view/edit the database
@@ -87,7 +113,7 @@
 
 >   So Vite server is basically: A Node.js server running your frontend during development    
 
->   Why no CORS when browser talks to Vite?
+>   Why no CORS when browser talks to Vite Server?
 
     Because browser ONLY cares about: Who is browser talking to?
 

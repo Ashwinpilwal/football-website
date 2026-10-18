@@ -39,7 +39,7 @@ No file? : Use raw → JSON
 At least one file?: Use form-data + multer
 
 
-# Checking if the fucntion is Synchronous of Asynchronous(Async):
+# Checking if the fucntion is Synchronous or Asynchronous(Async):
 
 >   1. Look for the async keyword
     async function getUser() {

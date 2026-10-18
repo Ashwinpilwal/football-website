@@ -58,6 +58,19 @@ const createTurf = asyncHandler(async (req, res) => {
         }
     }
 
+    let initialThumbnail = imageUrls[0] || "";
+    if (req.body.thumbnail && typeof req.body.thumbnail === "string" && req.body.thumbnail.trim()) {
+        const customThumb = req.body.thumbnail.trim();
+        if (imageUrls.includes(customThumb)) {
+            initialThumbnail = customThumb;
+            const idx = imageUrls.indexOf(customThumb);
+            if (idx > 0) {
+                imageUrls.splice(idx, 1);
+                imageUrls.unshift(customThumb);
+            }
+        }
+    }
+
     const turf = await Turf.create({
         name: name.trim(),
         type,
@@ -68,6 +81,7 @@ const createTurf = asyncHandler(async (req, res) => {
             coordinates: [lng, lat]
         },
         images: imageUrls,
+        thumbnail: initialThumbnail,
         pricePerHour: pricePerHour ? Number(pricePerHour) : 1200,
         phone: phone || "",
         openingTime: openingTime || "06:00 AM",
@@ -185,7 +199,9 @@ const updateTurf = asyncHandler(async (req, res) => {
         openingTime,
         closingTime,
         amenities,
-        existingImages
+        existingImages,
+        imageOrder,
+        thumbnail
     } = req.body;
 
     const updateData = {};
@@ -218,20 +234,71 @@ const updateTurf = asyncHandler(async (req, res) => {
         };
     }
 
-    // Handle Images Updating (Retain kept images + Upload new images)
-    let currentImages = turf.images || [];
+    // 1. Upload newly provided files from req.files to Cloudinary in order
+    const uploadedUrls = [];
+    if (req.files && req.files.length > 0) {
+        for (const file of req.files) {
+            const uploadedImage = await uploadOnCloudinary(file.path);
+            if (uploadedImage?.url) {
+                uploadedUrls.push(uploadedImage.url);
+            }
+        }
+    }
 
-    if (existingImages !== undefined) {
-        let keptImages = [];
+    const currentImages = Array.isArray(turf.images) ? turf.images : [];
+    let finalImages = [];
+    const keptExistingImages = [];
+
+    // 2. Process imageOrder if supplied by client to preserve exact user-reordered sequence
+    if (imageOrder !== undefined) {
+        let orderTokens = [];
         try {
-            keptImages = typeof existingImages === "string" ? JSON.parse(existingImages) : existingImages;
-            if (!Array.isArray(keptImages)) keptImages = [keptImages];
+            orderTokens = typeof imageOrder === "string" ? JSON.parse(imageOrder) : imageOrder;
+            if (!Array.isArray(orderTokens)) orderTokens = [orderTokens];
         } catch (e) {
-            keptImages = Array.isArray(existingImages) ? existingImages : [existingImages];
+            orderTokens = Array.isArray(imageOrder) ? imageOrder : [imageOrder];
         }
 
-        // Clean up removed images from Cloudinary
-        const removedImages = currentImages.filter((img) => !keptImages.includes(img));
+        for (const token of orderTokens) {
+            if (typeof token === "string" && token.startsWith("NEW_")) {
+                const idx = parseInt(token.replace("NEW_", ""), 10);
+                if (!isNaN(idx) && uploadedUrls[idx]) {
+                    finalImages.push(uploadedUrls[idx]);
+                }
+            } else if (typeof token === "string" && token.trim()) {
+                finalImages.push(token.trim());
+                keptExistingImages.push(token.trim());
+            }
+        }
+
+        // Safety: Append any newly uploaded files that weren't captured by the tokens
+        for (const upUrl of uploadedUrls) {
+            if (!finalImages.includes(upUrl)) {
+                finalImages.push(upUrl);
+            }
+        }
+    } else if (existingImages !== undefined) {
+        // Fallback for requests that don't send imageOrder
+        try {
+            const parsed = typeof existingImages === "string" ? JSON.parse(existingImages) : existingImages;
+            const arr = Array.isArray(parsed) ? parsed : [parsed];
+            keptExistingImages.push(...arr);
+        } catch (e) {
+            const arr = Array.isArray(existingImages) ? existingImages : [existingImages];
+            keptExistingImages.push(...arr);
+        }
+        finalImages = [...keptExistingImages, ...uploadedUrls];
+    } else if (uploadedUrls.length > 0) {
+        finalImages = [...currentImages, ...uploadedUrls];
+        keptExistingImages.push(...currentImages);
+    } else {
+        finalImages = [...currentImages];
+        keptExistingImages.push(...currentImages);
+    }
+
+    // 3. Clean up removed images from Cloudinary
+    if (imageOrder !== undefined || existingImages !== undefined) {
+        const removedImages = currentImages.filter((img) => !keptExistingImages.includes(img));
         for (const imgUrl of removedImages) {
             try {
                 const parts = imgUrl.split("/");
@@ -242,21 +309,40 @@ const updateTurf = asyncHandler(async (req, res) => {
                 console.log("Cloudinary image deletion error:", err);
             }
         }
-
-        currentImages = keptImages;
     }
 
-    // Upload newly provided files
-    if (req.files && req.files.length > 0) {
-        for (const file of req.files) {
-            const uploadedImage = await uploadOnCloudinary(file.path);
-            if (uploadedImage?.url) {
-                currentImages.push(uploadedImage.url);
+    // 4. Resolve Thumbnail & Cover (Position #0)
+    let selectedThumbnail = "";
+    if (thumbnail !== undefined && typeof thumbnail === "string" && thumbnail.trim()) {
+        const thumbToken = thumbnail.trim();
+        if (thumbToken.startsWith("NEW_")) {
+            const idx = parseInt(thumbToken.replace("NEW_", ""), 10);
+            if (!isNaN(idx) && uploadedUrls[idx]) {
+                selectedThumbnail = uploadedUrls[idx];
             }
+        } else {
+            selectedThumbnail = thumbToken;
         }
     }
 
-    updateData.images = currentImages;
+    // If a thumbnail was explicitly set, move it to index 0 of finalImages
+    if (selectedThumbnail) {
+        const thumbIdx = finalImages.indexOf(selectedThumbnail);
+        if (thumbIdx > 0) {
+            finalImages.splice(thumbIdx, 1);
+            finalImages.unshift(selectedThumbnail);
+        } else if (thumbIdx === -1) {
+            finalImages.unshift(selectedThumbnail);
+        }
+    }
+
+    if (finalImages.length > 0) {
+        updateData.images = finalImages;
+        updateData.thumbnail = selectedThumbnail || finalImages[0] || "";
+    } else if (currentImages.length > 0) {
+        updateData.images = currentImages;
+        updateData.thumbnail = currentImages[0] || "";
+    }
 
     const updatedTurf = await Turf.findByIdAndUpdate(
         turfId,

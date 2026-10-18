@@ -48,3 +48,83 @@
 
 
 # Middleware is like: Jaane se pehle mujhse mil kar jaana 😂😂
+
+
+
+# MULTER NOTES:
+
+So these two are essentially:
+
+1. Without Multer
+Frontend → Backend → Cloudinary
+
+2. With Multer
+Frontend → Backend → Multer → Cloudinary
+
+For a typical MERN application, I'd prefer #2 when your backend is responsible for handling uploads.
+
+> Why use Multer?
+
+When the frontend sends a file using multipart/form-data, Express doesn't automatically give you the file in a convenient form.
+
+Multer parses that request and gives you: 
+req.file
+
+or for multiple files:
+req.files
+
+Then your backend can send that file to Cloudinary.
+
+> Why is this useful?
+
+Your backend gets a chance to:
+
+✅ Check file type (jpg, png, pdf, etc.)
+✅ Limit file size
+✅ Reject unwanted files
+✅ Process/transform the file if needed
+✅ Authenticate the user before uploading
+✅ Decide where/how the file should be stored
+✅ Upload securely to Cloudinary without exposing sensitive Cloudinary credentials
+
+So the architecture becomes:
+
+React
+  ↓
+multipart/form-data
+  ↓
+Express
+  ↓
+Multer
+  ↓
+req.file
+  ↓
+Cloudinary
+  ↓
+URL
+  ↓
+MongoDB
+
+One important correction
+
+Don't think:
+"Multer stores my file."
+
+- Multer's main job is parsing the incoming multipart request and making the uploaded file accessible to your backend.
+
+It can temporarily store the file on disk or in memory, depending on how you configure it.
+Cloudinary is the actual long-term storage/CDN.
+
+> What I'd use in your MERN project
+
+For something like your FacelessBook/social-media app, I'd generally use:
+
+React → Node/Express → Multer → Cloudinary
+                              ↓
+                         Cloudinary URL
+                              ↓
+                           MongoDB
+
+That's a very common and clean architecture.
+
+However, for large files or performance-sensitive applications, direct frontend → Cloudinary uploads can be better because the file doesn't have to travel through your backend server.

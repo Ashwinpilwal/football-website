@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
@@ -44,7 +44,7 @@ import ConfirmDeleteModal from "@/components/common/ConfirmDeleteModal";
 import LoginModal from "@/components/auth/LoginModal";
 import EmojiPicker from "@/components/common/EmojiPicker";
 import FootballLoader from "@/components/common/FootballLoader";
-import { getAvatarUrl, cleanAddress } from "@/utils/avatar.utils";
+import { getAvatarUrl, cleanAddress, optimizeCloudinaryPostImage } from "@/utils/avatar.utils";
 import toast from "react-hot-toast";
 
 // Recursive Inline Comment Thread Component for Home Feed
@@ -222,6 +222,11 @@ export default function HomePage() {
 
   const [posts, setPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(3);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const feedObserverRef = useRef(null);
+  const hasUserScrolledRef = useRef(false);
+
   const [turfs, setTurfs] = useState([]);
   const [loadingTurfs, setLoadingTurfs] = useState(true);
   const [suggestedUsers, setSuggestedUsers] = useState([]);
@@ -241,6 +246,17 @@ export default function HomePage() {
   // Auth modal state for guests
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("Please sign in to interact with posts and squads.");
+
+  // Track if user has actually scrolled down to avoid auto-triggering on mount
+  useEffect(() => {
+    const handleUserScroll = () => {
+      if (window.scrollY > 20) {
+        hasUserScrolledRef.current = true;
+      }
+    };
+    window.addEventListener("scroll", handleUserScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleUserScroll);
+  }, []);
 
   // 1. Fetch Real Posts & Tweets from Backend
   const shuffleArray = (array) => {
@@ -283,6 +299,7 @@ export default function HomePage() {
         }));
 
         setPosts(shuffleArray([...formattedPosts, ...formattedTweets]));
+        setVisibleCount(3);
       } catch (err) {
         console.log("Error fetching posts & tweets:", err);
         setPosts([]);
@@ -292,6 +309,40 @@ export default function HomePage() {
     };
     fetchPostsAndTweets();
   }, [userData?._id]);
+
+  // Infinite Scroll: Reveal next 3 posts on scroll
+  const loadMoreFeed = useCallback(() => {
+    if (loadingMore || visibleCount >= posts.length) return;
+    setLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount((prev) => Math.min(prev + 3, posts.length));
+      setLoadingMore(false);
+    }, 200);
+  }, [loadingMore, visibleCount, posts.length]);
+
+  useEffect(() => {
+    if (visibleCount >= posts.length || loadingPosts) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Only trigger if intersecting AND user has actively scrolled
+        if (entries[0].isIntersecting && hasUserScrolledRef.current) {
+          loadMoreFeed();
+        }
+      },
+      { threshold: 0.1, rootMargin: "50px" }
+    );
+
+    const target = feedObserverRef.current;
+    if (target) {
+      observer.observe(target);
+    }
+
+    return () => {
+      if (target) observer.unobserve(target);
+      observer.disconnect();
+    };
+  }, [visibleCount, posts.length, loadingPosts, loadMoreFeed]);
 
   // 2. Fetch Real Turfs from Backend
   useEffect(() => {
@@ -838,70 +889,72 @@ export default function HomePage() {
             {loadingPosts ? (
               <FootballLoader message="Loading matchday posts..." />
             ) : posts.length > 0 ? (
-              posts.map((post) =>
-                post.itemType === "tweet" ? (
-                  <div
-                    key={`tw_${post._id}`}
-                    className="glass-card rounded-3xl p-6 sm:p-7 border border-emerald-500/20 hover:border-emerald-500/40 space-y-4 shadow-2xl transition-all"
-                  >
-                    <div className="flex items-center justify-between">
-                      <Link to={`/channel/${post.owner?.username || "player"}`} className="flex items-center gap-3.5 group">
-                        <img
-                          src={getAvatarUrl(post.owner)}
-                          alt="Author"
-                          className="size-11 rounded-2xl object-cover ring-1 ring-emerald-500/30 group-hover:ring-emerald-400 transition-all shadow-md"
-                        />
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-display font-bold text-base text-white group-hover:text-emerald-400 transition-colors">
-                              {post.owner?.fullName || post.owner?.username || "Footballer"}
+              <>
+                {posts.slice(0, visibleCount).map((post) =>
+                  post.itemType === "tweet" ? (
+                    <div
+                      key={`tw_${post._id}`}
+                      className="glass-card rounded-3xl p-6 sm:p-7 border border-emerald-500/20 hover:border-emerald-500/40 space-y-4 shadow-2xl transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <Link to={`/channel/${post.owner?.username || "player"}`} className="flex items-center gap-3.5 group">
+                          <img
+                            src={getAvatarUrl(post.owner)}
+                            alt="Author"
+                            className="size-11 rounded-2xl object-cover ring-1 ring-emerald-500/30 group-hover:ring-emerald-400 transition-all shadow-md"
+                          />
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-display font-bold text-base text-white group-hover:text-emerald-400 transition-colors">
+                                {post.owner?.fullName || post.owner?.username || "Footballer"}
+                              </span>
+                              <CheckCircle2 className="size-4 text-emerald-400" />
+                            </div>
+                            <span className="text-xs text-neutral-400 font-medium">
+                              @{post.owner?.username || "player"} • {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : "Recent"}
                             </span>
-                            <CheckCircle2 className="size-4 text-emerald-400" />
                           </div>
-                          <span className="text-xs text-neutral-400 font-medium">
-                            @{post.owner?.username || "player"} • {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : "Recent"}
+                        </Link>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                            💬 Tweet
                           </span>
+                          {/* Only tweet owner can delete */}
+                          {Boolean(
+                            userData &&
+                            ((post.owner?._id && userData?._id && post.owner._id.toString() === userData._id.toString()) ||
+                              (post.owner?.username && userData?.username && post.owner.username === userData.username))
+                          ) && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteTweet(post._id)}
+                                className="p-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 transition-all cursor-pointer shadow-xs active:scale-95"
+                                title="Delete your tweet"
+                              >
+                                <Trash2 className="size-4" />
+                              </button>
+                            )}
                         </div>
-                      </Link>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                          💬 Tweet
-                        </span>
-                        {/* Only tweet owner can delete */}
-                        {Boolean(
-                          userData &&
-                          ((post.owner?._id && userData?._id && post.owner._id.toString() === userData._id.toString()) ||
-                            (post.owner?.username && userData?.username && post.owner.username === userData.username))
-                        ) && (
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteTweet(post._id)}
-                              className="p-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 transition-all cursor-pointer shadow-xs active:scale-95"
-                              title="Delete your tweet"
-                            >
-                              <Trash2 className="size-4" />
-                            </button>
-                          )}
                       </div>
-                    </div>
 
-                    {post.content && (
-                      <p className="text-[15.5px] text-neutral-100 leading-relaxed font-normal pt-1">
-                        {post.content}
-                      </p>
-                    )}
+                      {post.content && (
+                        <p className="text-[15.5px] text-neutral-100 leading-relaxed font-normal pt-1">
+                          {post.content}
+                        </p>
+                      )}
 
-                    {/* Tweet Photo Attachment */}
-                    {post.photo?.url && (
-                      <div className="rounded-2xl overflow-hidden border border-white/10 max-h-96 bg-black/40">
-                        <img
-                          src={post.photo.url}
-                          alt="Tweet photo attachment"
-                          className="w-full h-auto max-h-96 object-cover hover:scale-[1.01] transition-transform cursor-pointer"
-                          onClick={() => window.open(post.photo.url, "_blank")}
-                        />
-                      </div>
-                    )}
+                      {/* Tweet Photo Attachment with Cloudinary optimization */}
+                      {post.photo?.url && (
+                        <div className="rounded-2xl overflow-hidden border border-white/10 max-h-96 bg-black/40">
+                          <img
+                            src={optimizeCloudinaryPostImage(post.photo.url)}
+                            alt="Tweet photo attachment"
+                            loading="lazy"
+                            className="w-full h-auto max-h-96 object-cover hover:scale-[1.01] transition-transform cursor-pointer"
+                            onClick={() => window.open(post.photo.url, "_blank")}
+                          />
+                        </div>
+                      )}
 
                     <div className="flex items-center justify-between pt-3 border-t border-white/[0.06] text-xs text-neutral-400">
                       <div className="flex items-center gap-3.5">
@@ -1301,7 +1354,31 @@ export default function HomePage() {
                       );
                     })()}
                   </div>
-                ))
+                ))}
+
+                {/* IntersectionObserver Sentinel for Infinite Scroll (loads next 3 posts) */}
+                {visibleCount < posts.length && (
+                  <div ref={feedObserverRef} className="py-6 flex flex-col items-center justify-center">
+                    {loadingMore ? (
+                      <div className="flex items-center gap-2.5 text-xs font-semibold text-emerald-400">
+                        <span className="size-4 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin" />
+                        <span>Loading more posts...</span>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          hasUserScrolledRef.current = true;
+                          loadMoreFeed();
+                        }}
+                        className="px-4 py-2 rounded-xl text-xs font-bold text-neutral-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all cursor-pointer"
+                      >
+                        Scroll or click to load more
+                      </button>
+                    )}
+                  </div>
+                )}
+              </>
             ) : (
               <div className="glass-card rounded-3xl p-14 text-center space-y-3.5 shadow-xl">
                 <ImageIcon className="size-11 text-neutral-500 mx-auto" />
@@ -1337,24 +1414,73 @@ export default function HomePage() {
               {loadingTurfs ? (
                 <FootballLoader inline size="xs" message="Loading grounds..." />
               ) : turfs.length > 0 ? (
-                turfs.slice(0, 3).map((turf) => (
-                  <div key={turf._id} className="p-3.5 rounded-2xl bg-black/40 border border-white/[0.06] space-y-2.5 hover:border-emerald-500/30 transition-all">
-                    <div className="flex items-start justify-between gap-2">
-                      <h4 className="font-bold text-sm text-white truncate">{turf.name}</h4>
-                      {turf.pricePerHour && (
-                        <span className="text-xs font-extrabold text-emerald-400 shrink-0 font-mono">
-                          ₹{turf.pricePerHour}/hr
-                        </span>
-                      )}
+                turfs.slice(0, 3).map((turf) => {
+                  const turfImage =
+                    turf.thumbnail ||
+                    turf.images?.[0] ||
+                    "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500";
+
+                  return (
+                    <div
+                      key={turf._id}
+                      className="p-3.5 rounded-2xl bg-neutral-100/70 dark:bg-black/40 border border-neutral-200 dark:border-white/[0.06] space-y-2.5 hover:border-emerald-500/30 transition-all group overflow-hidden"
+                    >
+                      {/* Turf Image Preview */}
+                      <Link
+                        to={`/turfs/${turf._id}`}
+                        className="block relative w-full h-28 rounded-xl overflow-hidden bg-neutral-900/40 border border-black/5 dark:border-white/10"
+                      >
+                        <img
+                          src={turfImage}
+                          alt={turf.name}
+                          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500";
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+
+                        {turf.type && (
+                          <span className="absolute top-2 left-2 text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-black/60 text-emerald-400 backdrop-blur-xs border border-white/10">
+                            {turf.type}
+                          </span>
+                        )}
+
+                        {turf.pricePerHour && (
+                          <span className="absolute bottom-2 right-2 text-xs font-black text-emerald-300 bg-black/75 backdrop-blur-xs px-2 py-0.5 rounded-lg border border-white/10 font-mono shadow-sm">
+                            ₹{turf.pricePerHour}/hr
+                          </span>
+                        )}
+                      </Link>
+
+                      <div className="flex items-start justify-between gap-2 pt-0.5">
+                        <Link
+                          to={`/turfs/${turf._id}`}
+                          className="font-bold text-sm text-neutral-900 dark:text-white truncate hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
+                        >
+                          {turf.name}
+                        </Link>
+                      </div>
+
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate flex items-center gap-1">
+                        <MapPin className="size-3 text-neutral-400 shrink-0" />
+                        <span className="truncate">{cleanAddress(turf.address)}</span>
+                      </p>
+
+                      <Link to={`/turfs/${turf._id}`} className="block pt-0.5">
+                        <Button
+                          size="sm"
+                          variant="primary"
+                          className="w-full h-8.5 text-xs font-bold rounded-xl shadow-sm cursor-pointer"
+                        >
+                          Book Slot
+                        </Button>
+                      </Link>
                     </div>
-                    <p className="text-xs text-neutral-400 truncate">{cleanAddress(turf.address)}</p>
-                    <Link to={`/turfs/${turf._id}`} className="block pt-0.5">
-                      <Button size="sm" variant="primary" className="w-full h-8.5 text-xs font-bold rounded-xl shadow-sm">
-                        Book Slot
-                      </Button>
-                    </Link>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="text-xs text-neutral-400 text-center py-3">
                   No registered grounds in this area.

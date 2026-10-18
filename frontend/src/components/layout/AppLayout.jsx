@@ -17,7 +17,7 @@ export default function AppLayout() {
   }, [sidebarExpanded]);
 
   return (
-    <div className="min-h-screen bg-[#070b10] text-neutral-100 flex flex-col md:flex-row antialiased selection:bg-emerald-500 selection:text-neutral-950 relative overflow-x-hidden w-full max-w-full">
+    <div className="min-h-screen bg-transparent text-neutral-100 flex flex-col md:flex-row antialiased selection:bg-emerald-500 selection:text-neutral-950 relative overflow-x-hidden w-full max-w-full">
       {/* Desktop Sidebar Container with smooth width expansion that shifts content right */}
       <div
         className={`hidden md:block shrink-0 relative z-30 sidebar-desktop-spacer ${

@@ -80,12 +80,13 @@ const createPost = asyncHandler(async (req, res) => {
 
 const getUserPosts = asyncHandler(async (req, res) => {
     const { userId } = req.params;
+    const { page, limit } = req.query;
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
         throw new ApiError(400, "Invalid user ID");
     }
 
-    const posts = await Post.aggregate([
+    const pipeline = [
         {
             $match: {
                 owner: new mongoose.Types.ObjectId(userId)
@@ -95,7 +96,21 @@ const getUserPosts = asyncHandler(async (req, res) => {
             $sort: {
                 createdAt: -1
             }
-        },
+        }
+    ];
+
+    // Optional pagination for fast initial load & infinite scroll
+    if (page !== undefined || limit !== undefined) {
+        const pageNum = Math.max(1, parseInt(page, 10) || 1);
+        const limitNum = Math.max(1, parseInt(limit, 10) || 3);
+        const skip = (pageNum - 1) * limitNum;
+        pipeline.push(
+            { $skip: skip },
+            { $limit: limitNum }
+        );
+    }
+
+    pipeline.push(
         {
             $lookup: {
                 from: "users",
@@ -241,7 +256,9 @@ const getUserPosts = asyncHandler(async (req, res) => {
                 commentsCount: { $size: "$comments" }
             }
         }
-    ]);
+    );
+
+    const posts = await Post.aggregate(pipeline);
 
     return res.status(200).json(
         new ApiResponse(200, posts, "Posts fetched successfully!")

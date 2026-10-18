@@ -111,4 +111,4 @@
     2. res.status(...).json(...)
         No return needed if it's the last line.
     3. return res.status(...).json(...)
-        Used when you want to stop further execution of the function.
+        Used when you want to stop further execution of the function. 

@@ -1857,10 +1857,7 @@ export default function MessagesPage() {
                     >
                       <div className="relative shrink-0">
                         <img
-                          src={
-                            otherUser?.avatar?.url ||
-                            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
-                          }
+                          src={getAvatarUrl(otherUser, otherUser?.fullName || "Player")}
                           alt={otherUser?.fullName || "Player"}
                           className="size-10 rounded-2xl object-cover ring-1 ring-white/10 shadow-sm"
                         />
@@ -1928,10 +1925,7 @@ export default function MessagesPage() {
                   >
                     <div className="relative shrink-0">
                       <img
-                        src={
-                          user.avatar?.url ||
-                          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
-                        }
+                        src={getAvatarUrl(user, user.fullName || "Player")}
                         alt={user.fullName || "Player"}
                         className="size-10 rounded-2xl object-cover ring-1 ring-white/10 shadow-sm"
                       />
@@ -2020,10 +2014,7 @@ export default function MessagesPage() {
                   >
                     <div className="relative shrink-0">
                       <img
-                        src={
-                          user.avatar?.url ||
-                          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
-                        }
+                        src={getAvatarUrl(user, user.fullName || user.username)}
                         alt={user.fullName || user.username}
                         className="size-10 rounded-2xl object-cover ring-1 ring-white/10 shadow-md"
                       />
@@ -2098,10 +2089,7 @@ export default function MessagesPage() {
                   >
                     <div className="relative shrink-0">
                       <img
-                        src={
-                          other?.avatar?.url ||
-                          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
-                        }
+                        src={getAvatarUrl(other, other?.fullName || other?.username)}
                         alt={other?.fullName || other?.username}
                         className="size-10 rounded-2xl object-cover ring-1 ring-white/10 shadow-md"
                       />
@@ -2189,10 +2177,7 @@ export default function MessagesPage() {
                   >
                     <div className="relative shrink-0">
                       <img
-                        src={
-                          owner.avatar?.url ||
-                          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
-                        }
+                        src={getAvatarUrl(owner, owner.fullName || owner.username)}
                         alt={owner.fullName || owner.username}
                         className="size-10 rounded-2xl object-cover ring-1 ring-emerald-500/30 shadow-md"
                       />
@@ -2276,10 +2261,7 @@ export default function MessagesPage() {
                   >
                     <div className="relative shrink-0">
                       <img
-                        src={
-                          user.avatar?.url ||
-                          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
-                        }
+                        src={getAvatarUrl(user, user.fullName || user.username)}
                         alt={user.fullName || user.username}
                         className="size-10 rounded-2xl object-cover ring-1 ring-emerald-500/20 shadow-md"
                       />
@@ -2356,10 +2338,7 @@ export default function MessagesPage() {
                   >
                     <div className="relative shrink-0">
                       <img
-                        src={
-                          user.avatar?.url ||
-                          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
-                        }
+                        src={getAvatarUrl(user, user.fullName || user.username)}
                         alt={user.fullName || user.username}
                         className="size-10 rounded-2xl object-cover ring-1 ring-white/10 shadow-md"
                       />
@@ -2528,10 +2507,7 @@ export default function MessagesPage() {
                       >
                         <div className="relative shrink-0">
                           <img
-                            src={
-                              user.avatar?.url ||
-                              "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
-                            }
+                            src={getAvatarUrl(user, user.fullName || user.username)}
                             alt={user.fullName || user.username}
                             className="size-10 rounded-2xl object-cover ring-1 ring-white/10 shadow-md"
                           />
@@ -2600,10 +2576,7 @@ export default function MessagesPage() {
                       >
                         <div className="relative shrink-0">
                           <img
-                            src={
-                              user.avatar?.url ||
-                              "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
-                            }
+                            src={getAvatarUrl(user, user.fullName || user.username)}
                             alt={user.fullName || user.username}
                             className="size-10 rounded-2xl object-cover ring-1 ring-white/10 shadow-md"
                           />
@@ -2673,10 +2646,7 @@ export default function MessagesPage() {
                   >
                     <div className="relative shrink-0">
                       <img
-                        src={
-                          activeOtherUser?.avatar?.url ||
-                          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
-                        }
+                        src={getAvatarUrl(activeOtherUser, activeOtherUser?.fullName || activeOtherUser?.username)}
                         alt="Avatar"
                         className="size-9 sm:size-10 rounded-2xl object-cover ring-1 ring-white/10 shadow-md group-hover/headeruser:ring-emerald-400/50 transition-all"
                       />
@@ -3039,10 +3009,7 @@ export default function MessagesPage() {
                             <div className="p-2.5 border-b border-white/[0.08] flex items-center justify-between bg-white/[0.02]">
                               <div className="flex items-center gap-2 min-w-0">
                                 <img
-                                  src={
-                                    msg.sharedPost?.owner?.avatar ||
-                                    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
-                                  }
+                                  src={getAvatarUrl(msg.sharedPost?.owner)}
                                   alt={msg.sharedPost?.owner?.fullName || "Author"}
                                   className="size-6 rounded-lg object-cover ring-1 ring-white/10 shrink-0"
                                 />
@@ -3426,10 +3393,7 @@ export default function MessagesPage() {
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <img
-                        src={
-                          member.avatar?.url ||
-                          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100"
-                        }
+                        src={getAvatarUrl(member, member.fullName || member.username)}
                         alt={member.fullName || member.username}
                         className="size-9 rounded-xl object-cover ring-1 ring-white/10 shrink-0"
                       />

@@ -318,23 +318,20 @@ export default function AIAssistantTab() {
   };
 
   return (
-    <div className="flex flex-col h-[750px] rounded-3xl bg-[#090e15] border border-white/10 shadow-2xl overflow-hidden animate-in fade-in duration-300">
+    <div className="flex flex-col h-[750px] rounded-3xl bg-white dark:bg-[#090e15] border border-neutral-200 dark:border-white/10 shadow-2xl overflow-hidden animate-in fade-in duration-300">
       {/* Chat Top Header */}
-      <div className="px-6 py-4 bg-[#0c131d] border-b border-white/10 flex items-center justify-between">
+      <div className="px-6 py-4 bg-neutral-50 dark:bg-[#0c131d] border-b border-neutral-200 dark:border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="size-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shadow-md">
             <Bot className="size-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-white font-display">
+              <h3 className="text-sm font-bold text-neutral-900 dark:text-white font-display">
                 FootballAI Master
               </h3>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-mono border border-emerald-500/30">
-                PRO TACTICAL
-              </span>
             </div>
-            <span className="text-[11px] text-neutral-400">
+            <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
               Powered by Google Gemini Pro Sports Engine
             </span>
           </div>
@@ -370,7 +367,7 @@ export default function AIAssistantTab() {
               <div
                 className={`max-w-[92%] sm:max-w-[84%] rounded-3xl p-4 sm:p-5 shadow-lg relative group ${
                   isAI
-                    ? "bg-[#0d1622] border border-white/10 text-neutral-100"
+                    ? "bg-white dark:bg-[#0d1622] border border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-neutral-100"
                     : "bg-emerald-500 text-neutral-950 font-medium font-sans"
                 }`}
               >
@@ -432,15 +429,15 @@ export default function AIAssistantTab() {
       </div>
 
       {/* Suggested Dynamic Quick Prompt Chips */}
-      <div className="px-4 sm:px-6 py-2.5 bg-[#0a1018] border-t border-white/5 overflow-x-auto flex items-center gap-2 scrollbar-none">
+      <div className="px-4 sm:px-6 py-2.5 bg-neutral-100/80 dark:bg-[#0a1018] border-t border-neutral-200 dark:border-white/5 overflow-x-auto flex items-center gap-2 scrollbar-none">
         <div className="flex items-center gap-1.5 shrink-0">
-          <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-1">
-            <Zap className="size-3 text-emerald-400" /> Quick Ideas:
+          <span className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider flex items-center gap-1">
+            <Zap className="size-3 text-emerald-500 dark:text-emerald-400" /> Quick Ideas:
           </span>
           <button
             type="button"
             onClick={handleShufflePrompts}
-            className="size-6 rounded-lg bg-white/5 hover:bg-white/15 text-neutral-400 hover:text-emerald-400 flex items-center justify-center transition-colors cursor-pointer"
+            className="size-6 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/15 text-neutral-500 dark:text-neutral-400 hover:text-emerald-500 dark:hover:text-emerald-400 flex items-center justify-center transition-colors cursor-pointer"
             title="Shuffle fresh tactical ideas"
           >
             <Shuffle className="size-3" />
@@ -453,7 +450,7 @@ export default function AIAssistantTab() {
             type="button"
             onClick={() => handleSendMessage(qp)}
             disabled={loading}
-            className="px-3 py-1 rounded-xl bg-white/5 hover:bg-emerald-500/20 text-neutral-300 hover:text-emerald-300 border border-white/10 hover:border-emerald-500/40 text-xs whitespace-nowrap transition-all cursor-pointer disabled:opacity-50"
+            className="px-3 py-1 rounded-xl bg-white dark:bg-white/5 hover:bg-emerald-500/10 dark:hover:bg-emerald-500/20 text-neutral-700 dark:text-neutral-300 hover:text-emerald-600 dark:hover:text-emerald-300 border border-neutral-200 dark:border-white/10 hover:border-emerald-500/40 text-xs whitespace-nowrap transition-all cursor-pointer disabled:opacity-50 shadow-xs"
           >
             {qp}
           </button>
@@ -466,7 +463,7 @@ export default function AIAssistantTab() {
           e.preventDefault();
           handleSendMessage();
         }}
-        className="p-4 bg-[#0c131d] border-t border-white/10 flex items-center gap-3"
+        className="p-4 bg-neutral-50 dark:bg-[#0c131d] border-t border-neutral-200 dark:border-white/10 flex items-center gap-3"
       >
         <input
           type="text"
@@ -474,7 +471,7 @@ export default function AIAssistantTab() {
           value={inputPrompt}
           onChange={(e) => setInputPrompt(e.target.value)}
           disabled={loading}
-          className="flex-1 h-11 px-4.5 rounded-2xl bg-[#070b10] border border-white/15 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-medium"
+          className="flex-1 h-11 px-4.5 rounded-2xl bg-white dark:bg-[#070b10] border border-neutral-300 dark:border-white/15 text-xs sm:text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-medium"
         />
 
         <Button
