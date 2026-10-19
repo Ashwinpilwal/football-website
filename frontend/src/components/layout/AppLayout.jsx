@@ -17,7 +17,7 @@ export default function AppLayout() {
   }, [sidebarExpanded]);
 
   return (
-    <div className="min-h-screen bg-transparent text-neutral-100 flex flex-col md:flex-row antialiased selection:bg-emerald-500 selection:text-neutral-950 relative overflow-x-hidden w-full max-w-full">
+    <div className="min-h-screen bg-transparent text-neutral-100 flex flex-col md:flex-row antialiased selection:bg-emerald-500 selection:text-neutral-950 relative overflow-x-clip w-full max-w-full">
       {/* Desktop Sidebar Container with smooth width expansion that shifts content right */}
       <div
         className={`hidden md:block shrink-0 relative z-30 sidebar-desktop-spacer ${
@@ -48,7 +48,7 @@ export default function AppLayout() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen relative z-10 w-full overflow-x-hidden">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen relative z-10 w-full overflow-x-clip">
         <Navbar onOpenMobile={() => setMobileOpen(true)} />
         <main className="flex-1 px-3 sm:px-5 md:px-6 lg:px-8 py-3 sm:py-5 md:py-6 lg:py-8 max-w-7xl w-full mx-auto pb-24 md:pb-8 min-w-0">
           <Outlet />

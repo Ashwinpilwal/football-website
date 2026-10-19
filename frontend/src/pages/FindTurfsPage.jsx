@@ -263,7 +263,7 @@ export default function FindTurfsPage() {
       {viewMode === "split" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Cards Column */}
-          <div className="lg:col-span-6 space-y-4 max-h-[780px] overflow-y-auto pr-1">
+          <div className="lg:col-span-6 space-y-4">
             {loading ? (
               <div className="p-12 text-center text-xs text-neutral-400 space-y-2">
                 <div className="size-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
@@ -382,8 +382,8 @@ export default function FindTurfsPage() {
           </div>
 
           {/* Right Map Column with Live User Location */}
-          <div className="lg:col-span-6 sticky top-20 sm:top-24">
-            <div className="h-[320px] sm:h-[450px] lg:h-[780px] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+          <div className="lg:col-span-6 lg:sticky lg:top-4 self-start">
+            <div className="w-full h-[360px] sm:h-[480px] lg:h-[calc(100vh-2rem)] min-h-[460px] max-h-[860px] rounded-3xl overflow-hidden shadow-2xl">
               <TurfMap
                 turfs={filteredTurfs}
                 userCoords={userCoords}

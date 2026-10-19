@@ -458,7 +458,7 @@ export default function Navbar({ onOpenMobile }) {
 
   return (
     <>
-      <header className="sticky top-2 sm:top-4 z-30 mx-2 sm:mx-4 md:mx-6 my-2 sm:my-4 px-3 sm:px-5 md:px-7 py-2.5 sm:py-3 rounded-2xl sm:rounded-3xl bg-white dark:bg-[#101722] border border-neutral-300/80 dark:border-white/20 shadow-xl dark:shadow-2xl flex items-center justify-between gap-2 sm:gap-4 relative transition-colors duration-200">
+      <header className="z-30 mx-2 sm:mx-4 md:mx-6 my-2 sm:my-4 px-3 sm:px-5 md:px-7 py-2.5 sm:py-3 rounded-2xl sm:rounded-3xl bg-white dark:bg-[#101722] border border-neutral-300/80 dark:border-white/20 shadow-xl dark:shadow-2xl flex items-center justify-between gap-2 sm:gap-4 relative transition-colors duration-200">
         {/* Background Layer with Overflow Hidden so pattern stays inside rounded corners without clipping popups */}
         <div className="absolute inset-0 rounded-2xl sm:rounded-3xl overflow-hidden pointer-events-none">
           {/* Football Pattern Background (Optimized WebP, 153KB vs 3.5MB original) */}
@@ -567,9 +567,20 @@ export default function Navbar({ onOpenMobile }) {
                           </div>
                           <div className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400 truncate flex items-center gap-2">
                             <span>@{user.username}</span>
-                            {user.favouriteClub && (
-                              <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-neutral-100 dark:bg-white/10 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-white/10">
-                                {user.favouriteClub}
+                            {Boolean(typeof user.favouriteClub === "object" ? user.favouriteClub?.name : user.favouriteClub) && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-neutral-100 dark:bg-white/10 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-white/10 inline-flex items-center gap-1 max-w-[120px] truncate">
+                                {typeof user.favouriteClub === "object" && user.favouriteClub?.logo && (
+                                  <img
+                                    src={user.favouriteClub.logo}
+                                    alt=""
+                                    className="size-3 object-contain shrink-0"
+                                  />
+                                )}
+                                <span className="truncate">
+                                  {typeof user.favouriteClub === "object"
+                                    ? user.favouriteClub.name
+                                    : user.favouriteClub}
+                                </span>
                               </span>
                             )}
                           </div>
