@@ -274,8 +274,8 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
         </div>
         <div
           className={`sidebar-text-reveal whitespace-nowrap overflow-hidden ${isExpanded
-              ? "opacity-100 translate-x-0"
-              : "opacity-0 -translate-x-2 pointer-events-none"
+            ? "opacity-100 translate-x-0"
+            : "opacity-0 -translate-x-2 pointer-events-none"
             }`}
         >
           <span className="font-display font-black text-lg tracking-tight text-white flex items-center gap-1.5">
@@ -319,8 +319,8 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
                   {/* Text Label: revealed when expanded */}
                   <span
                     className={`sidebar-text-reveal text-sm font-semibold whitespace-nowrap overflow-hidden flex-1 ${isExpanded
-                        ? "opacity-100 translate-x-0"
-                        : "opacity-0 -translate-x-2 pointer-events-none"
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 -translate-x-2 pointer-events-none"
                       }`}
                   >
                     {item.name}
@@ -330,8 +330,8 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
                   {item.badge && !isActive && (
                     <span
                       className={`sidebar-text-reveal text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0 ${isExpanded
-                          ? "opacity-100 scale-100"
-                          : "opacity-0 scale-90 pointer-events-none"
+                        ? "opacity-100 scale-100"
+                        : "opacity-0 scale-90 pointer-events-none"
                         }`}
                     >
                       {item.badge}
@@ -357,8 +357,8 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
             </div>
             <span
               className={`sidebar-text-reveal text-sm font-bold whitespace-nowrap overflow-hidden truncate ${isExpanded
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-2 pointer-events-none"
+                ? "opacity-100 translate-x-0"
+                : "opacity-0 -translate-x-2 pointer-events-none"
                 }`}
             >
               New Match Post
@@ -378,8 +378,8 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
               </div>
               <span
                 className={`sidebar-text-reveal text-sm font-semibold whitespace-nowrap overflow-hidden truncate ${isExpanded
-                    ? "opacity-100 translate-x-0"
-                    : "opacity-0 -translate-x-2 pointer-events-none"
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-2 pointer-events-none"
                   }`}
               >
                 Sign Out
@@ -398,8 +398,8 @@ export default function Sidebar({ onCloseMobile, isMobile = false, isExpanded = 
               </div>
               <span
                 className={`sidebar-text-reveal text-sm font-semibold whitespace-nowrap overflow-hidden truncate ${isExpanded
-                    ? "opacity-100 translate-x-0"
-                    : "opacity-0 -translate-x-2 pointer-events-none"
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-2 pointer-events-none"
                   }`}
               >
                 Sign In

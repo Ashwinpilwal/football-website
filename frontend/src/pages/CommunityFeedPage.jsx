@@ -558,8 +558,8 @@ export default function CommunityFeedPage() {
                   type="button"
                   onClick={() => setIsTweetEmojiOpen(!isTweetEmojiOpen)}
                   className={`size-10 sm:size-12 rounded-xl sm:rounded-2xl border flex items-center justify-center transition-all cursor-pointer shrink-0 ${isTweetEmojiOpen
-                      ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 ring-1 ring-emerald-500/30"
-                      : "bg-[#060a0f] border-white/10 text-neutral-400 hover:text-white hover:bg-white/5"
+                    ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 ring-1 ring-emerald-500/30"
+                    : "bg-[#060a0f] border-white/10 text-neutral-400 hover:text-white hover:bg-white/5"
                     }`}
                   title="Add Emoji to Tweet"
                 >
@@ -581,8 +581,8 @@ export default function CommunityFeedPage() {
                 type="button"
                 onClick={() => tweetPhotoInputRef.current?.click()}
                 className={`size-10 sm:size-12 rounded-xl sm:rounded-2xl border flex items-center justify-center transition-all cursor-pointer shrink-0 ${tweetPhoto
-                    ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 ring-1 ring-emerald-500/30"
-                    : "bg-[#060a0f] border-white/10 text-neutral-400 hover:text-white hover:bg-white/5"
+                  ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 ring-1 ring-emerald-500/30"
+                  : "bg-[#060a0f] border-white/10 text-neutral-400 hover:text-white hover:bg-white/5"
                   }`}
                 title="Attach Photo"
               >
@@ -724,275 +724,275 @@ export default function CommunityFeedPage() {
                         </div>
                       )}
 
-                    <div className="flex items-center justify-between pt-2 border-t border-white/5 text-xs text-neutral-400">
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={(e) => handleLikeTweet(e, item._id)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${item.isLiked
+                      <div className="flex items-center justify-between pt-2 border-t border-white/5 text-xs text-neutral-400">
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={(e) => handleLikeTweet(e, item._id)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${item.isLiked
                               ? "bg-red-500/15 border-red-500/30 text-red-400 font-bold"
                               : "bg-[#060a0f] border-white/5 hover:text-white"
-                            }`}
-                        >
-                          <Heart className={`size-4 ${item.isLiked ? "fill-red-400" : ""}`} />
-                          <span>{item.likesCount || 0}</span>
-                        </button>
+                              }`}
+                          >
+                            <Heart className={`size-4 ${item.isLiked ? "fill-red-400" : ""}`} />
+                            <span>{item.likesCount || 0}</span>
+                          </button>
 
-                        <button
-                          type="button"
-                          onClick={(e) => handleToggleComments(item._id, e)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${openCommentsPostId === item._id
+                          <button
+                            type="button"
+                            onClick={(e) => handleToggleComments(item._id, e)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${openCommentsPostId === item._id
                               ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400 font-bold"
                               : "bg-[#060a0f] border-white/5 hover:text-white"
-                            }`}
-                        >
-                          <MessageCircle className="size-4" />
-                          <span>{item.commentsCount ?? item.comments?.length ?? 0}</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSharingPostModal(item);
-                          }}
-                          className="p-2 rounded-xl bg-[#060a0f] border border-white/5 hover:text-emerald-400 hover:border-emerald-500/30 transition-all cursor-pointer"
-                          title="Share Tweet"
-                        >
-                          <Share2 className="size-4" />
-                        </button>
-                      </div>
-
-                      <span className="text-[11px] text-neutral-500 font-mono">
-                        Tweet
-                      </span>
-                    </div>
-
-                    {/* Interactive Tweet Comments Drawer */}
-                    {openCommentsPostId === item._id && (
-                      <div className="pt-3.5 border-t border-white/[0.08] space-y-3.5" onClick={(e) => e.stopPropagation()}>
-                        {/* New Comment Input */}
-                        <div className="flex items-center gap-2.5 relative">
-                          <img
-                            src={getAvatarUrl(userData)}
-                            alt="You"
-                            className="size-8 rounded-xl object-cover ring-1 ring-white/10 shrink-0"
-                          />
-                          <div className="flex-1 flex items-center relative">
-                            <input
-                              type="text"
-                              value={commentInputs[item._id] || ""}
-                              onChange={(e) => setCommentInputs({ ...commentInputs, [item._id]: e.target.value })}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter" && !e.shiftKey) {
-                                  e.preventDefault();
-                                  handleAddComment(e, item._id);
-                                }
-                              }}
-                              placeholder="Write a reply to this tweet..."
-                              className="w-full h-9.5 pl-3.5 pr-9 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-medium"
-                            />
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setActiveReplyEmojiTweetId(activeReplyEmojiTweetId === item._id ? null : item._id);
-                              }}
-                              className={`absolute right-2 size-6 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${activeReplyEmojiTweetId === item._id
-                                  ? "text-emerald-400 bg-emerald-500/20"
-                                  : "text-neutral-400 hover:text-white"
-                                }`}
-                              title="Add Emoji to Reply"
-                            >
-                              <Smile className="size-3.5" />
-                            </button>
-                          </div>
-
-                          <EmojiPicker
-                            isOpen={activeReplyEmojiTweetId === item._id}
-                            onClose={() => setActiveReplyEmojiTweetId(null)}
-                            onSelectEmoji={(emoji) => {
-                              setCommentInputs((prev) => ({
-                                ...prev,
-                                [item._id]: (prev[item._id] || "") + emoji,
-                              }));
-                            }}
-                            className="bottom-12 left-0 sm:left-6"
-                          />
-
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="primary"
-                            onClick={(e) => handleAddComment(e, item._id)}
-                            disabled={!commentInputs[item._id]?.trim()}
-                            className="h-9.5 px-3.5 rounded-xl text-xs font-bold gap-1 cursor-pointer shrink-0"
+                              }`}
                           >
-                            <Send className="size-3" />
-                          </Button>
-                        </div>
+                            <MessageCircle className="size-4" />
+                            <span>{item.commentsCount ?? item.comments?.length ?? 0}</span>
+                          </button>
 
-                        {/* Comments List */}
-                        <div className="space-y-2 max-h-56 overflow-y-auto custom-scrollbar pr-1">
-                          {item.comments && item.comments.length > 0 ? (
-                            item.comments.map((c) => {
-                              const isCommentOwner =
-                                (c.owner?._id && userData?._id && c.owner._id.toString() === userData._id.toString()) ||
-                                (c.owner?.username && userData?.username && c.owner.username === userData.username);
-                              const isTweetOwner =
-                                (item.owner?._id && userData?._id && item.owner._id.toString() === userData._id.toString()) ||
-                                (item.owner?.username && userData?.username && item.owner.username === userData.username);
-
-                              const isLiked =
-                                c.isLiked ||
-                                (Array.isArray(c.likes) &&
-                                  c.likes.some((l) => (l.likedBy?._id || l.likedBy || l)?.toString() === userData?._id?.toString()));
-                              const likesCount = c.likesCount ?? (Array.isArray(c.likes) ? c.likes.length : 0);
-
-                              return (
-                                <div
-                                  key={c._id}
-                                  className="p-3 rounded-2xl bg-black/40 border border-white/5 flex items-start justify-between gap-3 group/cmt"
-                                >
-                                  <div className="flex items-start gap-2.5 min-w-0">
-                                    <Link
-                                      to={`/channel/${c.owner?.username || "player"}`}
-                                      className="shrink-0 group/av"
-                                      title={`View @${c.owner?.username || "player"}'s profile`}
-                                    >
-                                      <img
-                                        src={getAvatarUrl(c.owner)}
-                                        alt={c.owner?.fullName || "User"}
-                                        className="size-7 rounded-lg object-cover ring-1 ring-white/10 group-hover/av:ring-emerald-400 group-hover/av:scale-105 transition-all mt-0.5"
-                                      />
-                                    </Link>
-                                    <div className="min-w-0">
-                                      <div className="flex items-center gap-1.5">
-                                        <Link
-                                          to={`/channel/${c.owner?.username || "player"}`}
-                                          className="font-bold text-xs text-white hover:text-emerald-400 transition-colors truncate"
-                                        >
-                                          {c.owner?.fullName || c.owner?.username || "Player"}
-                                        </Link>
-                                        <Link
-                                          to={`/channel/${c.owner?.username || "player"}`}
-                                          className="text-[10px] text-neutral-400 hover:text-emerald-400 font-mono transition-colors"
-                                        >
-                                          @{c.owner?.username}
-                                        </Link>
-                                      </div>
-                                      <p className="text-xs text-neutral-200 mt-1 leading-relaxed break-words font-normal">
-                                        {c.content}
-                                      </p>
-                                    </div>
-                                  </div>
-
-                                  <div className="flex items-center gap-1 shrink-0">
-                                    {/* Like Comment Button */}
-                                    <button
-                                      type="button"
-                                      onClick={(e) => handleToggleCommentLike(e, item._id, c._id)}
-                                      className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${isLiked
-                                          ? "text-rose-400 bg-rose-500/15"
-                                          : "text-neutral-400 hover:text-rose-400 hover:bg-white/5"
-                                        }`}
-                                      title={isLiked ? "Unlike reply" : "Like reply"}
-                                    >
-                                      <Heart className={`size-3 ${isLiked ? "fill-rose-400" : ""}`} />
-                                      {likesCount > 0 && <span className="text-[10px] font-bold">{likesCount}</span>}
-                                    </button>
-
-                                    {(isCommentOwner || isTweetOwner) && (
-                                      <button
-                                        type="button"
-                                        onClick={() => handleDeleteComment(item._id, c._id)}
-                                        className="opacity-0 group-hover/cmt:opacity-100 text-neutral-500 hover:text-red-400 p-1 transition-opacity cursor-pointer shrink-0"
-                                        title="Delete reply"
-                                      >
-                                        <Trash2 className="size-3.5" />
-                                      </button>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })
-                          ) : (
-                            <p className="text-xs text-neutral-500 italic py-1.5 text-center">
-                              No replies yet. Be the first to comment!
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </Card>
-                );
-              }
-
-              // 2. RENDER MULTI-MEDIA POST (Clickable anywhere to open detail modal)
-              return (
-                <Card
-                  key={`post_${item._id}`}
-                  onClick={() => setSelectedPostModal(item)}
-                  className="p-3.5 sm:p-6 bg-[#0a0f16] border-white/10 rounded-2xl sm:rounded-3xl space-y-3 sm:space-y-4 shadow-xl hover:border-emerald-500/30 transition-all cursor-pointer group"
-                >
-                  {/* Post Header */}
-                  <div className="flex items-center justify-between">
-                    <Link
-                      to={`/channel/${item.owner?.username || "player"}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-2.5 sm:gap-3 group/author min-w-0"
-                    >
-                      <img
-                        src={getAvatarUrl(item.owner)}
-                        alt={item.owner?.fullName}
-                        className="size-9 sm:size-10 rounded-xl sm:rounded-2xl object-cover ring-1 ring-white/10 group-hover/author:ring-emerald-400 transition-all shrink-0"
-                      />
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-sm text-white group-hover/author:text-emerald-400 transition-colors">
-                            {item.owner?.fullName || item.owner?.username || "Footballer"}
-                          </span>
-                          <CheckCircle2 className="size-3.5 text-emerald-400" />
-                        </div>
-                        <span className="text-xs text-neutral-400">
-                          @{item.owner?.username || "player"} • {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "Recent"}
-                        </span>
-                      </div>
-                    </Link>
-
-                    <div className="flex items-center gap-2">
-
-                      {/* Edit Post for Post Owner */}
-                      {userData &&
-                        ((item.owner?._id && userData?._id && item.owner._id.toString() === userData._id.toString()) ||
-                          (item.owner?.username && userData?.username && item.owner.username === userData.username)) && (
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setEditingPostModal(item);
+                              setSharingPostModal(item);
                             }}
-                            className="p-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 transition-all cursor-pointer shadow-sm"
-                            title="Edit this post"
+                            className="p-2 rounded-xl bg-[#060a0f] border border-white/5 hover:text-emerald-400 hover:border-emerald-500/30 transition-all cursor-pointer"
+                            title="Share Tweet"
                           >
-                            <Edit3 className="size-3.5" />
+                            <Share2 className="size-4" />
                           </button>
-                        )}
+                        </div>
 
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/post/${item._id}`, {
-                            state: { from: location.pathname + location.search },
-                          });
-                        }}
-                        className="p-1.5 rounded-xl bg-white/[0.04] hover:bg-white/10 text-neutral-400 hover:text-white transition-all cursor-pointer"
-                        title="Expand View"
+                        <span className="text-[11px] text-neutral-500 font-mono">
+                          Tweet
+                        </span>
+                      </div>
+
+                      {/* Interactive Tweet Comments Drawer */}
+                      {openCommentsPostId === item._id && (
+                        <div className="pt-3.5 border-t border-white/[0.08] space-y-3.5" onClick={(e) => e.stopPropagation()}>
+                          {/* New Comment Input */}
+                          <div className="flex items-center gap-2.5 relative">
+                            <img
+                              src={getAvatarUrl(userData)}
+                              alt="You"
+                              className="size-8 rounded-xl object-cover ring-1 ring-white/10 shrink-0"
+                            />
+                            <div className="flex-1 flex items-center relative">
+                              <input
+                                type="text"
+                                value={commentInputs[item._id] || ""}
+                                onChange={(e) => setCommentInputs({ ...commentInputs, [item._id]: e.target.value })}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleAddComment(e, item._id);
+                                  }
+                                }}
+                                placeholder="Write a reply to this tweet..."
+                                className="w-full h-9.5 pl-3.5 pr-9 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-medium"
+                              />
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveReplyEmojiTweetId(activeReplyEmojiTweetId === item._id ? null : item._id);
+                                }}
+                                className={`absolute right-2 size-6 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${activeReplyEmojiTweetId === item._id
+                                  ? "text-emerald-400 bg-emerald-500/20"
+                                  : "text-neutral-400 hover:text-white"
+                                  }`}
+                                title="Add Emoji to Reply"
+                              >
+                                <Smile className="size-3.5" />
+                              </button>
+                            </div>
+
+                            <EmojiPicker
+                              isOpen={activeReplyEmojiTweetId === item._id}
+                              onClose={() => setActiveReplyEmojiTweetId(null)}
+                              onSelectEmoji={(emoji) => {
+                                setCommentInputs((prev) => ({
+                                  ...prev,
+                                  [item._id]: (prev[item._id] || "") + emoji,
+                                }));
+                              }}
+                              className="bottom-12 left-0 sm:left-6"
+                            />
+
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="primary"
+                              onClick={(e) => handleAddComment(e, item._id)}
+                              disabled={!commentInputs[item._id]?.trim()}
+                              className="h-9.5 px-3.5 rounded-xl text-xs font-bold gap-1 cursor-pointer shrink-0"
+                            >
+                              <Send className="size-3" />
+                            </Button>
+                          </div>
+
+                          {/* Comments List */}
+                          <div className="space-y-2 max-h-56 overflow-y-auto custom-scrollbar pr-1">
+                            {item.comments && item.comments.length > 0 ? (
+                              item.comments.map((c) => {
+                                const isCommentOwner =
+                                  (c.owner?._id && userData?._id && c.owner._id.toString() === userData._id.toString()) ||
+                                  (c.owner?.username && userData?.username && c.owner.username === userData.username);
+                                const isTweetOwner =
+                                  (item.owner?._id && userData?._id && item.owner._id.toString() === userData._id.toString()) ||
+                                  (item.owner?.username && userData?.username && item.owner.username === userData.username);
+
+                                const isLiked =
+                                  c.isLiked ||
+                                  (Array.isArray(c.likes) &&
+                                    c.likes.some((l) => (l.likedBy?._id || l.likedBy || l)?.toString() === userData?._id?.toString()));
+                                const likesCount = c.likesCount ?? (Array.isArray(c.likes) ? c.likes.length : 0);
+
+                                return (
+                                  <div
+                                    key={c._id}
+                                    className="p-3 rounded-2xl bg-black/40 border border-white/5 flex items-start justify-between gap-3 group/cmt"
+                                  >
+                                    <div className="flex items-start gap-2.5 min-w-0">
+                                      <Link
+                                        to={`/channel/${c.owner?.username || "player"}`}
+                                        className="shrink-0 group/av"
+                                        title={`View @${c.owner?.username || "player"}'s profile`}
+                                      >
+                                        <img
+                                          src={getAvatarUrl(c.owner)}
+                                          alt={c.owner?.fullName || "User"}
+                                          className="size-7 rounded-lg object-cover ring-1 ring-white/10 group-hover/av:ring-emerald-400 group-hover/av:scale-105 transition-all mt-0.5"
+                                        />
+                                      </Link>
+                                      <div className="min-w-0">
+                                        <div className="flex items-center gap-1.5">
+                                          <Link
+                                            to={`/channel/${c.owner?.username || "player"}`}
+                                            className="font-bold text-xs text-white hover:text-emerald-400 transition-colors truncate"
+                                          >
+                                            {c.owner?.fullName || c.owner?.username || "Player"}
+                                          </Link>
+                                          <Link
+                                            to={`/channel/${c.owner?.username || "player"}`}
+                                            className="text-[10px] text-neutral-400 hover:text-emerald-400 font-mono transition-colors"
+                                          >
+                                            @{c.owner?.username}
+                                          </Link>
+                                        </div>
+                                        <p className="text-xs text-neutral-200 mt-1 leading-relaxed break-words font-normal">
+                                          {c.content}
+                                        </p>
+                                      </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-1 shrink-0">
+                                      {/* Like Comment Button */}
+                                      <button
+                                        type="button"
+                                        onClick={(e) => handleToggleCommentLike(e, item._id, c._id)}
+                                        className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${isLiked
+                                          ? "text-rose-400 bg-rose-500/15"
+                                          : "text-neutral-400 hover:text-rose-400 hover:bg-white/5"
+                                          }`}
+                                        title={isLiked ? "Unlike reply" : "Like reply"}
+                                      >
+                                        <Heart className={`size-3 ${isLiked ? "fill-rose-400" : ""}`} />
+                                        {likesCount > 0 && <span className="text-[10px] font-bold">{likesCount}</span>}
+                                      </button>
+
+                                      {(isCommentOwner || isTweetOwner) && (
+                                        <button
+                                          type="button"
+                                          onClick={() => handleDeleteComment(item._id, c._id)}
+                                          className="opacity-0 group-hover/cmt:opacity-100 text-neutral-500 hover:text-red-400 p-1 transition-opacity cursor-pointer shrink-0"
+                                          title="Delete reply"
+                                        >
+                                          <Trash2 className="size-3.5" />
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            ) : (
+                              <p className="text-xs text-neutral-500 italic py-1.5 text-center">
+                                No replies yet. Be the first to comment!
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </Card>
+                  );
+                }
+
+                // 2. RENDER MULTI-MEDIA POST (Clickable anywhere to open detail modal)
+                return (
+                  <Card
+                    key={`post_${item._id}`}
+                    onClick={() => setSelectedPostModal(item)}
+                    className="p-3.5 sm:p-6 bg-[#0a0f16] border-white/10 rounded-2xl sm:rounded-3xl space-y-3 sm:space-y-4 shadow-xl hover:border-emerald-500/30 transition-all cursor-pointer group"
+                  >
+                    {/* Post Header */}
+                    <div className="flex items-center justify-between">
+                      <Link
+                        to={`/channel/${item.owner?.username || "player"}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center gap-2.5 sm:gap-3 group/author min-w-0"
                       >
-                        <Maximize2 className="size-4" />
-                      </button>
+                        <img
+                          src={getAvatarUrl(item.owner)}
+                          alt={item.owner?.fullName}
+                          className="size-9 sm:size-10 rounded-xl sm:rounded-2xl object-cover ring-1 ring-white/10 group-hover/author:ring-emerald-400 transition-all shrink-0"
+                        />
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-sm text-white group-hover/author:text-emerald-400 transition-colors">
+                              {item.owner?.fullName || item.owner?.username || "Footballer"}
+                            </span>
+                            <CheckCircle2 className="size-3.5 text-emerald-400" />
+                          </div>
+                          <span className="text-xs text-neutral-400">
+                            @{item.owner?.username || "player"} • {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "Recent"}
+                          </span>
+                        </div>
+                      </Link>
+
+                      <div className="flex items-center gap-2">
+
+                        {/* Edit Post for Post Owner */}
+                        {userData &&
+                          ((item.owner?._id && userData?._id && item.owner._id.toString() === userData._id.toString()) ||
+                            (item.owner?.username && userData?.username && item.owner.username === userData.username)) && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingPostModal(item);
+                              }}
+                              className="p-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 transition-all cursor-pointer shadow-sm"
+                              title="Edit this post"
+                            >
+                              <Edit3 className="size-3.5" />
+                            </button>
+                          )}
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/post/${item._id}`, {
+                              state: { from: location.pathname + location.search },
+                            });
+                          }}
+                          className="p-1.5 rounded-xl bg-white/[0.04] hover:bg-white/10 text-neutral-400 hover:text-white transition-all cursor-pointer"
+                          title="Expand View"
+                        >
+                          <Maximize2 className="size-4" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
                     {/* Multi-Image & Video Carousel (Clicking image opens dedicated post page) */}
                     <div className="max-w-[560px] mx-auto w-full aspect-[3/4]">
@@ -1025,191 +1025,191 @@ export default function CommunityFeedPage() {
                       </p>
                     )}
 
-                  {/* Actions */}
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/5 text-xs text-neutral-400">
-                    <div className="flex items-center gap-1.5 sm:gap-3 flex-wrap">
-                      <button
-                        onClick={(e) => handleLikePost(e, item._id)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${item.isLiked
+                    {/* Actions */}
+                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/5 text-xs text-neutral-400">
+                      <div className="flex items-center gap-1.5 sm:gap-3 flex-wrap">
+                        <button
+                          onClick={(e) => handleLikePost(e, item._id)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${item.isLiked
                             ? "bg-red-500/15 border-red-500/30 text-red-400 font-bold"
                             : "bg-[#060a0f] border-white/5 hover:text-white"
-                          }`}
-                      >
-                        <Heart className={`size-4 ${item.isLiked ? "fill-red-400" : ""}`} />
-                        <span>{item.likesCount || 0}</span>
-                      </button>
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenCommentsPostId(openCommentsPostId === item._id ? null : item._id);
-                        }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#060a0f] border border-white/5 hover:text-white transition-all cursor-pointer text-xs"
-                      >
-                        <MessageCircle className="size-4" />
-                        <span>
-                          {item.comments?.length || item.commentsCount || 0}
-                          <span className="hidden xs:inline sm:inline ml-1">Comments</span>
-                        </span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSharingPostModal(item);
-                        }}
-                        className="p-1.5 sm:p-2 rounded-xl bg-[#060a0f] border border-white/5 hover:text-emerald-400 hover:border-emerald-500/30 transition-all cursor-pointer"
-                        title="Share Post"
-                      >
-                        <Share2 className="size-4" />
-                      </button>
-                    </div>
-
-                    <button
-                      onClick={() =>
-                        navigate(`/post/${item._id}`, {
-                          state: { from: location.pathname + location.search },
-                        })
-                      }
-                      className="text-xs text-emerald-400 hover:underline font-bold cursor-pointer whitespace-nowrap shrink-0 ml-auto"
-                    >
-                      <span className="hidden sm:inline">View Full Post →</span>
-                      <span className="sm:hidden">Full Post →</span>
-                    </button>
-                  </div>
-
-                  {/* Comments Section */}
-                  {openCommentsPostId === item._id && (
-                    <div
-                      onClick={(e) => e.stopPropagation()}
-                      className="space-y-4 pt-4 border-t border-white/5"
-                    >
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={commentInputs[item._id] || ""}
-                          onChange={(e) =>
-                            setCommentInputs({ ...commentInputs, [item._id]: e.target.value })
-                          }
-                          placeholder="Write a comment..."
-                          className="flex-1 h-9 px-3 rounded-xl bg-[#060a0f] border border-white/10 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                        />
-                        <Button
-                          size="sm"
-                          variant="primary"
-                          onClick={(e) => handleAddComment(e, item._id)}
-                          className="rounded-xl text-xs px-3"
+                            }`}
                         >
-                          Comment
-                        </Button>
+                          <Heart className={`size-4 ${item.isLiked ? "fill-red-400" : ""}`} />
+                          <span>{item.likesCount || 0}</span>
+                        </button>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenCommentsPostId(openCommentsPostId === item._id ? null : item._id);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#060a0f] border border-white/5 hover:text-white transition-all cursor-pointer text-xs"
+                        >
+                          <MessageCircle className="size-4" />
+                          <span>
+                            {item.comments?.length || item.commentsCount || 0}
+                            <span className="hidden xs:inline sm:inline ml-1">Comments</span>
+                          </span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSharingPostModal(item);
+                          }}
+                          className="p-1.5 sm:p-2 rounded-xl bg-[#060a0f] border border-white/5 hover:text-emerald-400 hover:border-emerald-500/30 transition-all cursor-pointer"
+                          title="Share Post"
+                        >
+                          <Share2 className="size-4" />
+                        </button>
                       </div>
 
-                      {item.comments && item.comments.length > 0 && (
-                        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                          {item.comments.map((c, i) => {
-                            const isCommentAuthor =
-                              userData &&
-                              ((c.owner?._id && userData?._id && c.owner._id.toString() === userData._id.toString()) ||
-                                (c.owner?.username && userData?.username && c.owner.username === userData.username));
+                      <button
+                        onClick={() =>
+                          navigate(`/post/${item._id}`, {
+                            state: { from: location.pathname + location.search },
+                          })
+                        }
+                        className="text-xs text-emerald-400 hover:underline font-bold cursor-pointer whitespace-nowrap shrink-0 ml-auto"
+                      >
+                        <span className="hidden sm:inline">View Full Post →</span>
+                        <span className="sm:hidden">Full Post →</span>
+                      </button>
+                    </div>
 
-                            const isPostAuthor =
-                              userData &&
-                              ((item.owner?._id && userData?._id && item.owner._id.toString() === userData._id.toString()) ||
-                                (item.owner?.username && userData?.username && item.owner.username === userData.username));
+                    {/* Comments Section */}
+                    {openCommentsPostId === item._id && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="space-y-4 pt-4 border-t border-white/5"
+                      >
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={commentInputs[item._id] || ""}
+                            onChange={(e) =>
+                              setCommentInputs({ ...commentInputs, [item._id]: e.target.value })
+                            }
+                            placeholder="Write a comment..."
+                            className="flex-1 h-9 px-3 rounded-xl bg-[#060a0f] border border-white/10 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                          />
+                          <Button
+                            size="sm"
+                            variant="primary"
+                            onClick={(e) => handleAddComment(e, item._id)}
+                            className="rounded-xl text-xs px-3"
+                          >
+                            Comment
+                          </Button>
+                        </div>
 
-                            const canDelete = isCommentAuthor || isPostAuthor;
-                            const isLiked =
-                              c.isLiked ||
-                              (Array.isArray(c.likes) &&
-                                c.likes.some((l) => (l.likedBy?._id || l.likedBy || l)?.toString() === userData?._id?.toString()));
-                            const likesCount = c.likesCount ?? (Array.isArray(c.likes) ? c.likes.length : 0);
+                        {item.comments && item.comments.length > 0 && (
+                          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                            {item.comments.map((c, i) => {
+                              const isCommentAuthor =
+                                userData &&
+                                ((c.owner?._id && userData?._id && c.owner._id.toString() === userData._id.toString()) ||
+                                  (c.owner?.username && userData?.username && c.owner.username === userData.username));
 
-                            return (
-                              <div
-                                key={c._id || i}
-                                className="p-3 rounded-2xl bg-[#060a0f] border border-white/5 space-y-1.5 group/comment"
-                              >
-                                <div className="flex items-center justify-between text-xs">
-                                  <Link
-                                    to={`/channel/${c.owner?.username || "player"}`}
-                                    className="font-bold text-white hover:text-emerald-400 transition-colors flex items-center gap-1.5"
-                                  >
-                                    <span>{c.owner?.fullName || c.owner?.username || "Player"}</span>
-                                    <span className="text-[10px] text-neutral-400 font-mono">@{c.owner?.username}</span>
-                                  </Link>
+                              const isPostAuthor =
+                                userData &&
+                                ((item.owner?._id && userData?._id && item.owner._id.toString() === userData._id.toString()) ||
+                                  (item.owner?.username && userData?.username && item.owner.username === userData.username));
 
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="text-[10px] text-neutral-500">
-                                      {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ""}
-                                    </span>
+                              const canDelete = isCommentAuthor || isPostAuthor;
+                              const isLiked =
+                                c.isLiked ||
+                                (Array.isArray(c.likes) &&
+                                  c.likes.some((l) => (l.likedBy?._id || l.likedBy || l)?.toString() === userData?._id?.toString()));
+                              const likesCount = c.likesCount ?? (Array.isArray(c.likes) ? c.likes.length : 0);
 
-                                    {/* Like Comment Button */}
-                                    <button
-                                      type="button"
-                                      onClick={(e) => handleToggleCommentLike(e, item._id, c._id)}
-                                      className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${isLiked
-                                          ? "text-rose-400 bg-rose-500/15"
-                                          : "text-neutral-400 hover:text-rose-400 hover:bg-white/5"
-                                        }`}
-                                      title={isLiked ? "Unlike comment" : "Like comment"}
+                              return (
+                                <div
+                                  key={c._id || i}
+                                  className="p-3 rounded-2xl bg-[#060a0f] border border-white/5 space-y-1.5 group/comment"
+                                >
+                                  <div className="flex items-center justify-between text-xs">
+                                    <Link
+                                      to={`/channel/${c.owner?.username || "player"}`}
+                                      className="font-bold text-white hover:text-emerald-400 transition-colors flex items-center gap-1.5"
                                     >
-                                      <Heart className={`size-3 ${isLiked ? "fill-rose-400" : ""}`} />
-                                      {likesCount > 0 && <span className="text-[10px] font-bold">{likesCount}</span>}
-                                    </button>
+                                      <span>{c.owner?.fullName || c.owner?.username || "Player"}</span>
+                                      <span className="text-[10px] text-neutral-400 font-mono">@{c.owner?.username}</span>
+                                    </Link>
 
-                                    {canDelete && (
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-[10px] text-neutral-500">
+                                        {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ""}
+                                      </span>
+
+                                      {/* Like Comment Button */}
                                       <button
                                         type="button"
-                                        onClick={() => handleDeleteComment(item._id, c._id)}
-                                        className="size-5 rounded-md bg-white/5 hover:bg-red-500/20 text-neutral-400 hover:text-red-400 flex items-center justify-center transition-all opacity-0 group-hover/comment:opacity-100 cursor-pointer"
-                                        title={
-                                          isPostAuthor && !isCommentAuthor
-                                            ? "Delete comment (as Post Owner)"
-                                            : "Delete your comment"
-                                        }
+                                        onClick={(e) => handleToggleCommentLike(e, item._id, c._id)}
+                                        className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${isLiked
+                                          ? "text-rose-400 bg-rose-500/15"
+                                          : "text-neutral-400 hover:text-rose-400 hover:bg-white/5"
+                                          }`}
+                                        title={isLiked ? "Unlike comment" : "Like comment"}
                                       >
-                                        <Trash2 className="size-3" />
+                                        <Heart className={`size-3 ${isLiked ? "fill-rose-400" : ""}`} />
+                                        {likesCount > 0 && <span className="text-[10px] font-bold">{likesCount}</span>}
                                       </button>
-                                    )}
-                                  </div>
-                                </div>
-                                <p className="text-xs text-neutral-300 break-words">{c.content}</p>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </Card>
-              );
-            })}
 
-            {/* IntersectionObserver Sentinel for Infinite Scroll (loads next 3 items) */}
-            {visibleCount < feedItems.length && (
-              <div ref={feedObserverRef} className="py-6 flex flex-col items-center justify-center">
-                {loadingMore ? (
-                  <div className="flex items-center gap-2.5 text-xs font-semibold text-emerald-400">
-                    <span className="size-4 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin" />
-                    <span>Loading more posts...</span>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      hasUserScrolledRef.current = true;
-                      loadMoreFeed();
-                    }}
-                    className="px-4 py-2 rounded-xl text-xs font-bold text-neutral-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all cursor-pointer"
-                  >
-                    Scroll or click to load more
-                  </button>
-                )}
-              </div>
-            )}
-          </>
-        ) : (
+                                      {canDelete && (
+                                        <button
+                                          type="button"
+                                          onClick={() => handleDeleteComment(item._id, c._id)}
+                                          className="size-5 rounded-md bg-white/5 hover:bg-red-500/20 text-neutral-400 hover:text-red-400 flex items-center justify-center transition-all opacity-0 group-hover/comment:opacity-100 cursor-pointer"
+                                          title={
+                                            isPostAuthor && !isCommentAuthor
+                                              ? "Delete comment (as Post Owner)"
+                                              : "Delete your comment"
+                                          }
+                                        >
+                                          <Trash2 className="size-3" />
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <p className="text-xs text-neutral-300 break-words">{c.content}</p>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Card>
+                );
+              })}
+
+              {/* IntersectionObserver Sentinel for Infinite Scroll (loads next 3 items) */}
+              {visibleCount < feedItems.length && (
+                <div ref={feedObserverRef} className="py-6 flex flex-col items-center justify-center">
+                  {loadingMore ? (
+                    <div className="flex items-center gap-2.5 text-xs font-semibold text-emerald-400">
+                      <span className="size-4 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin" />
+                      <span>Loading more posts...</span>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        hasUserScrolledRef.current = true;
+                        loadMoreFeed();
+                      }}
+                      className="px-4 py-2 rounded-xl text-xs font-bold text-neutral-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all cursor-pointer"
+                    >
+                      Scroll or click to load more
+                    </button>
+                  )}
+                </div>
+              )}
+            </>
+          ) : (
             <div className="p-12 rounded-3xl bg-[#0a0f16] border border-white/10 text-center space-y-3">
               <MessageSquare className="size-8 text-neutral-600 mx-auto" />
               <h3 className="text-sm font-bold text-white">No Posts or Tweets Yet</h3>

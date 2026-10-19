@@ -107,7 +107,7 @@ export default function MyBookingsPage() {
     try {
       const res = await bookingService.updateBookingStatus(bookingId, newStatus);
       toast.success(`Booking ${newStatus === "confirmed" ? "confirmed & approved" : "rejected"}!`);
-      
+
       // Update local admin requests state
       setAdminRequests((prev) =>
         prev.map((b) => (b._id === bookingId ? { ...b, status: newStatus } : b))
@@ -178,11 +178,10 @@ export default function MyBookingsPage() {
     { id: "all", label: `All (${currentList.length})` },
     {
       id: "upcoming",
-      label: `Active & Upcoming (${
-        currentList.filter(
-          (b) => !isBookingPast(b) && b.status !== "cancelled" && b.status !== "rejected"
-        ).length
-      })`,
+      label: `Active & Upcoming (${currentList.filter(
+        (b) => !isBookingPast(b) && b.status !== "cancelled" && b.status !== "rejected"
+      ).length
+        })`,
     },
     {
       id: "past",
@@ -194,15 +193,13 @@ export default function MyBookingsPage() {
     },
     {
       id: "confirmed",
-      label: `Confirmed (${
-        currentList.filter((b) => b.status === "confirmed" && !isBookingPast(b)).length
-      })`,
+      label: `Confirmed (${currentList.filter((b) => b.status === "confirmed" && !isBookingPast(b)).length
+        })`,
     },
     {
       id: "cancelled",
-      label: `Cancelled (${
-        currentList.filter((b) => (b.status === "cancelled" || b.status === "rejected") && !isBookingPast(b)).length
-      })`,
+      label: `Cancelled (${currentList.filter((b) => (b.status === "cancelled" || b.status === "rejected") && !isBookingPast(b)).length
+        })`,
     },
   ];
 
@@ -254,11 +251,10 @@ export default function MyBookingsPage() {
               <button
                 type="button"
                 onClick={() => setViewMode("my")}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  viewMode === "my"
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${viewMode === "my"
                     ? "bg-emerald-500 text-neutral-950 shadow-md shadow-emerald-500/20 font-extrabold"
                     : "text-neutral-400 hover:text-white"
-                }`}
+                  }`}
               >
                 My Match Passes ({bookings.length})
               </button>
@@ -266,11 +262,10 @@ export default function MyBookingsPage() {
               <button
                 type="button"
                 onClick={() => setViewMode("admin")}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  viewMode === "admin"
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${viewMode === "admin"
                     ? "bg-emerald-500 text-neutral-950 shadow-md shadow-emerald-500/20 font-extrabold"
                     : "text-neutral-400 hover:text-white"
-                }`}
+                  }`}
               >
                 <ShieldCheck className="size-3.5" />
                 <span>Admin Desk ({adminRequests.length})</span>
@@ -291,11 +286,10 @@ export default function MyBookingsPage() {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
-                activeTab === tab.id
+              className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer shrink-0 ${activeTab === tab.id
                   ? "bg-emerald-500 text-neutral-950 font-black shadow-md shadow-emerald-500/20"
                   : "bg-white/[0.04] text-neutral-400 hover:text-white border border-white/[0.06]"
-              }`}
+                }`}
             >
               {tab.label}
             </button>
@@ -323,38 +317,35 @@ export default function MyBookingsPage() {
                 <div
                   key={b._id}
                   onClick={() => setSelectedBooking(b)}
-                  className={`p-6 rounded-3xl border transition-all cursor-pointer shadow-xl ${
-                    selectedBooking?._id === b._id
+                  className={`p-6 rounded-3xl border transition-all cursor-pointer shadow-xl ${selectedBooking?._id === b._id
                       ? "bg-[#0b1118] border-emerald-500/50 shadow-2xl ring-1 ring-emerald-500/30"
                       : isPast
-                      ? "bg-[#06090e]/60 hover:bg-[#080d14] border-white/[0.05] opacity-80"
-                      : "bg-[#070b10]/80 hover:bg-[#0b1118] border-white/[0.08]"
-                  }`}
+                        ? "bg-[#06090e]/60 hover:bg-[#080d14] border-white/[0.05] opacity-80"
+                        : "bg-[#070b10]/80 hover:bg-[#0b1118] border-white/[0.08]"
+                    }`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div
-                        className={`size-13 rounded-2xl border flex items-center justify-center font-bold shrink-0 shadow-md ${
-                          isPast
+                        className={`size-13 rounded-2xl border flex items-center justify-center font-bold shrink-0 shadow-md ${isPast
                             ? "bg-neutral-950/80 border-white/5 text-neutral-500"
                             : "bg-neutral-950 border-white/10 text-emerald-400"
-                        }`}
+                          }`}
                       >
                         <Ticket className="size-6" />
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <h3
-                            className={`font-display font-bold text-lg truncate ${
-                              isPast ? "text-neutral-300" : "text-white"
-                            }`}
+                            className={`font-display font-bold text-lg truncate ${isPast ? "text-neutral-300" : "text-white"
+                              }`}
                           >
                             {b.turf?.name || "Ground Match Pass"}
                           </h3>
                           {viewMode === "admin" &&
                             b.turf &&
                             (b.turf.owner?._id || b.turf.owner)?.toString() ===
-                              userData?._id?.toString() && (
+                            userData?._id?.toString() && (
                               <button
                                 type="button"
                                 onClick={(e) => {
@@ -381,24 +372,23 @@ export default function MyBookingsPage() {
                         isPast
                           ? "outline"
                           : b.status === "confirmed"
-                          ? "emerald"
-                          : b.status === "pending"
-                          ? "outline"
-                          : "destructive"
+                            ? "emerald"
+                            : b.status === "pending"
+                              ? "outline"
+                              : "destructive"
                       }
-                      className={`text-xs px-3 py-1 font-bold shrink-0 ${
-                        isPast
+                      className={`text-xs px-3 py-1 font-bold shrink-0 ${isPast
                           ? "bg-neutral-800/80 text-neutral-400 border-white/10"
                           : b.status === "pending"
-                          ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
-                          : ""
-                      }`}
+                            ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                            : ""
+                        }`}
                     >
                       {isPast
                         ? "MATCH ENDED (PAST)"
                         : b.status === "pending"
-                        ? "⏳ PENDING APPROVAL"
-                        : b.status.toUpperCase()}
+                          ? "⏳ PENDING APPROVAL"
+                          : b.status.toUpperCase()}
                     </Badge>
                   </div>
 
@@ -492,33 +482,31 @@ export default function MyBookingsPage() {
                         isSelectedPast
                           ? "outline"
                           : selectedBooking.status === "confirmed"
-                          ? "emerald"
-                          : "outline"
+                            ? "emerald"
+                            : "outline"
                       }
-                      className={`text-xs px-3 py-1 font-bold ${
-                        isSelectedPast
+                      className={`text-xs px-3 py-1 font-bold ${isSelectedPast
                           ? "bg-neutral-800/80 text-neutral-400 border-white/10"
                           : selectedBooking.status === "pending"
-                          ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
-                          : ""
-                      }`}
+                            ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                            : ""
+                        }`}
                     >
                       {isSelectedPast
                         ? "MATCH COMPLETED / PAST"
                         : selectedBooking.status === "pending"
-                        ? "⏳ Awaiting Approval"
-                        : selectedBooking.status.toUpperCase()}
+                          ? "⏳ Awaiting Approval"
+                          : selectedBooking.status.toUpperCase()}
                     </Badge>
                   </div>
 
                   <div className="p-5 rounded-2xl bg-black/50 border border-white/10 space-y-3">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`size-11 rounded-2xl border flex items-center justify-center ${
-                          isSelectedPast
+                        className={`size-11 rounded-2xl border flex items-center justify-center ${isSelectedPast
                             ? "bg-neutral-950 text-neutral-400 border-white/10"
                             : "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
-                        }`}
+                          }`}
                       >
                         <Ticket className="size-6" />
                       </div>
@@ -558,11 +546,11 @@ export default function MyBookingsPage() {
                       <span className="text-white font-bold text-right">
                         {selectedBooking.date
                           ? new Date(selectedBooking.date).toLocaleDateString("en-US", {
-                              weekday: "short",
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })
+                            weekday: "short",
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })
                           : "Match Day"}
                       </span>
                     </div>
@@ -601,11 +589,11 @@ export default function MyBookingsPage() {
                       <span className="text-amber-400 font-bold font-mono text-xs text-right">
                         {selectedBooking.expiresAt
                           ? new Date(selectedBooking.expiresAt).toLocaleString([], {
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
                           : "End of Match Slot"}
                       </span>
                     </div>
@@ -613,15 +601,14 @@ export default function MyBookingsPage() {
                     <div className="flex items-center justify-between gap-4 py-2.5">
                       <span className="text-neutral-400 font-medium shrink-0">Approval Status</span>
                       <span
-                        className={`font-extrabold uppercase text-xs px-2.5 py-1 rounded-lg ${
-                          isSelectedPast
+                        className={`font-extrabold uppercase text-xs px-2.5 py-1 rounded-lg ${isSelectedPast
                             ? "bg-neutral-800 text-neutral-400 border border-white/10"
                             : selectedBooking.status === "confirmed"
-                            ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                            : selectedBooking.status === "pending"
-                            ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
-                            : "bg-red-500/15 text-red-400 border border-red-500/30"
-                        }`}
+                              ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                              : selectedBooking.status === "pending"
+                                ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                                : "bg-red-500/15 text-red-400 border border-red-500/30"
+                          }`}
                       >
                         {isSelectedPast ? "COMPLETED & PAST" : selectedBooking.status}
                       </span>

@@ -176,7 +176,7 @@ export default function MessagesPage() {
           setAllTurfsList(res.data);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const getTurfDetailPageUrl = (msg) => {
@@ -394,7 +394,7 @@ export default function MessagesPage() {
             const data = res?.data || [];
             setAllSystemUsers(Array.isArray(data) ? data : []);
           })
-          .catch(() => {});
+          .catch(() => { });
 
         // Check for returned chat ID from post close (via location.state) or target user from url
         const returnChatId = location.state?.returnChatId;
@@ -622,7 +622,7 @@ export default function MessagesPage() {
         if (socket.connected) {
           socket.emit("mark-seen", { chatId: activeChat._id });
         }
-        chatService.markMessagesAsSeen(activeChat._id).catch(() => {});
+        chatService.markMessagesAsSeen(activeChat._id).catch(() => { });
 
         // Smooth scroll to bottom upon initial chat switch OR restore exact scroll level when returning from post
         const savedScrollTop =
@@ -705,7 +705,7 @@ export default function MessagesPage() {
         const isFromMe = senderId?.toString() === userData?._id?.toString();
         if (!isFromMe) {
           socket.emit("mark-seen", { chatId: currentChatId });
-          chatService.markMessagesAsSeen(currentChatId).catch(() => {});
+          chatService.markMessagesAsSeen(currentChatId).catch(() => { });
         }
 
         const container = messagesContainerRef.current;
@@ -1141,21 +1141,21 @@ export default function MessagesPage() {
   // Check if active other user is an owner of a booked turf
   const bookedTurfOwnerInfo = activeOtherUser
     ? bookedTurfOwners.find(
-        (o) =>
-          o._id?.toString() === activeOtherUser._id?.toString() ||
-          (o.username && activeOtherUser.username && o.username.toLowerCase() === activeOtherUser.username.toLowerCase())
-      )
+      (o) =>
+        o._id?.toString() === activeOtherUser._id?.toString() ||
+        (o.username && activeOtherUser.username && o.username.toLowerCase() === activeOtherUser.username.toLowerCase())
+    )
     : null;
 
   // Check if active 1-on-1 partner is followed by logged in user
   const isOtherUserFollowed = activeOtherUser
     ? followingUsers.some(
-        (f) =>
-          f._id?.toString() === activeOtherUser._id?.toString() ||
-          (f.username &&
-            activeOtherUser.username &&
-            f.username.toLowerCase() === activeOtherUser.username.toLowerCase())
-      )
+      (f) =>
+        f._id?.toString() === activeOtherUser._id?.toString() ||
+        (f.username &&
+          activeOtherUser.username &&
+          f.username.toLowerCase() === activeOtherUser.username.toLowerCase())
+    )
     : false;
 
   // Helper: Find existing 1-on-1 chat with a user
@@ -1533,11 +1533,10 @@ export default function MessagesPage() {
                 setViewMode("primary");
                 setIsMoreMenuOpen(false);
               }}
-              className={`py-2 px-1 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
-                viewMode === "primary"
+              className={`py-2 px-1 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${viewMode === "primary"
                   ? "bg-emerald-500 text-neutral-950 shadow-md font-extrabold"
                   : "text-neutral-400 hover:text-white"
-              }`}
+                }`}
               title="Primary inbox: recent messages, followed players & squad channels"
             >
               <Inbox className="size-4" />
@@ -1551,11 +1550,10 @@ export default function MessagesPage() {
                 setViewMode("turfs");
                 setIsMoreMenuOpen(false);
               }}
-              className={`py-2 px-1 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 relative cursor-pointer ${
-                viewMode === "turfs"
+              className={`py-2 px-1 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 relative cursor-pointer ${viewMode === "turfs"
                   ? "bg-emerald-500 text-neutral-950 shadow-md font-extrabold"
                   : "text-neutral-400 hover:text-white"
-              }`}
+                }`}
               title="Owners of Turfs you booked recently"
             >
               <Building2 className="size-4" />
@@ -1574,11 +1572,10 @@ export default function MessagesPage() {
                 setViewMode("following");
                 setIsMoreMenuOpen(false);
               }}
-              className={`py-2 px-1 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
-                viewMode === "following"
+              className={`py-2 px-1 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${viewMode === "following"
                   ? "bg-emerald-500 text-neutral-950 shadow-md font-extrabold"
                   : "text-neutral-400 hover:text-white"
-              }`}
+                }`}
               title="People you follow"
             >
               <UserCheck className="size-4" />
@@ -1590,11 +1587,10 @@ export default function MessagesPage() {
               <button
                 type="button"
                 onClick={() => setIsMoreMenuOpen((prev) => !prev)}
-                className={`w-full h-full py-2 px-1 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 relative cursor-pointer ${
-                  ["online", "requests", "squads", "nearby", "discover"].includes(viewMode)
+                className={`w-full h-full py-2 px-1 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 relative cursor-pointer ${["online", "requests", "squads", "nearby", "discover"].includes(viewMode)
                     ? "bg-emerald-500 text-neutral-950 shadow-md font-extrabold"
                     : "text-neutral-400 hover:text-white"
-                }`}
+                  }`}
                 title="More messaging sections (Online, Requests, Squads, Nearby, Discover)"
               >
                 <div className="flex items-center gap-0.5">
@@ -1606,12 +1602,12 @@ export default function MessagesPage() {
                     ? viewMode === "online"
                       ? "Online"
                       : viewMode === "squads"
-                      ? "Squads"
-                      : viewMode === "requests"
-                      ? "Requests"
-                      : viewMode === "nearby"
-                      ? "Nearby"
-                      : "Discover"
+                        ? "Squads"
+                        : viewMode === "requests"
+                          ? "Requests"
+                          : viewMode === "nearby"
+                            ? "Nearby"
+                            : "Discover"
                     : "More"}
                 </span>
                 {onlineUsersPool.length > 0 && viewMode !== "online" ? (
@@ -1636,11 +1632,10 @@ export default function MessagesPage() {
                       setIsMoreMenuOpen(false);
                       if (allSystemUsers.length === 0) loadOnlineUsersList();
                     }}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      viewMode === "online"
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${viewMode === "online"
                         ? "bg-emerald-500 text-neutral-950 shadow-sm font-extrabold"
                         : "text-neutral-300 hover:text-white hover:bg-white/[0.06]"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-2">
                       <div className="relative flex items-center justify-center">
@@ -1651,11 +1646,10 @@ export default function MessagesPage() {
                     </div>
                     {onlineUsersPool.length > 0 && (
                       <span
-                        className={`text-[9px] font-mono font-black px-1.5 py-0.2 rounded-full ${
-                          viewMode === "online"
+                        className={`text-[9px] font-mono font-black px-1.5 py-0.2 rounded-full ${viewMode === "online"
                             ? "bg-neutral-950 text-emerald-400"
                             : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                        }`}
+                          }`}
                       >
                         {onlineUsersPool.length} active
                       </span>
@@ -1668,11 +1662,10 @@ export default function MessagesPage() {
                       setViewMode("requests");
                       setIsMoreMenuOpen(false);
                     }}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      viewMode === "requests"
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${viewMode === "requests"
                         ? "bg-emerald-500 text-neutral-950 shadow-sm"
                         : "text-neutral-300 hover:text-white hover:bg-white/[0.06]"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-2">
                       <MailQuestion className="size-4" />
@@ -1691,11 +1684,10 @@ export default function MessagesPage() {
                       setViewMode("squads");
                       setIsMoreMenuOpen(false);
                     }}
-                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      viewMode === "squads"
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${viewMode === "squads"
                         ? "bg-emerald-500 text-neutral-950 shadow-sm"
                         : "text-neutral-300 hover:text-white hover:bg-white/[0.06]"
-                    }`}
+                      }`}
                   >
                     <Users className="size-4" />
                     <span>Squad Channels</span>
@@ -1707,11 +1699,10 @@ export default function MessagesPage() {
                       setViewMode("nearby");
                       setIsMoreMenuOpen(false);
                     }}
-                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      viewMode === "nearby"
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${viewMode === "nearby"
                         ? "bg-emerald-500 text-neutral-950 shadow-sm"
                         : "text-neutral-300 hover:text-white hover:bg-white/[0.06]"
-                    }`}
+                      }`}
                   >
                     <MapPin className="size-4" />
                     <span>Nearby Radar</span>
@@ -1723,11 +1714,10 @@ export default function MessagesPage() {
                       setViewMode("discover");
                       setIsMoreMenuOpen(false);
                     }}
-                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      viewMode === "discover"
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${viewMode === "discover"
                         ? "bg-emerald-500 text-neutral-950 shadow-sm"
                         : "text-neutral-300 hover:text-white hover:bg-white/[0.06]"
-                    }`}
+                      }`}
                   >
                     <Compass className="size-4" />
                     <span>Discover Players</span>
@@ -1748,18 +1738,18 @@ export default function MessagesPage() {
                 viewMode === "primary"
                   ? "Search recent, followed players & groups..."
                   : viewMode === "turfs"
-                  ? "Search turf owners or pitches..."
-                  : viewMode === "following"
-                  ? "Search followed players..."
-                  : viewMode === "online"
-                  ? "Search active online footballers..."
-                  : viewMode === "requests"
-                  ? "Search message requests..."
-                  : viewMode === "squads"
-                  ? "Search squad groups..."
-                  : viewMode === "nearby"
-                  ? "Search nearby players..."
-                  : "Search discover players..."
+                    ? "Search turf owners or pitches..."
+                    : viewMode === "following"
+                      ? "Search followed players..."
+                      : viewMode === "online"
+                        ? "Search active online footballers..."
+                        : viewMode === "requests"
+                          ? "Search message requests..."
+                          : viewMode === "squads"
+                            ? "Search squad groups..."
+                            : viewMode === "nearby"
+                              ? "Search nearby players..."
+                              : "Search discover players..."
               }
               className="w-full h-9.5 pl-9.5 pr-3 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
@@ -1793,11 +1783,10 @@ export default function MessagesPage() {
                       <div
                         key={chat._id}
                         onClick={() => setActiveChat(chat)}
-                        className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${
-                          isSelected
+                        className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${isSelected
                             ? "bg-white/[0.08] border-l-3 border-emerald-400"
                             : "hover:bg-white/[0.03]"
-                        }`}
+                          }`}
                       >
                         <div className="relative shrink-0">
                           {chat.groupIcon ? (
@@ -1851,11 +1840,10 @@ export default function MessagesPage() {
                     <div
                       key={chat._id}
                       onClick={() => setActiveChat(chat)}
-                      className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${
-                        isSelected
+                      className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${isSelected
                           ? "bg-white/[0.08] border-l-3 border-emerald-400"
                           : "hover:bg-white/[0.03]"
-                      }`}
+                        }`}
                     >
                       <div className="relative shrink-0">
                         <img
@@ -1919,11 +1907,10 @@ export default function MessagesPage() {
                   <div
                     key={user._id}
                     onClick={() => handleOpenDirectChat(user._id)}
-                    className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${
-                      isSelected
+                    className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${isSelected
                         ? "bg-white/[0.08] border-l-3 border-emerald-400"
                         : "hover:bg-white/[0.03]"
-                    }`}
+                      }`}
                   >
                     <div className="relative shrink-0">
                       <img
@@ -2008,11 +1995,10 @@ export default function MessagesPage() {
                   <div
                     key={user._id}
                     onClick={() => handleOpenDirectChat(user._id)}
-                    className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${
-                      isSelected
+                    className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${isSelected
                         ? "bg-white/[0.08] border-l-3 border-emerald-400"
                         : "hover:bg-white/[0.03]"
-                    }`}
+                      }`}
                   >
                     <div className="relative shrink-0">
                       <img
@@ -2021,11 +2007,10 @@ export default function MessagesPage() {
                         className="size-10 rounded-2xl object-cover ring-1 ring-white/10 shadow-md"
                       />
                       <span
-                        className={`size-2.5 rounded-full ring-2 ring-[#070b10] absolute -bottom-0.5 -right-0.5 ${
-                          onlineUserIds.has(user._id?.toString())
+                        className={`size-2.5 rounded-full ring-2 ring-[#070b10] absolute -bottom-0.5 -right-0.5 ${onlineUserIds.has(user._id?.toString())
                             ? "bg-emerald-400"
                             : "bg-neutral-600"
-                        }`}
+                          }`}
                         title={onlineUserIds.has(user._id?.toString()) ? "Online" : "Offline"}
                       />
                     </div>
@@ -2083,11 +2068,10 @@ export default function MessagesPage() {
                   <div
                     key={chat._id}
                     onClick={() => setActiveChat(chat)}
-                    className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${
-                      isSelected
+                    className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${isSelected
                         ? "bg-white/[0.08] border-l-3 border-amber-400"
                         : "hover:bg-white/[0.03]"
-                    }`}
+                      }`}
                   >
                     <div className="relative shrink-0">
                       <img
@@ -2096,11 +2080,10 @@ export default function MessagesPage() {
                         className="size-10 rounded-2xl object-cover ring-1 ring-white/10 shadow-md"
                       />
                       <span
-                        className={`size-2.5 rounded-full ring-2 ring-[#070b10] absolute -bottom-0.5 -right-0.5 ${
-                          other?._id && onlineUserIds.has(other._id.toString())
+                        className={`size-2.5 rounded-full ring-2 ring-[#070b10] absolute -bottom-0.5 -right-0.5 ${other?._id && onlineUserIds.has(other._id.toString())
                             ? "bg-emerald-400"
                             : "bg-neutral-600"
-                        }`}
+                          }`}
                         title={
                           other?._id && onlineUserIds.has(other._id.toString())
                             ? "Online"
@@ -2171,11 +2154,10 @@ export default function MessagesPage() {
                       handleOpenDirectChat(owner._id);
                       markTurfPassAsViewed(owner._id);
                     }}
-                    className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${
-                      isSelected
+                    className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${isSelected
                         ? "bg-white/[0.08] border-l-3 border-emerald-400"
                         : "hover:bg-white/[0.03]"
-                    }`}
+                      }`}
                   >
                     <div className="relative shrink-0">
                       <img
@@ -2255,11 +2237,10 @@ export default function MessagesPage() {
                   <div
                     key={user._id}
                     onClick={() => handleOpenDirectChat(user._id)}
-                    className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${
-                      isSelected
+                    className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${isSelected
                         ? "bg-white/[0.08] border-l-3 border-emerald-400"
                         : "hover:bg-white/[0.03]"
-                    }`}
+                      }`}
                   >
                     <div className="relative shrink-0">
                       <img
@@ -2268,11 +2249,10 @@ export default function MessagesPage() {
                         className="size-10 rounded-2xl object-cover ring-1 ring-emerald-500/20 shadow-md"
                       />
                       <span
-                        className={`size-2.5 rounded-full ring-2 ring-[#070b10] absolute -bottom-0.5 -right-0.5 ${
-                          onlineUserIds.has(user._id?.toString())
+                        className={`size-2.5 rounded-full ring-2 ring-[#070b10] absolute -bottom-0.5 -right-0.5 ${onlineUserIds.has(user._id?.toString())
                             ? "bg-emerald-400"
                             : "bg-neutral-600"
-                        }`}
+                          }`}
                         title={onlineUserIds.has(user._id?.toString()) ? "Online" : "Offline"}
                       />
                     </div>
@@ -2332,11 +2312,10 @@ export default function MessagesPage() {
                   <div
                     key={user._id}
                     onClick={() => handleOpenDirectChat(user._id)}
-                    className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${
-                      isSelected
+                    className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${isSelected
                         ? "bg-white/[0.08] border-l-3 border-emerald-400"
                         : "hover:bg-white/[0.03]"
-                    }`}
+                      }`}
                   >
                     <div className="relative shrink-0">
                       <img
@@ -2345,11 +2324,10 @@ export default function MessagesPage() {
                         className="size-10 rounded-2xl object-cover ring-1 ring-white/10 shadow-md"
                       />
                       <span
-                        className={`size-2.5 rounded-full ring-2 ring-[#070b10] absolute -bottom-0.5 -right-0.5 ${
-                          onlineUserIds.has(user._id?.toString())
+                        className={`size-2.5 rounded-full ring-2 ring-[#070b10] absolute -bottom-0.5 -right-0.5 ${onlineUserIds.has(user._id?.toString())
                             ? "bg-emerald-400"
                             : "bg-neutral-600"
-                        }`}
+                          }`}
                         title={onlineUserIds.has(user._id?.toString()) ? "Online" : "Offline"}
                       />
                     </div>
@@ -2394,11 +2372,10 @@ export default function MessagesPage() {
                   <div
                     key={group._id}
                     onClick={() => setActiveChat(group)}
-                    className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${
-                      isSelected
+                    className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${isSelected
                         ? "bg-white/[0.08] border-l-3 border-emerald-400"
                         : "hover:bg-white/[0.03]"
-                    }`}
+                      }`}
                   >
                     <div className="relative shrink-0">
                       {group.groupIcon ? (
@@ -2502,11 +2479,10 @@ export default function MessagesPage() {
                       <div
                         key={user._id}
                         onClick={() => handleOpenDirectChat(user._id)}
-                        className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${
-                          isSelected
+                        className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${isSelected
                             ? "bg-white/[0.08] border-l-3 border-emerald-400"
                             : "hover:bg-white/[0.03]"
-                        }`}
+                          }`}
                       >
                         <div className="relative shrink-0">
                           <img
@@ -2571,11 +2547,10 @@ export default function MessagesPage() {
                       <div
                         key={user._id}
                         onClick={() => handleOpenDirectChat(user._id)}
-                        className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${
-                          isSelected
+                        className={`p-3.5 flex items-center gap-3 transition-all cursor-pointer ${isSelected
                             ? "bg-white/[0.08] border-l-3 border-emerald-400"
                             : "hover:bg-white/[0.03]"
-                        }`}
+                          }`}
                       >
                         <div className="relative shrink-0">
                           <img
@@ -2658,11 +2633,10 @@ export default function MessagesPage() {
                         if (!onlineState.isVisible) return null;
                         return (
                           <span
-                            className={`size-2.5 rounded-full ring-2 ring-[#070b10] absolute -bottom-0.5 -right-0.5 ${
-                              onlineState.isOnline
+                            className={`size-2.5 rounded-full ring-2 ring-[#070b10] absolute -bottom-0.5 -right-0.5 ${onlineState.isOnline
                                 ? "bg-emerald-400 animate-pulse"
                                 : "bg-neutral-600"
-                            }`}
+                              }`}
                             title={onlineState.statusText || (onlineState.isOnline ? "Online" : "Offline")}
                           />
                         );
@@ -2682,9 +2656,8 @@ export default function MessagesPage() {
                           if (onlineState.isVisible) {
                             return (
                               <span
-                                className={`font-semibold shrink-0 ${
-                                  onlineState.isOnline ? "text-emerald-400" : "text-neutral-400"
-                                }`}
+                                className={`font-semibold shrink-0 ${onlineState.isOnline ? "text-emerald-400" : "text-neutral-400"
+                                  }`}
                               >
                                 {onlineState.statusText}
                               </span>
@@ -2770,11 +2743,10 @@ export default function MessagesPage() {
                   <button
                     type="button"
                     onClick={() => setShowMembersPanel(!showMembersPanel)}
-                    className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer h-8 sm:h-9 ${
-                      showMembersPanel
+                    className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer h-8 sm:h-9 ${showMembersPanel
                         ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
                         : "bg-white/[0.05] text-neutral-300 border-white/10 hover:text-white"
-                    }`}
+                      }`}
                     title="View Group Members"
                   >
                     <Users className="size-3.5" />
@@ -2867,9 +2839,8 @@ export default function MessagesPage() {
                   return (
                     <div
                       key={msg._id}
-                      className={`group flex items-end gap-2 max-w-[88%] sm:max-w-[75%] ${
-                        isOwn ? "ml-auto flex-row-reverse" : "mr-auto"
-                      }`}
+                      className={`group flex items-end gap-2 max-w-[88%] sm:max-w-[75%] ${isOwn ? "ml-auto flex-row-reverse" : "mr-auto"
+                        }`}
                     >
                       {/* Sender Avatar for incoming messages */}
                       {!isOwn && (
@@ -2882,13 +2853,12 @@ export default function MessagesPage() {
 
                       {/* Chat Message Bubble */}
                       <div
-                        className={`px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl text-sm leading-relaxed space-y-1 shadow-md max-w-full ${
-                          msg.message?.includes("MATCHDAY PASS APPROVED")
+                        className={`px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl text-sm leading-relaxed space-y-1 shadow-md max-w-full ${msg.message?.includes("MATCHDAY PASS APPROVED")
                             ? "bg-[#080f14] border border-emerald-500/40 text-white ring-1 ring-emerald-500/20 rounded-bl-none shadow-emerald-500/10"
                             : isOwn
-                            ? "bg-emerald-500 text-neutral-950 font-medium rounded-br-none"
-                            : "bg-[#121a24] border border-white/[0.08] text-white rounded-bl-none"
-                        }`}
+                              ? "bg-emerald-500 text-neutral-950 font-medium rounded-br-none"
+                              : "bg-[#121a24] border border-white/[0.08] text-white rounded-bl-none"
+                          }`}
                       >
                         {/* Only show sender name on Group Chats */}
                         {activeChat.isGroupChat && !isOwn && (
@@ -2898,10 +2868,10 @@ export default function MessagesPage() {
                             {(msg.message?.includes("MATCHDAY PASS APPROVED") ||
                               msg.message?.includes("MATCHDAY RESERVED") ||
                               msg.sender?.role === "admin") && (
-                              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold tracking-wider flex items-center gap-1">
-                                <ShieldCheck className="size-2.5 text-emerald-400" /> Admin
-                              </span>
-                            )}
+                                <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold tracking-wider flex items-center gap-1">
+                                  <ShieldCheck className="size-2.5 text-emerald-400" /> Admin
+                                </span>
+                              )}
                           </div>
                         )}
 
@@ -3087,19 +3057,17 @@ export default function MessagesPage() {
 
                         {/* Message Text / Custom Caption */}
                         {msg.message && !msg.message?.includes("MATCHDAY PASS APPROVED") && (
-                          <p className={`text-[13.5px] sm:text-[14.5px] whitespace-pre-wrap break-words leading-snug ${
-                            (msg.attachment === "post" || msg.sharedPost) ? "pt-1 font-medium" : ""
-                          }`}>
+                          <p className={`text-[13.5px] sm:text-[14.5px] whitespace-pre-wrap break-words leading-snug ${(msg.attachment === "post" || msg.sharedPost) ? "pt-1 font-medium" : ""
+                            }`}>
                             {msg.message}
                           </p>
                         )}
 
                         <div
-                          className={`text-[9.5px] text-right font-mono font-medium flex items-center justify-end gap-1 -mt-0.5 ${
-                            isOwn && !msg.message?.includes("MATCHDAY PASS APPROVED")
+                          className={`text-[9.5px] text-right font-mono font-medium flex items-center justify-end gap-1 -mt-0.5 ${isOwn && !msg.message?.includes("MATCHDAY PASS APPROVED")
                               ? "text-neutral-950/70"
                               : "text-neutral-400"
-                          }`}
+                            }`}
                         >
                           {msg.isEdited && (
                             <span className="italic text-[8.5px] opacity-80">(edited)</span>
@@ -3107,9 +3075,9 @@ export default function MessagesPage() {
                           <span>
                             {msg.createdAt
                               ? new Date(msg.createdAt).toLocaleTimeString([], {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
                               : "Just now"}
                           </span>
                           {isOwn && (
@@ -3290,11 +3258,10 @@ export default function MessagesPage() {
                 <button
                   type="button"
                   onClick={() => setIsEmojiPickerOpen(!isEmojiPickerOpen)}
-                  className={`size-10 sm:size-11 rounded-2xl border flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-sm ${
-                    isEmojiPickerOpen
+                  className={`size-10 sm:size-11 rounded-2xl border flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-sm ${isEmojiPickerOpen
                       ? "bg-emerald-500/25 border-emerald-500/50 text-emerald-300 ring-2 ring-emerald-500/30"
                       : "bg-black/50 border-white/15 text-neutral-300 hover:text-white hover:bg-white/10 hover:border-emerald-500/30"
-                  }`}
+                    }`}
                   title="View All Emojis"
                 >
                   <span className="text-base sm:text-lg">😊</span>
@@ -3308,24 +3275,22 @@ export default function MessagesPage() {
                     editingMessage
                       ? "Edit message..."
                       : activeChat.isGroupChat
-                      ? "Message squad..."
-                      : `Message @${activeOtherUser?.username || "player"}...`
+                        ? "Message squad..."
+                        : `Message @${activeOtherUser?.username || "player"}...`
                   }
-                  className={`flex-1 h-10 sm:h-11 px-3.5 rounded-2xl bg-black/60 border text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:outline-none font-medium transition-all ${
-                    editingMessage
+                  className={`flex-1 h-10 sm:h-11 px-3.5 rounded-2xl bg-black/60 border text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:outline-none font-medium transition-all ${editingMessage
                       ? "border-amber-500/50 focus:ring-1 focus:ring-amber-500 bg-amber-950/20"
                       : "border-white/10 focus:ring-1 focus:ring-emerald-500"
-                  }`}
+                    }`}
                 />
                 <Button
                   type="submit"
                   disabled={!messageInput.trim()}
                   variant="primary"
-                  className={`size-10 sm:size-11 rounded-2xl p-0 shrink-0 shadow-md cursor-pointer transition-all ${
-                    editingMessage
+                  className={`size-10 sm:size-11 rounded-2xl p-0 shrink-0 shadow-md cursor-pointer transition-all ${editingMessage
                       ? "bg-amber-500 hover:bg-amber-400 text-neutral-950 shadow-amber-500/20"
                       : ""
-                  }`}
+                    }`}
                   title={editingMessage ? "Save changes" : "Send message"}
                 >
                   {editingMessage ? (
@@ -3513,8 +3478,8 @@ export default function MessagesPage() {
               Array.isArray(selectedSharedPost.media) && selectedSharedPost.media.length > 0
                 ? selectedSharedPost.media
                 : selectedSharedPost.thumbnail
-                ? [{ url: selectedSharedPost.thumbnail, type: "image" }]
-                : [],
+                  ? [{ url: selectedSharedPost.thumbnail, type: "image" }]
+                  : [],
             thumbnail: selectedSharedPost.thumbnail,
             likesCount: selectedSharedPost.likesCount || 0,
             commentsCount: selectedSharedPost.commentsCount || 0,

@@ -94,14 +94,14 @@ function CommentThreadItem({
 
   const isPostOwner = Boolean(
     userData &&
-      ((post.owner?._id && userData?._id && post.owner._id.toString() === userData._id.toString()) ||
-        (post.owner?.username && userData?.username && post.owner.username === userData.username))
+    ((post.owner?._id && userData?._id && post.owner._id.toString() === userData._id.toString()) ||
+      (post.owner?.username && userData?.username && post.owner.username === userData.username))
   );
 
   const isCommentOwner = Boolean(
     userData &&
-      ((comment.owner?._id && userData?._id && comment.owner._id.toString() === userData._id.toString()) ||
-        (comment.owner?.username && userData?.username && comment.owner.username === userData.username))
+    ((comment.owner?._id && userData?._id && comment.owner._id.toString() === userData._id.toString()) ||
+      (comment.owner?.username && userData?.username && comment.owner.username === userData.username))
   );
 
   const canDelete = isCommentOwner || isPostOwner;
@@ -174,9 +174,8 @@ function CommentThreadItem({
         <button
           type="button"
           onClick={() => handleToggleCommentLike(comment._id)}
-          className={`pt-2 shrink-0 transition-transform active:scale-125 cursor-pointer ${
-            isLiked ? "text-rose-500" : "text-neutral-500 hover:text-rose-400"
-          }`}
+          className={`pt-2 shrink-0 transition-transform active:scale-125 cursor-pointer ${isLiked ? "text-rose-500" : "text-neutral-500 hover:text-rose-400"
+            }`}
           title={isLiked ? "Unlike" : "Like"}
         >
           <Heart className={`size-3.5 sm:size-4 ${isLiked ? "fill-rose-500" : ""}`} />
@@ -331,8 +330,8 @@ export default function PostDetailModal({
 
   const isOwner = Boolean(
     userData &&
-      ((post.owner?._id && userData?._id && post.owner._id.toString() === userData._id.toString()) ||
-        (post.owner?.username && userData?.username && post.owner.username === userData.username))
+    ((post.owner?._id && userData?._id && post.owner._id.toString() === userData._id.toString()) ||
+      (post.owner?.username && userData?.username && post.owner.username === userData.username))
   );
 
   const handleLike = async () => {
@@ -414,9 +413,9 @@ export default function PostDetailModal({
       parentComment: currentReplying?.commentId || null,
       replyToUser: currentReplying
         ? {
-            _id: currentReplying.userId,
-            username: currentReplying.username,
-          }
+          _id: currentReplying.userId,
+          username: currentReplying.username,
+        }
         : null,
       createdAt: new Date().toISOString(),
       likesCount: 0,
@@ -649,11 +648,10 @@ export default function PostDetailModal({
                 <button
                   type="button"
                   onClick={handleLike}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                    post.isLiked
-                      ? "bg-rose-500/15 border-rose-500/30 text-rose-400 shadow-sm shadow-rose-500/10"
-                      : "bg-white/[0.04] border-white/[0.06] text-neutral-300 hover:text-white"
-                  }`}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${post.isLiked
+                    ? "bg-rose-500/15 border-rose-500/30 text-rose-400 shadow-sm shadow-rose-500/10"
+                    : "bg-white/[0.04] border-white/[0.06] text-neutral-300 hover:text-white"
+                    }`}
                 >
                   <Heart className={`size-4 ${post.isLiked ? "fill-rose-400" : ""}`} />
                   <span>{(post.likesCount || 0).toLocaleString()}</span>

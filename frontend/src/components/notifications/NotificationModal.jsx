@@ -294,8 +294,8 @@ export default function NotificationModal({ isOpen, onClose }) {
                   avatarUrl: likerAvatar,
                   title: `❤️ @${likerDisplayName} liked your post`,
                   description: `${likerFullName} cheered your match update: "${post.caption
-                      ? post.caption.slice(0, 45) + "..."
-                      : "Match highlight"
+                    ? post.caption.slice(0, 45) + "..."
+                    : "Match highlight"
                     }"`,
                   time: formatExactTime(likeDate),
                   timestamp: likeDate ? new Date(likeDate).getTime() : Date.now(),
@@ -410,8 +410,8 @@ export default function NotificationModal({ isOpen, onClose }) {
                   avatarUrl: likerAvatar,
                   title: `❤️ @${likerDisplayName} liked your tweet`,
                   description: `${likerFullName} cheered your community post: "${tweet.content
-                      ? tweet.content.slice(0, 45) + "..."
-                      : "Community update"
+                    ? tweet.content.slice(0, 45) + "..."
+                    : "Community update"
                     }"`,
                   time: formatExactTime(likeDate),
                   timestamp: likeDate ? new Date(likeDate).getTime() : Date.now(),
@@ -641,11 +641,10 @@ export default function NotificationModal({ isOpen, onClose }) {
               <button
                 key={tab.id}
                 onClick={() => setActiveFilter(tab.id)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0 ${
-                  activeFilter === tab.id
-                    ? "bg-emerald-500 text-neutral-950 shadow-md font-extrabold"
-                    : "bg-white dark:bg-white/[0.04] text-neutral-700 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-200/80 dark:hover:bg-white/[0.08] border border-neutral-200 dark:border-white/5 shadow-xs"
-                }`}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0 ${activeFilter === tab.id
+                  ? "bg-emerald-500 text-neutral-950 shadow-md font-extrabold"
+                  : "bg-white dark:bg-white/[0.04] text-neutral-700 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-200/80 dark:hover:bg-white/[0.08] border border-neutral-200 dark:border-white/5 shadow-xs"
+                  }`}
               >
                 {tab.label} <span className="opacity-75 text-[10.5px]">({tab.count})</span>
               </button>
@@ -683,11 +682,10 @@ export default function NotificationModal({ isOpen, onClose }) {
                   key={item.id}
                   onClick={() => handleNotificationClick(item.link)}
                   style={{ contentVisibility: "auto", containIntrinsicSize: "95px" }}
-                  className={`p-4 sm:p-4.5 rounded-2xl transition-colors duration-100 cursor-pointer group flex items-start gap-4 ${
-                    !item.read
-                      ? "bg-white dark:bg-[#090f17] hover:bg-neutral-100 dark:hover:bg-[#0e1622] border border-emerald-500/40 shadow-xs"
-                      : "bg-white dark:bg-[#080d14]/80 hover:bg-neutral-100 dark:hover:bg-[#0e1622] border border-neutral-200 dark:border-white/[0.08] shadow-xs"
-                  }`}
+                  className={`p-4 sm:p-4.5 rounded-2xl transition-colors duration-100 cursor-pointer group flex items-start gap-4 ${!item.read
+                    ? "bg-white dark:bg-[#090f17] hover:bg-neutral-100 dark:hover:bg-[#0e1622] border border-emerald-500/40 shadow-xs"
+                    : "bg-white dark:bg-[#080d14]/80 hover:bg-neutral-100 dark:hover:bg-[#0e1622] border border-neutral-200 dark:border-white/[0.08] shadow-xs"
+                    }`}
                 >
                   {/* Left Avatar / Icon */}
                   {item.avatarUrl ? (
@@ -711,15 +709,14 @@ export default function NotificationModal({ isOpen, onClose }) {
                       />
                       <span className="absolute -bottom-1 -right-1 size-5 rounded-full bg-white dark:bg-[#0c121a] border border-neutral-200 dark:border-white/20 flex items-center justify-center shadow-sm">
                         <Icon
-                          className={`size-3 ${
-                            item.type === "likes"
-                              ? "text-rose-500"
-                              : item.type === "follows"
+                          className={`size-3 ${item.type === "likes"
+                            ? "text-rose-500"
+                            : item.type === "follows"
                               ? "text-cyan-600 dark:text-cyan-400"
                               : item.type === "bookings"
-                              ? "text-amber-600 dark:text-amber-400"
-                              : "text-emerald-600 dark:text-emerald-400"
-                          }`}
+                                ? "text-amber-600 dark:text-amber-400"
+                                : "text-emerald-600 dark:text-emerald-400"
+                            }`}
                         />
                       </span>
                     </div>

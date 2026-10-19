@@ -153,12 +153,11 @@ const userSchema = mongoose.Schema(
     {timestamps: true}
 )
 
-userSchema.pre("save", async function(next){   //Just before saving the user to the database, this function will run
-    if(this.isModified("password")){     //Check if the password field is modified, if yes then only hash the password, otherwise skip hashing
-        this.password = await bcrypt.hash(this.password, 10)
+userSchema.pre("save", async function () {
+    if (this.isModified("password")) {
+        this.password = await bcrypt.hash(this.password, 10);
     }
-    next
-})
+});
 
 userSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password, this.password)

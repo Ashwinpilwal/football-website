@@ -161,12 +161,13 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
 
     // Getting login details
-
     const { email, username, password } = req.body;
 
-    // Checking username/email
+    const cleanUsername = username?.trim();
+    const cleanEmail = email?.trim();
 
-    if (!email && !username) {
+    // Checking username/email
+    if (!cleanEmail && !cleanUsername) {
         throw new ApiError(400, "Username or email is required!");
     }
 
@@ -174,13 +175,11 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Password is required!");
     }
 
-
     // Find user
-
     const user = await User.findOne({
         $or: [
-            ...(username ? [{ username: username.toLowerCase() }] : []),
-            ...(email ? [{ email: email.toLowerCase() }] : [])
+            ...(cleanUsername ? [{ username: cleanUsername.toLowerCase() }] : []),
+            ...(cleanEmail ? [{ email: cleanEmail.toLowerCase() }] : [])
         ]
     });
 
@@ -980,16 +979,23 @@ const updateUserLocation = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Latitude and Longitude are required!");
     }
 
+    const updateFields = {
+        "location.lat": Number(lat),
+        "location.lon": Number(lon),
+        "location.updatedAt": new Date()
+    };
+
+    if (city !== undefined && city !== null) {
+        updateFields["location.city"] = city;
+    }
+    if (address !== undefined && address !== null) {
+        updateFields["location.address"] = address;
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                "location.lat": Number(lat),
-                "location.lon": Number(lon),
-                "location.city": city || "",
-                "location.address": address || "",
-                "location.updatedAt": new Date()
-            }
+            $set: updateFields
         },
         { new: true }
     ).select("-password -refreshToken");

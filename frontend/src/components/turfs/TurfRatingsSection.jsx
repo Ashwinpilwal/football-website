@@ -161,11 +161,10 @@ export default function TurfRatingsSection({ turfId, turfName }) {
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
-                className={`size-5 ${
-                  star <= Math.round(averageRating)
-                    ? "fill-amber-400 text-amber-400"
-                    : "text-neutral-700"
-                }`}
+                className={`size-5 ${star <= Math.round(averageRating)
+                  ? "fill-amber-400 text-amber-400"
+                  : "text-neutral-700"
+                  }`}
               />
             ))}
           </div>
@@ -286,11 +285,10 @@ export default function TurfRatingsSection({ turfId, turfName }) {
                       className="p-1 rounded-lg hover:scale-115 transition-all cursor-pointer focus:outline-none"
                     >
                       <Star
-                        className={`size-7 transition-colors ${
-                          star <= activeStarHover
-                            ? "fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]"
-                            : "text-neutral-700 hover:text-neutral-500"
-                        }`}
+                        className={`size-7 transition-colors ${star <= activeStarHover
+                          ? "fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]"
+                          : "text-neutral-700 hover:text-neutral-500"
+                          }`}
                       />
                     </button>
                   ))}

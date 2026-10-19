@@ -114,9 +114,8 @@ export default function SharePostModal({ post, isOpen, onClose }) {
 
   const postAuthor = post?.owner?.fullName || post?.owner?.username || "Player";
   const postCaption = post?.caption || post?.content || "Match Highlight";
-  const postUrl = `${window.location.origin}/channel/${
-    post?.owner?.username || userData?.username || "player"
-  }`;
+  const postUrl = `${window.location.origin}/channel/${post?.owner?.username || userData?.username || "player"
+    }`;
 
   // Memoized Targets Cache for Instant Search & Zero-Lag Scrolling
   const shareTargets = useMemo(() => {
@@ -240,8 +239,8 @@ export default function SharePostModal({ post, isOpen, onClose }) {
         media: Array.isArray(post.media) && post.media.length > 0
           ? post.media
           : post.photo?.url
-          ? [{ url: post.photo.url, type: "image" }]
-          : [],
+            ? [{ url: post.photo.url, type: "image" }]
+            : [],
         itemType: post.itemType || (post.media ? "post" : "tweet"),
         likesCount: post.likesCount || 0,
         commentsCount: post.commentsCount || post.comments?.length || 0,
@@ -251,8 +250,8 @@ export default function SharePostModal({ post, isOpen, onClose }) {
       const shareMessage = customCaption.trim()
         ? customCaption.trim()
         : postCaption
-        ? `Shared a match post: "${postCaption.slice(0, 80)}${postCaption.length > 80 ? "..." : ""}"`
-        : `Shared a post by @${post.owner?.username || "player"}`;
+          ? `Shared a match post: "${postCaption.slice(0, 80)}${postCaption.length > 80 ? "..." : ""}"`
+          : `Shared a post by @${post.owner?.username || "player"}`;
 
       if (!socket.connected) {
         socket.connect();
@@ -360,11 +359,10 @@ export default function SharePostModal({ post, isOpen, onClose }) {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                activeTab === tab.id
-                  ? "bg-emerald-500 text-neutral-950 shadow-sm"
-                  : "text-neutral-400 hover:text-white"
-              }`}
+              className={`py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${activeTab === tab.id
+                ? "bg-emerald-500 text-neutral-950 shadow-sm"
+                : "text-neutral-400 hover:text-white"
+                }`}
             >
               {tab.label}
             </button>
@@ -388,11 +386,10 @@ export default function SharePostModal({ post, isOpen, onClose }) {
               return (
                 <div
                   key={target.id}
-                  className={`p-3 rounded-2xl border transition-all ${
-                    isSelected
-                      ? "bg-emerald-950/20 border-emerald-500/40 shadow-lg"
-                      : "bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.05]"
-                  }`}
+                  className={`p-3 rounded-2xl border transition-all ${isSelected
+                    ? "bg-emerald-950/20 border-emerald-500/40 shadow-lg"
+                    : "bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.05]"
+                    }`}
                 >
                   <div
                     onClick={() => {
@@ -504,19 +501,19 @@ export default function SharePostModal({ post, isOpen, onClose }) {
                 {activeTab === "following"
                   ? "No followed players found."
                   : activeTab === "squads"
-                  ? "No squads found."
-                  : activeTab === "recent"
-                  ? "No recent chats found."
-                  : "No chats or squads found."}
+                    ? "No squads found."
+                    : activeTab === "recent"
+                      ? "No recent chats found."
+                      : "No chats or squads found."}
               </p>
               <p className="text-[11px] text-neutral-500">
                 {searchQuery
                   ? "Try a different search keyword."
                   : activeTab === "following"
-                  ? "Follow footballers across the community to share posts with them here."
-                  : activeTab === "squads"
-                  ? "Create or join a squad in Messaging to share directly."
-                  : "Start conversations in the Messaging tab to share posts directly."}
+                    ? "Follow footballers across the community to share posts with them here."
+                    : activeTab === "squads"
+                      ? "Create or join a squad in Messaging to share directly."
+                      : "Start conversations in the Messaging tab to share posts directly."}
               </p>
             </div>
           )}

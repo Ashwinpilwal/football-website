@@ -69,6 +69,17 @@ app.use("/api/v1/sections", sectionRouter)
 app.use("/api/v1/posts", postRouter)
 app.use("/api/v1/ai", footballAiRouter)
 
-
+// Global error handling middleware
+app.use((err, req, res, next) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || "Something went wrong!";
+    return res.status(statusCode).json({
+        statusCode,
+        data: null,
+        message,
+        success: false,
+        errors: err.errors || []
+    });
+});
 
 export {app}

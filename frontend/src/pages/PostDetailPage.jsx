@@ -715,8 +715,8 @@ export default function PostDetailPage() {
                 type="button"
                 onClick={handleLike}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${post.isLiked
-                    ? "bg-rose-500/15 border-rose-500/30 text-rose-400 shadow-sm shadow-rose-500/10"
-                    : "bg-white/[0.04] border-white/[0.06] text-neutral-300 hover:text-white"
+                  ? "bg-rose-500/15 border-rose-500/30 text-rose-400 shadow-sm shadow-rose-500/10"
+                  : "bg-white/[0.04] border-white/[0.06] text-neutral-300 hover:text-white"
                   }`}
               >
                 <Heart className={`size-4 ${post.isLiked ? "fill-rose-400" : ""}`} />

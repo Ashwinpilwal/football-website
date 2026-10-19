@@ -275,19 +275,17 @@ export default function FollowersModal({
             <button
               type="button"
               onClick={() => setActiveTab("followers")}
-              className={`py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-2 ${
-                activeTab === "followers"
-                  ? "bg-emerald-500 text-neutral-950 shadow-sm"
-                  : "text-neutral-400 hover:text-white"
-              }`}
+              className={`py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-2 ${activeTab === "followers"
+                ? "bg-emerald-500 text-neutral-950 shadow-sm"
+                : "text-neutral-400 hover:text-white"
+                }`}
             >
               <span>Followers</span>
               <span
-                className={`text-[10.5px] px-2 py-0.5 rounded-full font-mono font-black ${
-                  activeTab === "followers"
-                    ? "bg-neutral-950/20 text-neutral-950"
-                    : "bg-white/10 text-neutral-300"
-                }`}
+                className={`text-[10.5px] px-2 py-0.5 rounded-full font-mono font-black ${activeTab === "followers"
+                  ? "bg-neutral-950/20 text-neutral-950"
+                  : "bg-white/10 text-neutral-300"
+                  }`}
               >
                 {followers.length}
               </span>
@@ -296,19 +294,17 @@ export default function FollowersModal({
             <button
               type="button"
               onClick={() => setActiveTab("following")}
-              className={`py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-2 ${
-                activeTab === "following"
-                  ? "bg-emerald-500 text-neutral-950 shadow-sm"
-                  : "text-neutral-400 hover:text-white"
-              }`}
+              className={`py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-2 ${activeTab === "following"
+                ? "bg-emerald-500 text-neutral-950 shadow-sm"
+                : "text-neutral-400 hover:text-white"
+                }`}
             >
               <span>Following</span>
               <span
-                className={`text-[10.5px] px-2 py-0.5 rounded-full font-mono font-black ${
-                  activeTab === "following"
-                    ? "bg-neutral-950/20 text-neutral-950"
-                    : "bg-white/10 text-neutral-300"
-                }`}
+                className={`text-[10.5px] px-2 py-0.5 rounded-full font-mono font-black ${activeTab === "following"
+                  ? "bg-neutral-950/20 text-neutral-950"
+                  : "bg-white/10 text-neutral-300"
+                  }`}
               >
                 {following.length}
               </span>
@@ -381,11 +377,10 @@ export default function FollowersModal({
                         variant={isFollowing ? "outline" : "primary"}
                         onClick={() => handleToggleFollow(user)}
                         disabled={isToggling}
-                        className={`rounded-xl text-xs font-bold px-3.5 h-8.5 shrink-0 transition-transform active:scale-95 cursor-pointer ${
-                          isFollowing
-                            ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30"
-                            : "shadow-md shadow-emerald-500/20"
-                        }`}
+                        className={`rounded-xl text-xs font-bold px-3.5 h-8.5 shrink-0 transition-transform active:scale-95 cursor-pointer ${isFollowing
+                          ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30"
+                          : "shadow-md shadow-emerald-500/20"
+                          }`}
                       >
                         {isToggling ? (
                           <span className="size-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -433,15 +428,15 @@ export default function FollowersModal({
                 {searchQuery
                   ? "No users matching your search."
                   : activeTab === "followers"
-                  ? `@${username} has no followers yet.`
-                  : `@${username} is not following anyone yet.`}
+                    ? `@${username} has no followers yet.`
+                    : `@${username} is not following anyone yet.`}
               </p>
               <p className="text-[11px] text-neutral-500">
                 {searchQuery
                   ? "Try searching with a different name or username."
                   : activeTab === "followers"
-                  ? "Be the first to follow and connect!"
-                  : "Followed footballers will appear here."}
+                    ? "Be the first to follow and connect!"
+                    : "Followed footballers will appear here."}
               </p>
             </div>
           )}

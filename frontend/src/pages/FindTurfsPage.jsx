@@ -59,10 +59,12 @@ export default function FindTurfsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingTurf, setEditingTurf] = useState(null);
 
-  // Live GPS User Location
+  // Live GPS User Location with DB fallback
   const [userCoords, setUserCoords] = useState(
     locationState?.latitude && locationState?.longitude
       ? [locationState.latitude, locationState.longitude]
+      : userData?.location?.lat && userData?.location?.lon
+      ? [userData.location.lat, userData.location.lon]
       : [31.2536, 75.7032]
   );
 
@@ -108,7 +110,7 @@ export default function FindTurfsPage() {
     }
   };
 
-  // Sync with device GPS on mount
+  // Sync with device GPS or location state on mount & update
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -122,11 +124,18 @@ export default function FindTurfsPage() {
         () => {
           if (locationState?.latitude && locationState?.longitude) {
             setUserCoords([locationState.latitude, locationState.longitude]);
+          } else if (userData?.location?.lat && userData?.location?.lon) {
+            setUserCoords([userData.location.lat, userData.location.lon]);
           }
-        }
+        },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
       );
+    } else if (locationState?.latitude && locationState?.longitude) {
+      setUserCoords([locationState.latitude, locationState.longitude]);
+    } else if (userData?.location?.lat && userData?.location?.lon) {
+      setUserCoords([userData.location.lat, userData.location.lon]);
     }
-  }, [locationState]);
+  }, [locationState?.latitude, locationState?.longitude, userData?.location?.lat, userData?.location?.lon]);
 
   useEffect(() => {
     loadTurfs();
@@ -287,8 +296,8 @@ export default function FindTurfsPage() {
                     key={turf._id}
                     onClick={() => setSelectedTurf(turf)}
                     className={`rounded-3xl transition-all cursor-pointer border overflow-hidden flex flex-col group ${isSelected
-                        ? "bg-[#0e1520] border-emerald-500/50 shadow-xl ring-1 ring-emerald-500/20"
-                        : "bg-[#0a0f16] border-white/10 hover:border-white/20"
+                      ? "bg-[#0e1520] border-emerald-500/50 shadow-xl ring-1 ring-emerald-500/20"
+                      : "bg-[#0a0f16] border-white/10 hover:border-white/20"
                       }`}
                   >
                     {/* Full-width panoramic cover image covering phone and card width */}

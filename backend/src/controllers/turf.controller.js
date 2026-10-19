@@ -102,13 +102,17 @@ const getAllTurfs = asyncHandler(async (req, res) => {
 
     const { lat, lng, maxDistanceKm } = req.query;
 
+    // Use query coordinates or fallback to authenticated user's saved DB location (e.g. during location off)
+    const effectiveLat = (lat !== undefined && lat !== "") ? lat : req.user?.location?.lat;
+    const effectiveLng = (lng !== undefined && lng !== "") ? lng : req.user?.location?.lon;
+
     let turfs;
 
     // If coordinates are provided, use geospatial $near query (sorted closest first)
-    if (lat !== undefined && lng !== undefined) {
+    if (effectiveLat !== undefined && effectiveLat !== null && effectiveLng !== undefined && effectiveLng !== null) {
 
-        const latitude = parseFloat(lat);
-        const longitude = parseFloat(lng);
+        const latitude = parseFloat(effectiveLat);
+        const longitude = parseFloat(effectiveLng);
 
         if (isNaN(latitude) || isNaN(longitude)) {
             throw new ApiError(400, "lat and lng must be valid numbers!");

@@ -6,6 +6,8 @@ import {
   User,
   Activity,
   AlertCircle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,6 +18,7 @@ import { sliceLogin } from "@/features/authSlice";
 import { authService } from "@/services/auth.service";
 import { socket } from "@/utils/socket";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -26,6 +29,7 @@ export default function LoginPage() {
     password: "",
     rememberMe: true,
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -33,17 +37,18 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
-    if (!formData.emailOrUsername || !formData.password) {
+    const cleanInput = formData.emailOrUsername.trim();
+    if (!cleanInput || !formData.password) {
       setError("Please fill in all required fields.");
       return;
     }
 
     setLoading(true);
     try {
-      const isEmail = formData.emailOrUsername.includes("@");
+      const isEmail = cleanInput.includes("@");
       const payload = {
         password: formData.password,
-        ...(isEmail ? { email: formData.emailOrUsername } : { username: formData.emailOrUsername }),
+        ...(isEmail ? { email: cleanInput.toLowerCase() } : { username: cleanInput.toLowerCase() }),
       };
 
       const res = await authService.login(payload);
@@ -54,7 +59,7 @@ export default function LoginPage() {
         navigate("/");
       }
     } catch (err) {
-      setError(err?.response?.data?.message || "Invalid credentials. Please try again.");
+      setError(err?.response?.data?.message || err?.message || "Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -114,13 +119,21 @@ export default function LoginPage() {
               <Lock className="size-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="pl-10"
+                className="pl-10 pr-10"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors"
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </button>
             </div>
           </div>
 

@@ -158,10 +158,9 @@ export default function BottomNav() {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex flex-col items-center justify-center min-w-[50px] py-1 px-1 rounded-2xl relative transition-all duration-200 ${
-                  isActive
-                    ? "text-emerald-500 dark:text-emerald-400 font-bold"
-                    : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                `flex flex-col items-center justify-center min-w-[50px] py-1 px-1 rounded-2xl relative transition-all duration-200 ${isActive
+                  ? "text-emerald-500 dark:text-emerald-400 font-bold"
+                  : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                 }`
               }
             >
@@ -173,17 +172,15 @@ export default function BottomNav() {
                       <img
                         src={getAvatarUrl(userData)}
                         alt={userData.fullName || "Avatar"}
-                        className={`size-6 rounded-lg object-cover ring-1 transition-all ${
-                          isActive
-                            ? "ring-emerald-400 scale-110 shadow-sm shadow-emerald-500/40"
-                            : "ring-white/20"
-                        }`}
+                        className={`size-6 rounded-lg object-cover ring-1 transition-all ${isActive
+                          ? "ring-emerald-400 scale-110 shadow-sm shadow-emerald-500/40"
+                          : "ring-white/20"
+                          }`}
                       />
                     ) : (
                       <Icon
-                        className={`size-5 transition-transform duration-200 ${
-                          isActive ? "scale-110 stroke-[2.5]" : "stroke-[1.8]"
-                        }`}
+                        className={`size-5 transition-transform duration-200 ${isActive ? "scale-110 stroke-[2.5]" : "stroke-[1.8]"
+                          }`}
                       />
                     )}
 

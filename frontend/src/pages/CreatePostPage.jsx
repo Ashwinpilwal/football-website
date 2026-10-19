@@ -229,15 +229,13 @@ export default function CreatePostPage() {
                       onDragLeave={() => handleDragLeave(idx)}
                       onDrop={(e) => handleDrop(e, idx)}
                       onDragEnd={handleDragEnd}
-                      className={`relative size-28 rounded-2xl overflow-hidden bg-neutral-950 border transition-all select-none cursor-grab active:cursor-grabbing group shadow-md ${
-                        isCover
-                          ? "ring-2 ring-emerald-500 border-emerald-400 shadow-emerald-500/20"
-                          : "border-white/10 hover:border-white/30"
-                      } ${isDragging ? "opacity-40 scale-95 border-dashed border-emerald-400" : ""} ${
-                        isDragOver && !isDragging
+                      className={`relative size-28 rounded-2xl overflow-hidden bg-neutral-950 border transition-all select-none cursor-grab active:cursor-grabbing group shadow-md ${isCover
+                        ? "ring-2 ring-emerald-500 border-emerald-400 shadow-emerald-500/20"
+                        : "border-white/10 hover:border-white/30"
+                        } ${isDragging ? "opacity-40 scale-95 border-dashed border-emerald-400" : ""} ${isDragOver && !isDragging
                           ? "border-emerald-400 scale-105 ring-2 ring-emerald-400/50 bg-emerald-500/10"
                           : ""
-                      }`}
+                        }`}
                     >
                       <img src={src} alt={`preview-${idx}`} className="w-full h-full object-cover pointer-events-none" />
 

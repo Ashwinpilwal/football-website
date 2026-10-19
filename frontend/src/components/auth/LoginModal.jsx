@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   X,
   Lock,
@@ -24,6 +24,7 @@ export default function LoginModal({ isOpen, onClose, title = "Sign In to Intera
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
@@ -46,10 +47,15 @@ export default function LoginModal({ isOpen, onClose, title = "Sign In to Intera
       const res = await authService.login(payload);
       if (res?.data?.user) {
         dispatch(sliceLogin(res.data.user));
+
         socket.connect();
+
+
         toast.success("Welcome to FootballHub!");
         onClose();
       }
+
+
     } catch (err) {
       setError(err?.response?.data?.message || "Invalid credentials. Please try again.");
     } finally {

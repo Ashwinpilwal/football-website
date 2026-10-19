@@ -613,8 +613,8 @@ export default function Navbar({ onOpenMobile }) {
             type="button"
             onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
             className={`md:hidden size-9 sm:size-10 rounded-xl sm:rounded-2xl border flex items-center justify-center transition-colors cursor-pointer shadow-xs ${mobileSearchOpen
-                ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-500"
-                : "bg-white/90 dark:bg-[#16212e] border-neutral-300 dark:border-white/20 text-neutral-700 dark:text-neutral-200"
+              ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-500"
+              : "bg-white/90 dark:bg-[#16212e] border-neutral-300 dark:border-white/20 text-neutral-700 dark:text-neutral-200"
               }`}
             title="Search Players"
             aria-label="Toggle Player Search"
